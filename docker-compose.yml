@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL="postgres://harmonic:harmonic@localhost:5432/local"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    restart: always
+    ports:
+      - 5432:5432
+    environment: 
+      POSTGRES_USER: harmonic
+      POSTGRES_PASSWORD: harmonic
+      POSTGRES_DB: local
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:
+

@@ -1,0 +1,1 @@
+ALTER TABLE "profile_pictures" ALTER COLUMN "user_id" SET DATA TYPE uuid;
