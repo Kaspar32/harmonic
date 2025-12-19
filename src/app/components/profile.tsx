@@ -75,7 +75,7 @@ export default function Profile() {
   useEffect(() => {
     usersContain();
     fetchPics();
-  }, [usersContain]);
+  }, []);
 
   //---- randomizer ----
   const getRandomUserIndex = (length: number) => {
