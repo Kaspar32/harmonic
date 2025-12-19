@@ -97,23 +97,17 @@ export default function Chatter() {
 
   //Beim Rendern der Page ausführen
   useEffect(() => {
-
-    
-    
     const socket = io("http://localhost:4001", {
-  transports: ["websocket"]
-});
-    
-    
-    socket.on("connect", () => {
-    console.log("Verbunden mit Socket-Server:", socket.id);
+      transports: ["websocket"],
     });
 
- 
-  
+    socket.on("connect", () => {
+      console.log("Verbunden mit Socket-Server:", socket.id);
+    });
+
     socketRef.current = socket;
 
-    console.log("Socket"+socket);
+    console.log("Socket" + socket);
     socket.on("chat message", (msg: Message) => {
       if (!msg.content || !msg.fromUser || !msg.toUser) {
         console.warn("Ungültige Nachricht empfangen:", msg);
@@ -142,7 +136,7 @@ export default function Chatter() {
     joinUser();
   }, [currentUser]);
 
-    const fetchMessages = async () => {
+  const fetchMessages = async () => {
     if (!socketRef.current || !currentUser || !chatPartner) return;
     // Nachrichten für den aktuellen User und Chat-Partner abrufen
 
@@ -158,7 +152,7 @@ export default function Chatter() {
     //alert("fetch Messages");
     setMessages(data);
   };
-  
+
   // fetch Messages beim ändern von CurrentUser und chatPartner
   useEffect(() => {
     if (currentUser && chatPartner) {
@@ -169,7 +163,6 @@ export default function Chatter() {
   // Senden der Message
   const sendMessage = () => {
 
-    alert("test"+input);
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
 
@@ -280,7 +273,7 @@ export default function Chatter() {
   const [reason, setReason] = useState<string>("unangemessenes_verhalten");
 
   async function handleReport() {
-   // alert("Benutzer wurde gemeldet" + users[selectedIndex].name);
+    // alert("Benutzer wurde gemeldet" + users[selectedIndex].name);
 
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -369,11 +362,8 @@ export default function Chatter() {
 
       {openChat && (
         <div className="fixed inset-0 flex items-center justify-center z-[70] w-screen h-screen bg-white">
-            <div className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
-
-              <div className="w-screen h-full p-4 md:p-10">
-
-              
+          <div className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
+            <div className="w-screen h-full p-4 md:p-10">
               {messages
                 .filter(
                   (msg) =>
@@ -384,12 +374,12 @@ export default function Chatter() {
                 .map((msg) => {
                   const isCurrentUser = msg.fromUser === currentUser;
                   return (
-
-
                     <div
                       key={msg.tempId}
                       className={`flex mb-2 ${
-                        isCurrentUser ? "flex justify-end" : "flex justify-start"
+                        isCurrentUser
+                          ? "flex justify-end"
+                          : "flex justify-start"
                       }`}
                     >
                       <div
@@ -411,93 +401,90 @@ export default function Chatter() {
                           })}
                         </span>
                       </div>
-
-
                     </div>
                   );
                 })}
-            </div></div>
-
-            {/* Eingabefeld */}
-            <div className="fixed bottom-24 left-5 right-5 flex items-center gap-2">
-              <input
-                value={input}
-                onChange={handleChange}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
-                className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none"
-              />
-
-              <button
-                className="absolute right-[-5px] bg-yellow-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
-                onClick={sendMessage}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="size-6 text-black"
-                >
-                  <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-                </svg>
-              </button>
             </div>
+          </div>
+
+          {/* Eingabefeld */}
+          <div className="fixed bottom-24 left-5 right-5 flex items-center gap-2">
+            <input
+              value={input}
+              onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none"
+            />
 
             <button
-              className="fixed top-15 right-4 sm:top-23 sm:right-4 mt-6 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-200 transition-colors duration-300"
-              onClick={() => {
-                setopenChat(false);
-              }}
+              className="absolute right-[-5px] bg-yellow-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
+              onClick={sendMessage}
             >
-              X
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-6 text-black"
+              >
+                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
+              </svg>
             </button>
-         
+          </div>
+
+          <button
+            className="fixed top-15 right-4 sm:top-23 sm:right-4 mt-6 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-200 transition-colors duration-300"
+            onClick={() => {
+              setopenChat(false);
+            }}
+          >
+            X
+          </button>
         </div>
       )}
 
       {unlike && (
         <Popup onClose={() => setUnlike(false)}>
           <div className="flex gap-2 mt-8">
+            <button
+              onClick={() => {
+                handleunmatch();
+                setUnlike(false);
+              }}
+              className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded-2xl hover:bg-yellow-500 w-full"
+            >
+              Unmatchen
+            </button>
 
-          <button
-            onClick={() => {
-              handleunmatch();
-              setUnlike(false);
-            }}
-            className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded-2xl hover:bg-yellow-500 w-full"
-          >
-            Unmatchen
-          </button>
+            <button
+              onClick={() => {
+                handleblock();
+                setUnlike(false);
+              }}
+              className=" px-4 py-2 bg-red-100 text-red-500 font-semibold rounded-2xl hover:bg-red-200 w-full"
+            >
+              Blockieren
+            </button>
 
-          <button
-            onClick={() => {
-              handleblock();
-              setUnlike(false);
-            }}
-            className=" px-4 py-2 bg-red-100 text-red-500 font-semibold rounded-2xl hover:bg-red-200 w-full"
-          >
-            Blockieren
-          </button>
-
-          <button
-            onClick={() => {
-              setUnlike(false);
-              setReport(true);
-            }}
-            className=" px-4 py-2 bg-red-500 text-white font-semibold rounded-2xl hover:bg-red-600 w-full"
-          >
-            Melden
-          </button></div>
+            <button
+              onClick={() => {
+                setUnlike(false);
+                setReport(true);
+              }}
+              className=" px-4 py-2 bg-red-500 text-white font-semibold rounded-2xl hover:bg-red-600 w-full"
+            >
+              Melden
+            </button>
+          </div>
         </Popup>
       )}
 
       {report && (
         <Popup onClose={() => setReport(false)}>
-
           <p className="text-yellow-500 text-lg mt-8">
             Bitte wählen Sie einen Grund für die Meldung aus:
           </p>

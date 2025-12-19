@@ -24,10 +24,12 @@ io.on("connection", (socket) => {
 
   socket.on("join", (username: string) => {
     socket.join(username);
+    console.log("User ist im Raum getreten:", username);
   });
 
   socket.on("chat message", async (msg: ChatMessage) => {
-    console.log("Nachricht erhalten:", msg);
+    //console.log("Nachricht erhalten:", msg);
+
     
         try {
           const [savedMsg] = await db
