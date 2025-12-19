@@ -39,7 +39,7 @@ export default function Header() {
         </Link>
 
         <label className="text-md md:text-3xl md:pt-4 text-blue-400 text-shadow-sm">
-          {user && <p>WillkommenX {user.name}</p>}
+          {user && <p>Willkommen {user.name}</p>}
         </label>
       </div>
 
