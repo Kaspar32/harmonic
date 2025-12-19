@@ -1,7 +1,7 @@
 import { db } from "@/db";
 import { messages } from "@/db/schema";
 import { Server as IOServer, Socket } from "socket.io";
-import type { NextApiResponse } from "next";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 interface ChatMessage {
   content: string;
@@ -9,7 +9,7 @@ interface ChatMessage {
   toUser: string;
 }
 
-export default function handler(res: NextApiResponse) {
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (!res.socket?.server) { //überprüfung ob socke existiert
     res.status(500).end("Socket server not available");

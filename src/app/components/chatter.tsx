@@ -11,7 +11,7 @@ export default function Chatter() {
   const [unlike, setUnlike] = useState(false);
 
   type Message = {
-    id: number;
+    tempId: number;
     fromUser: string;
     toUser: string;
     content: string;
@@ -97,16 +97,30 @@ export default function Chatter() {
 
   //Beim Rendern der Page ausführen
   useEffect(() => {
-    const socket = io({ path: "/api/socket" });
+
+    
+    
+    const socket = io("http://localhost:4001", {
+  transports: ["websocket"]
+});
+    
+    
+    socket.on("connect", () => {
+    console.log("Verbunden mit Socket-Server:", socket.id);
+    });
+
+ 
+  
     socketRef.current = socket;
 
+    console.log("Socket"+socket);
     socket.on("chat message", (msg: Message) => {
       if (!msg.content || !msg.fromUser || !msg.toUser) {
         console.warn("Ungültige Nachricht empfangen:", msg);
         return;
       }
       setMessages((prev) => {
-        const exists = prev.some((m) => m.id === msg.id);
+        const exists = prev.some((m) => m.tempId === msg.tempId);
         if (exists) return prev;
         return [...prev, msg];
       });
@@ -154,14 +168,16 @@ export default function Chatter() {
 
   // Senden der Message
   const sendMessage = () => {
+
+    alert("test"+input);
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
 
     const message: Message = {
-      id: Date.now(),
+      tempId: Date.now(),
+      content: input,
       fromUser: currentUser,
       toUser: chatPartner,
-      content: input,
       createdAt: new Date().toISOString(),
     };
 
@@ -371,7 +387,7 @@ export default function Chatter() {
 
 
                     <div
-                      key={msg.id}
+                      key={msg.tempId}
                       className={`flex mb-2 ${
                         isCurrentUser ? "flex justify-end" : "flex justify-start"
                       }`}
