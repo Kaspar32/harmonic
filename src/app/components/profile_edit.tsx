@@ -611,7 +611,7 @@ export default function Profil_Edit() {
 
             {!userData.alter && (
               <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
-                Du musst dein Alter angegeben um angeziegt zu werden
+                Du musst dein Alter angegeben, um angezeigt zu werden!
               </div>
             )}
             {showAlter && (
@@ -657,7 +657,7 @@ export default function Profil_Edit() {
 
             {!userData.geschlecht && (
               <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
-                Du musst dein Geschlecht angegeben um angeziegt zu werden
+                Du musst dein Geschlecht angegeben, um angezeigt zu werden!
               </div>
             )}
 

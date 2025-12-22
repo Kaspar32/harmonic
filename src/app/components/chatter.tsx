@@ -5,9 +5,13 @@ import { UserType } from "../types/User";
 import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
 import { getImageSrc } from "@/lib/getImageSrc";
+import { JSX } from "react/jsx-runtime";
+import ImageStack from "./shuffler";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
+  const [openProfile, setOpenProfile] = useState(false);
+  const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
   const [unlike, setUnlike] = useState(false);
 
   type Message = {
@@ -32,6 +36,18 @@ export default function Chatter() {
       user_id?: string;
       position?: number;
     }[]
+  >([]);
+
+  const [Allimages, setAllImages] = useState<
+    (
+      | {
+          id: string;
+          imageBase64?: string;
+          user_id?: string;
+          position?: number;
+        }[]
+      | null
+    )[]
   >([]);
 
   const [users, setUsers] = useState<UserType[]>([]);
@@ -61,7 +77,25 @@ export default function Chatter() {
       })
     );
 
-    // alert(allFirstImages[0].imageBase64);
+    const allImages = await Promise.all(
+      data1.map(async (like: { to: string }) => {
+        try {
+          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
+          const pics = await res2.json();
+          return pics; // nur das erste Bild zurückgeben
+        } catch (err) {
+          console.error(
+            `Fehler beim Laden von Bildern für ID ${like.to}:`,
+            err
+          );
+          return null;
+        }
+      })
+    );
+
+    setAllImages(allImages);
+
+    alert(allFirstImages[0].imageBase64);
 
     const validImages = allFirstImages.map((img) =>
       Boolean(img) ? img : null
@@ -107,12 +141,12 @@ export default function Chatter() {
 
     socketRef.current = socket;
 
-    console.log("Socket" + socket);
     socket.on("chat message", (msg: Message) => {
       if (!msg.content || !msg.fromUser || !msg.toUser) {
         console.warn("Ungültige Nachricht empfangen:", msg);
-        return;
       }
+
+      console.log("Nachricht empfangen im Client:", msg);
       setMessages((prev) => {
         const exists = prev.some((m) => m.tempId === msg.tempId);
         if (exists) return prev;
@@ -162,6 +196,7 @@ export default function Chatter() {
 
   // Senden der Message
   const sendMessage = () => {
+    //alert("test");
 
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
@@ -176,7 +211,7 @@ export default function Chatter() {
 
     socketRef.current.emit("chat message", message);
 
-    //setMessages((prev) => [...prev, message]);
+    setMessages((prev) => [...prev, message]);
     setInput("");
   };
 
@@ -312,15 +347,20 @@ export default function Chatter() {
     });
   }
 
+  function handlePPClick(index: number) {
+    alert("Profil von " + users[index]?.name);
+    //window.location.href = `/home`;
+    setopenChat(false);
+    setSelectedProfileIndex(index);
+    setOpenProfile(true);
+  }
+
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
         {images.map((item, index) => (
           <div key={index}>
-            <div
-              onClick={() => handleClick(index)}
-              className="relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black "
-            >
+            <div className="relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black ">
               <Image
                 src={
                   item?.imageBase64
@@ -331,10 +371,14 @@ export default function Chatter() {
                 width={80}
                 className="rounded-4xl border-2 border-yellow-300 "
                 alt="Profilbild"
+                onClick={() => handlePPClick(index)}
               />
 
-              <p className="flex text-xl font-bold text-yellow-500 items-center ml-4">
-                {users[index]?.name || ""}
+              <p
+                className="flex text-xl font-bold text-yellow-500 items-center ml-4"
+                onClick={() => handleClick(index)}
+              >
+               Schreibe:... {users[index]?.name || ""}
               </p>
 
               <svg
@@ -445,6 +489,122 @@ export default function Chatter() {
             X
           </button>
         </div>
+      )}
+
+      {openProfile && (
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+          <div className="flex flex-col items-center">
+            <h2 className="text-2xl font-bold mb-4 text-yellow-600">
+              <p className="text-yellow-500">
+                {users[selectedProfileIndex]?.name}
+              </p>
+            </h2>
+
+            <div className="flex gap-4 mb-4">
+              {selectedProfileIndex >= 0 && (
+                <ImageStack images={Allimages[selectedProfileIndex] || []} />
+              )}
+
+               <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="size-6 text-yellow-600"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+            </div>
+
+           
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
+              {users[selectedProfileIndex]?.geschlecht}
+            </p>
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">Alter:</span>{" "}
+              {users[selectedProfileIndex]?.alter}
+            </p>
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
+              {users[selectedProfileIndex]?.groesse}
+            </p>
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
+              {users[selectedProfileIndex]?.genres.join(", ")}
+            </p>
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">
+                Lieblingslied:
+              </span>
+              <div className="border-3 rounded-3xl border-yellow-500 py-1 px-3 text-center  break-normal">
+                {users[selectedProfileIndex]?.favorite_track ? (
+                  <div className="flex items-center gap-1">
+                    <Image
+                      src={
+                        users[selectedProfileIndex]?.favorite_track?.image ||
+                        "/images/Home.png"
+                      }
+                      alt="Album Cover"
+                      height={30}
+                      width={30}
+                      style={{ objectFit: "cover" }} // schneidet es sauber zu
+                      quality={100}
+                    />
+                    <div className="md:w-full max-w-[120px]">
+                      <p className="font-semibold text-yellow-500">
+                        {users[selectedProfileIndex]?.favorite_track?.name}
+                      </p>
+                      <p className="text-sm text-yellow-500">
+                        {users[selectedProfileIndex]?.favorite_track?.artist}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p>Keine daten</p>
+                )}
+              </div>
+            </p>
+
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+              <span className="font-semibold text-gray-400">
+                Lieblingsinterpret:
+              </span>{" "}
+              <div className="border-3 border-yellow-500 rounded-3xl py-1 px-3 text-center  break-normal">
+                {users[selectedProfileIndex]?.favorite_artist ? (
+                  <div className="flex items-center gap-1 ">
+                    <Image
+                      src={
+                        users[selectedProfileIndex]?.favorite_artist?.image ||
+                        "/images/Home.png"
+                      }
+                      alt="Lieblingsinterpret Bild"
+                      height={30}
+                      width={30}
+                      style={{ objectFit: "cover" }} // schneidet es sauber zu
+                      quality={100}
+                    />
+                    <div className="md:w-full max-w-[120px]">
+                      <p className="font-semibold text-yellow-500">
+                        {users[selectedProfileIndex]?.favorite_artist?.name}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p>Keine daten</p>
+                )}
+              </div>
+            </p>
+          </div>
+        </Popup>
       )}
 
       {unlike && (

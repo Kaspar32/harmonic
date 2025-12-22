@@ -28,6 +28,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat message", async (msg: ChatMessage) => {
+    
+    
     //console.log("Nachricht erhalten:", msg);
 
     
@@ -41,6 +43,9 @@ io.on("connection", (socket) => {
               createdAt: new Date(msg.createdAt),
             })
             .returning();
+
+
+            console.log("Nachricht gespeichert:", savedMsg);
 
           const messageToSend = {
             id: savedMsg.id,
