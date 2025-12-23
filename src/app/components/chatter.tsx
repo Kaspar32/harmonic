@@ -146,8 +146,6 @@ export default function Chatter() {
       }
       console.log("Nachricht empfangen im Client:", msg);
       setMessages((prev) => {
-
-        alert("test");
         const exists = prev.some((m) => m.id === msg.id);
         if (exists) return prev;
         return [...prev, msg];
