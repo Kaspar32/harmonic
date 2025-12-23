@@ -5,7 +5,6 @@ import { UserType } from "../types/User";
 import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
 import { getImageSrc } from "@/lib/getImageSrc";
-import { JSX } from "react/jsx-runtime";
 import ImageStack from "./shuffler";
 
 export default function Chatter() {
@@ -15,7 +14,7 @@ export default function Chatter() {
   const [unlike, setUnlike] = useState(false);
 
   type Message = {
-    tempId: number;
+    id: number;
     fromUser: string;
     toUser: string;
     content: string;
@@ -145,13 +144,18 @@ export default function Chatter() {
       if (!msg.content || !msg.fromUser || !msg.toUser) {
         console.warn("Ungültige Nachricht empfangen:", msg);
       }
-
       console.log("Nachricht empfangen im Client:", msg);
       setMessages((prev) => {
-        const exists = prev.some((m) => m.tempId === msg.tempId);
+
+        alert("test");
+        const exists = prev.some((m) => m.id === msg.id);
         if (exists) return prev;
         return [...prev, msg];
       });
+
+
+
+
     });
 
     // Beim Unmouten der Funktion wird der socket disconected
@@ -162,13 +166,13 @@ export default function Chatter() {
 
   // Beim Mounten der Komponente den User dem Socket hinzufügen
   useEffect(() => {
-    const joinUser = async () => {
-      if (!socketRef.current) return;
-      socketRef.current.emit("join", currentUser);
-    };
+  if (!socketRef.current || !currentUser) return;
 
-    joinUser();
-  }, [currentUser]);
+  socketRef.current.emit("join-room", {
+    room: "test-room",
+    user: currentUser
+  });
+}, [currentUser]);
 
   const fetchMessages = async () => {
     if (!socketRef.current || !currentUser || !chatPartner) return;
@@ -202,7 +206,7 @@ export default function Chatter() {
       return;
 
     const message: Message = {
-      tempId: Date.now(),
+      id: Date.now(),
       content: input,
       fromUser: currentUser,
       toUser: chatPartner,
@@ -211,7 +215,7 @@ export default function Chatter() {
 
     socketRef.current.emit("chat message", message);
 
-    setMessages((prev) => [...prev, message]);
+    //setMessages((prev) => [...prev, message]);
     setInput("");
   };
 
@@ -419,7 +423,7 @@ export default function Chatter() {
                   const isCurrentUser = msg.fromUser === currentUser;
                   return (
                     <div
-                      key={msg.tempId}
+                      key={msg.id}
                       className={`flex mb-2 ${
                         isCurrentUser
                           ? "flex justify-end"

@@ -22,15 +22,17 @@ interface ChatMessage {
 io.on("connection", (socket) => {
   console.log("Neue Verbindung:", socket.id);
 
-  socket.on("join", (username: string) => {
-    socket.join(username);
-    console.log("User ist im Raum getreten:", username);
+  socket.on("join-room", (data: { room: string; user: string }) => {
+    socket.join(data.room);
+    console.log(`${data.user} ist dem Raum ${data.room} beigetreten.`); 
+
+    
   });
 
   socket.on("chat message", async (msg: ChatMessage) => {
     
     
-    //console.log("Nachricht erhalten:", msg);
+    
 
     
         try {
@@ -45,8 +47,6 @@ io.on("connection", (socket) => {
             .returning();
 
 
-            console.log("Nachricht gespeichert:", savedMsg);
-
           const messageToSend = {
             id: savedMsg.id,
             fromUser: savedMsg.fromUser,
@@ -55,7 +55,9 @@ io.on("connection", (socket) => {
             createdAt: savedMsg.createdAt.toISOString(),
           };
 
-          io.to(msg.fromUser).to(msg.toUser).emit("chat message", messageToSend);
+
+          console.log("Nachricht weiterleiten:", messageToSend);
+          io.emit("chat message", messageToSend);
         } catch (error) {
           console.error("Fehler beim Speichern der Nachricht:", error);
         }
