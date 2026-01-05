@@ -7,7 +7,7 @@ import { messages } from "../src/db/schema";
 const httpServer = createServer();
 
 const io = new Server(httpServer, {
-  cors: { origin: "http://localhost:3000", methods: ["GET", "POST"] },
+  cors: { origin: "http://172.24.2.170:3000", methods: ["GET", "POST"] },
   transports: ["websocket", "polling"], // WebSocket bevorzugen
 });
 

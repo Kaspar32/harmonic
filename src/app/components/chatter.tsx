@@ -6,6 +6,7 @@ import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
 import { getImageSrc } from "@/lib/getImageSrc";
 import ImageStack from "./shuffler";
+import dotenv from "dotenv";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
@@ -76,6 +77,8 @@ export default function Chatter() {
       })
     );
 
+
+    //Alle Bilder für ImageStack für die Profileansicht laden
     const allImages = await Promise.all(
       data1.map(async (like: { to: string }) => {
         try {
@@ -130,8 +133,10 @@ export default function Chatter() {
 
   //Beim Rendern der Page ausführen
   useEffect(() => {
-    const socket = io("http://localhost:4001", {
-      transports: ["websocket"],
+
+    
+    const socket = io("http://172.24.2.170:4001", {
+      transports: ["websocket", "polling"],
     });
 
     socket.on("connect", () => {
@@ -162,7 +167,7 @@ export default function Chatter() {
     };
   }, []);
 
-  // Beim Mounten der Komponente den User dem Socket hinzufügen
+  // Beim Mounten der Komponente den User dem Raum hinzufügen
   useEffect(() => {
   if (!socketRef.current || !currentUser) return;
 
@@ -407,7 +412,7 @@ export default function Chatter() {
       </div>
 
       {openChat && (
-        <div className="fixed inset-0 flex items-center justify-center z-[70] w-screen h-screen bg-white">
+        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen bg-white">
           <div className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
             <div className="w-screen h-full p-4 md:p-10">
               {messages
@@ -454,7 +459,7 @@ export default function Chatter() {
           </div>
 
           {/* Eingabefeld */}
-          <div className="fixed bottom-24 left-5 right-5 flex items-center gap-2">
+          <div className="fixed bottom-30 left-5 right-5 flex items-center gap-2">
             <input
               value={input}
               onChange={handleChange}
@@ -464,7 +469,7 @@ export default function Chatter() {
                   sendMessage();
                 }
               }}
-              className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none"
+              className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none z-50"
             />
 
             <button
