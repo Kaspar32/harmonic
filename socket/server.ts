@@ -1,13 +1,13 @@
 // server.ts
 import { createServer } from "http";
 import { Server } from "socket.io";
-import { db } from "../src/db";
-import { messages } from "../src/db/schema";
+import { db } from "../src/db/index.ts";
+import { messages } from "../src/db/schema.ts";
 
 const httpServer = createServer();
 
 const io = new Server(httpServer, {
-  cors: { origin: "http://172.24.2.170:3000", methods: ["GET", "POST"] },
+  cors: { origin: ["http://195.15.205.186:3000", "http://localhost:3000", "http://harmonic.jcloud.ik-server.com:3000/"], methods: ["GET", "POST"] },
   transports: ["websocket", "polling"], // WebSocket bevorzugen
 });
 

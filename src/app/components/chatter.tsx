@@ -135,7 +135,7 @@ export default function Chatter() {
   useEffect(() => {
 
     
-    const socket = io("http://172.24.2.170:4001", {
+    const socket = io("http://195.15.205.186:4001", {
       transports: ["websocket", "polling"],
     });
 
