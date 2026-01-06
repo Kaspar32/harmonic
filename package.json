@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently \"next dev --turbopack\" \"ts-node ./socket/server.ts\"",
     "build": "cross-env NODE_ENV=production next build",
-    "start": "next start",
+    "start": "concurrently \"next start\" \"ts-node ./socket/server.ts\"",
     "lint": "next lint"
   },
   "dependencies": {
