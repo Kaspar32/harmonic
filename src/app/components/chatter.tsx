@@ -156,27 +156,17 @@ export default function Chatter() {
         return [...prev, msg];
       });
 
-
-
-
     });
-
-     const chatWindow = document.getElementById("chatmessagewindow"); 
-    if(chatWindow)
-    {
-      chatWindow.scrollTop=chatWindow.scrollHeight;
-    }
 
     // Beim Unmouten der Funktion wird der socket disconected
     return () => {
       socket.disconnect();
     };
 
-
-   
-
-
   }, []);
+
+
+  
 
   // Beim Mounten der Komponente den User dem Raum hinzufügen
   useEffect(() => {
@@ -380,7 +370,7 @@ export default function Chatter() {
     {
       chatWindow.scrollTop=chatWindow.scrollHeight;
     }
-  },[messages]);
+  },[messages, openChat]);
 
 
   return (
