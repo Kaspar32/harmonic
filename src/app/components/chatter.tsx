@@ -357,10 +357,9 @@ export default function Chatter() {
 
   function handlePPClick(index: number) {
     alert("Profil von " + users[index]?.name);
-    //window.location.href = `/home`;
     setopenChat(false);
     setSelectedProfileIndex(index);
-    //setOpenProfile(true);
+    setOpenProfile(true);
   }
 
 
@@ -423,7 +422,7 @@ export default function Chatter() {
       </div>
 
       {openChat && (
-        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen bg-white">
+        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/90">
           <div id="chatmessagewindow"className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
             <div className="w-screen h-full p-4 md:p-10">
               {messages
@@ -510,7 +509,7 @@ export default function Chatter() {
       )}
 
       {openProfile && (
-        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50/90">
           <div className="flex flex-col items-center">
             <h2 className="text-2xl font-bold mb-4 text-yellow-600">
               <p className="text-yellow-500">
@@ -557,7 +556,7 @@ export default function Chatter() {
               {users[selectedProfileIndex]?.genres.join(", ")}
             </p>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
               <span className="font-semibold text-gray-400">
                 Lieblingslied:
               </span>
@@ -576,21 +575,21 @@ export default function Chatter() {
                       quality={100}
                     />
                     <div className="md:w-full max-w-[120px]">
-                      <p className="font-semibold text-yellow-500">
+                      <div className="font-semibold text-yellow-500">
                         {users[selectedProfileIndex]?.favorite_track?.name}
-                      </p>
-                      <p className="text-sm text-yellow-500">
+                      </div>
+                      <div className="text-sm text-yellow-500">
                         {users[selectedProfileIndex]?.favorite_track?.artist}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <p>Keine daten</p>
                 )}
               </div>
-            </p>
+            </div>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
               <span className="font-semibold text-gray-400">
                 Lieblingsinterpret:
               </span>{" "}
@@ -609,16 +608,16 @@ export default function Chatter() {
                       quality={100}
                     />
                     <div className="md:w-full max-w-[120px]">
-                      <p className="font-semibold text-yellow-500">
+                      <div className="font-semibold text-yellow-500">
                         {users[selectedProfileIndex]?.favorite_artist?.name}
-                      </p>
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <p>Keine daten</p>
                 )}
               </div>
-            </p>
+            </div>
           </div>
         </Popup>
       )}
