@@ -161,10 +161,21 @@ export default function Chatter() {
 
     });
 
+     const chatWindow = document.getElementById("chatmessagewindow"); 
+    if(chatWindow)
+    {
+      chatWindow.scrollTop=chatWindow.scrollHeight;
+    }
+
     // Beim Unmouten der Funktion wird der socket disconected
     return () => {
       socket.disconnect();
     };
+
+
+   
+
+
   }, []);
 
   // Beim Mounten der Komponente den User dem Raum hinzufügen
