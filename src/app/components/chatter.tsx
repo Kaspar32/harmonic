@@ -362,6 +362,16 @@ export default function Chatter() {
     //setOpenProfile(true);
   }
 
+
+  useEffect(() => {
+    const chatWindow = document.getElementById("chatmessagewindow"); 
+    if(chatWindow)
+    {
+      chatWindow.scrollTop=chatWindow.scrollHeight;
+    }
+  },[messages]);
+
+
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
@@ -413,7 +423,7 @@ export default function Chatter() {
 
       {openChat && (
         <div className="fixed inset-0 flex items-center justify-center w-screen h-screen bg-white">
-          <div className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
+          <div id="chatmessagewindow"className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
             <div className="w-screen h-full p-4 md:p-10">
               {messages
                 .filter(
