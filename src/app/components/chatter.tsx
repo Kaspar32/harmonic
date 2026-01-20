@@ -356,7 +356,6 @@ export default function Chatter() {
   }
 
   function handlePPClick(index: number) {
-    alert("Profil von " + users[index]?.name);
     setopenChat(false);
     setSelectedProfileIndex(index);
     setOpenProfile(true);
@@ -553,7 +552,7 @@ export default function Chatter() {
 
             <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
               <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
-              {users[selectedProfileIndex]?.genres.join(", ")}
+              {users[selectedProfileIndex]?.genres?.join(", ")}
             </p>
 
             <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">

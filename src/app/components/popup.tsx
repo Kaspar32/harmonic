@@ -13,7 +13,7 @@ export default function PopUp({
   onClose,
   children,
   width = "max-w-sm",
-  bgColor = "bg-white",
+  bgColor = "bg-white/90",
 }: PopUpProps) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-white z-50">

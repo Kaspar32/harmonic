@@ -359,6 +359,13 @@ export default function Profile() {
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
+              {users[UserIndex]?.roles=="fakeUser" && (
+
+                  <div className="absolute sm:top-72 sm:right-5/12 top-32 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
+                    FAKE USER
+                  </div>
+
+                )}
               <div
                 className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
                 onClick={handleClick}
