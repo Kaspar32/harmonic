@@ -499,6 +499,8 @@ export default function Profil_Edit() {
       image: selectedArtist.images?.[0]?.url ?? null, // erstes Bild
     };
 
+    setUserData((prev) => ({ ...prev, favorite_artist: artistData }));
+
     fetch("/api/savefavoriteartist", {
       method: "POST",
       headers: {
