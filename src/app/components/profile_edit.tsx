@@ -469,6 +469,8 @@ export default function Profil_Edit() {
       artist: selectedTrack.artists?.[0]?.name ?? null, // erster Künstler
     };
 
+    setUserData((prev) => ({ ...prev, favorite_track: trackData }));
+
     fetch("/api/savefavoritetrack", {
       method: "POST",
       headers: {
@@ -954,7 +956,7 @@ export default function Profil_Edit() {
               </PopUp>
             )}
 
-            {/* spotify ! (kommt noch) */}
+            {/* */}
             <h3
               onClick={() => setFavoriteTune(true)}
               className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-2 text-2xl hover:bg-white rounded-2xl shadow-lg "

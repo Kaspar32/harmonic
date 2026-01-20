@@ -1,6 +1,5 @@
 
 export interface FavoriteTrack {
-  album: string;
   name: string;
   image: string | null;
   artist: string | null;
