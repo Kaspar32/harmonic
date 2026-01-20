@@ -342,9 +342,6 @@ export default function Profil_Edit() {
     loadSpotifyData();
   }, []);*/
 
-  const CLIENT_ID = "f0a194a6e44b425fbdf257fb380beb48";
-  const CLIENT_SECRET = "b38adf69f029496c8e74df682a1b576a";
-
   const [serachInput, setSerachInput] = useState("");
   const [serachInput_Artist, setSerachInput_Artist] = useState("");
   const [accessToken, setAccessToken] = useState("");
@@ -381,9 +378,9 @@ export default function Profil_Edit() {
       },
       body:
         "grant_type=client_credentials&client_id=" +
-        CLIENT_ID +
+        process.env.SPOTIFY_CLIENT_ID +
         "&client_secret=" +
-        CLIENT_SECRET,
+        process.env.SPOTIFY_CLIENT_SECRET,
     };
 
     fetch("https://accounts.spotify.com/api/token", authParameters)
