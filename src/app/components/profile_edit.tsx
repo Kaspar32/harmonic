@@ -378,14 +378,15 @@ export default function Profil_Edit() {
       },
       body:
         "grant_type=client_credentials&client_id=" +
-        process.env.SPOTIFY_CLIENT_ID +
+        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID +
         "&client_secret=" +
-        process.env.SPOTIFY_CLIENT_SECRET,
+        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET,
     };
 
     fetch("https://accounts.spotify.com/api/token", authParameters)
       .then((result) => result.json())
       .then((data) => setAccessToken(data.access_token));
+
   }, []);
 
   async function search() {
@@ -403,6 +404,8 @@ export default function Profil_Edit() {
         "&type=track&limit=10",
       artistParameters
     ).then((response) => response.json());
+
+
 
     setTracks(
       Track.tracks.items.map((t: TrackItem) => ({

@@ -182,7 +182,7 @@ export default function Chatter() {
     if (!socketRef.current || !currentUser || !chatPartner) return;
     // Nachrichten für den aktuellen User und Chat-Partner abrufen
 
-    const res = await fetch("/api/messages");
+    const res = await fetch(`/api/messages?chatPartner=${chatPartner}`);
 
     if (!res.ok) {
       console.error("Fehler beim Abrufen der Nachrichten:", res.statusText);
