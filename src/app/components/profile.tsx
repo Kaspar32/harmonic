@@ -52,9 +52,11 @@ export default function Profile() {
       },
     );
 
-    console.log("Gefilterte User:", filteredUsers);
+    
 
     setUsers(filteredUsers);
+
+    
 
     return filteredUsers;
   }

@@ -66,5 +66,11 @@ export const reports = pgTable("reports", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const questionaires = pgTable("questionaires", {
+  id: serial("id").primaryKey(),
+  uuid: uuid("user_uuid").references(() => users.uuid).notNull(),
+  answers: jsonb("answers").$type<Record<string, string>>().notNull(),
+}); 
+
 
 

@@ -22,6 +22,8 @@ export interface UserType {
   fakeUsersEnabled: boolean;
 }
 
+
+
 export interface FavoriteArtist {
   favorite_artist1?: Artist;
   favorite_artist2?: Artist;

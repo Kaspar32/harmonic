@@ -24,6 +24,7 @@ import { convertImagesToBase64 } from "@/lib/convertToImageBase64";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
 import { User } from "lucide-react";
+import Questions from "./questions";
 
 interface TrackItem {
   id: string;
@@ -73,6 +74,7 @@ export default function Profil_Edit() {
   const [showGenres, setGenres] = useState(false);
   const [showFavoriteTune, setFavoriteTune] = useState(false);
   const [showFavoriteBand, setFavoriteBand] = useState(false);
+  const [showQuestions, setShowQuestions] = useState(false);
 
   const [intressen] = useState(Interests);
   const [genres] = useState(Genres);
@@ -511,7 +513,7 @@ export default function Profil_Edit() {
 
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
-      <h2 className=" text-gray-300 text-3xl font-bold ml-2 ">Bilder</h2>
+      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -562,13 +564,13 @@ export default function Profil_Edit() {
       <div className="flex flex-wrap md:flex-nowrap gap-2">
         {/*---------- über mich --------*/}
         <div className="flex-1">
-          <h2 className="  text-gray-300 text-3xl font-bold m-2 ">Über Mich</h2>
+          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Über Mich</h2>
 
           <div className="mb-4">
             {/* Name */}
             <h3
               onClick={() => setName(true)}
-              className="ml-4 mt-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               Name: {userData.name}
             </h3>
@@ -597,7 +599,7 @@ export default function Profil_Edit() {
             {/* Alter */}
             <h3
               onClick={() => setAlter(true)}
-              className="ml-4 mt-4 text-gray-300 text-center font-semibold border-2 text-2xl hover:bg-white rounded-2xl shadow-lg"
+              className="ml-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
               Alter: {userData.alter}
             </h3>
@@ -639,7 +641,7 @@ export default function Profil_Edit() {
             {/* Geschlecht */}
             <h3
               onClick={() => setGeschlecht(true)}
-              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               {userData.geschlecht === null ? (
                 <>Geschlecht: Auswählen</>
@@ -687,7 +689,7 @@ export default function Profil_Edit() {
             {/* Grösse */}
             <h3
               onClick={() => setGroesse(true)}
-              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               Grösse: {userData.groesse} cm
             </h3>
@@ -725,7 +727,7 @@ export default function Profil_Edit() {
             {/* Ausbildung */}
             <h3
               onClick={() => setAusbildung(true)}
-              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg"
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2   text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
               {userData.ausbildung === null ? (
                 <>Ausbildung: Auswählen</>
@@ -770,7 +772,7 @@ export default function Profil_Edit() {
             {/* Interessen */}
             <h3
               onClick={() => setInteressen(true)}
-              className="ml-4  mt-4  text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg  "
+              className="ml-4  mt-4  text-gray-300 text-center font-semibold border-t-2   text-2xl hover:bg-white rounded-2xl shadow-lg  "
             >
               {userData.intressen && userData.intressen.length === 0
                 ? "Interessen (bitte auswählen)"
@@ -834,7 +836,7 @@ export default function Profil_Edit() {
             {/* Ich suche */}
             <h3
               onClick={() => setSuche(true)}
-              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               {userData.ichsuche && userData.ichsuche.length === 0
                 ? "Ich suche (bitte auswählen)"
@@ -888,12 +890,12 @@ export default function Profil_Edit() {
 
         {/*--------------- Genre -------------*/}
         <div className="flex-1">
-          <h2 className=" text-gray-300 text-3xl font-bold m-2 ">Musik</h2>
+          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Musik</h2>
 
           <div className="flex-1">
             <h3
               onClick={() => setGenres(true)}
-              className="  mt-4 ml-4 mr-4 text-gray-300 text-center font-semibold border-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="  mt-4 ml-4 mr-4 text-gray-300 text-center font-semibold border-t-2   text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               {userData.genres && userData.genres.length === 0
                 ? "Genres (bitte auswählen)"
@@ -946,15 +948,13 @@ export default function Profil_Edit() {
                 </button>
               </PopUp>
             )}
-
             {/* */}
             <h3
               onClick={() => setFavoriteTune(true)}
-              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-2 text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               Momentanes Lieblingslied
             </h3>
-
             {showFavoriteTune && (
               <PopUp
                 onClose={() => {
@@ -1053,14 +1053,12 @@ export default function Profil_Edit() {
                 </div>
               </PopUp>
             )}
-
             <h3
               onClick={() => setFavoriteBand(true)}
-              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-2 text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2 text-2xl hover:bg-white rounded-2xl shadow-lg "
             >
               Lieblingsinterpret
             </h3>
-
             {showFavoriteBand && (
               <PopUp
                 onClose={() => {
@@ -1193,11 +1191,24 @@ export default function Profil_Edit() {
                 <button
                   onClick={() => {
                     setFavoriteBand(false);
+                    ArtistinDB();
                   }}
-                  className="bg-green-300 text-white px-3 py-2 mt-2  rounded-md hover:bg-green-600 transition w-full"
+                  className="bg-yellow-400 text-white border-t-2 border-slate-200 px-3 py-2 mt-2  rounded-md hover:bg-yellow-500 transition w-full"
                 >
                   Speichern
                 </button>
+              </PopUp>
+            )}
+
+            <h3
+              onClick={() => setShowQuestions(true)}
+              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2 text-2xl hover:bg-white rounded-2xl shadow-lg "
+            >
+              Fragen
+            </h3>
+            {showQuestions && (
+              <PopUp onClose={() => setShowQuestions(false)}>
+                <Questions></Questions>
               </PopUp>
             )}
           </div>
