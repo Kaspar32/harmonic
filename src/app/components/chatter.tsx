@@ -598,7 +598,7 @@ export default function Chatter() {
                   <div className="flex items-center gap-1 ">
                     <Image
                       src={
-                        users[selectedProfileIndex]?.favorite_artist?.image ||
+                        users[selectedProfileIndex]?.favorite_artist?.favorite_artist1?.image ||
                         "/images/Home.png"
                       }
                       alt="Lieblingsinterpret Bild"
@@ -609,7 +609,7 @@ export default function Chatter() {
                     />
                     <div className="md:w-full max-w-[120px]">
                       <div className="font-semibold text-yellow-500">
-                        {users[selectedProfileIndex]?.favorite_artist?.name}
+                        {users[selectedProfileIndex]?.favorite_artist?.favorite_artist1?.name}
                       </div>
                     </div>
                   </div>
