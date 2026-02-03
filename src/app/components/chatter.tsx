@@ -131,7 +131,7 @@ export default function Chatter() {
     calculateMatch();
   }, []);
 
-  //Beim Rendern der Page ausführen
+  //Beim Rendern der Page ausführen damit ein neuer Socket erstellt wird :::::::::::::::::::::::::::::::::::::
   useEffect(() => {
 
     
@@ -168,7 +168,7 @@ export default function Chatter() {
 
   
 
-  // Beim Mounten der Komponente den User dem Raum hinzufügen
+  // Beim Mounten der Komponente den User dem Raum hinzufügen:::::::::::::::::::::::::::::::::::::::::::::
   useEffect(() => {
   if (!socketRef.current || !currentUser) return;
 
@@ -190,8 +190,6 @@ export default function Chatter() {
     }
     // Nachrichten von der API abrufen
     const data = await res.json();
-
-    //alert("fetch Messages");
     setMessages(data);
   };
 
@@ -204,7 +202,6 @@ export default function Chatter() {
 
   // Senden der Message
   const sendMessage = () => {
-    //alert("test");
 
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
@@ -227,7 +224,7 @@ export default function Chatter() {
     setInput(e.target.value);
   };
 
-  // Auswählen der User für den Chat
+  // Auswählen der User für den Chat::::::::::::::::::::::::::::::::::::::::::::::::
   async function handleClick(index: number) {
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -251,7 +248,7 @@ export default function Chatter() {
     }, 100);
   }
 
-  // Löschen oder blockieren von ChatPartner
+  // Löschen oder blockieren von ChatPartner::::::::::::::::::::::::::::::::::::::::::::::
 
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
@@ -355,6 +352,10 @@ export default function Chatter() {
     });
   }
 
+
+  // Beim Clicken auf das Profil ein neues Fenster mit dem Profildaten:::::::::::::::::::::
+
+  
   function handlePPClick(index: number) {
     setopenChat(false);
     setSelectedProfileIndex(index);

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { UserType } from "../types/User";
 import { arraysHaveCommonElement } from "@/lib/arraysHaveCommonElement";
-import { Music, User } from "lucide-react";
+import { Music, User, Users } from "lucide-react";
 import Link from "next/link";
 import { getImageSrc } from "@/lib/getImageSrc";
 import HeartAnimation from "./heartAnimation";
@@ -14,7 +14,7 @@ export default function Profile() {
   const [Images, setImages] = useState<
     { id: string; imageBase64: string; position: number; userUuid: string }[]
   >([]);
-  const [UserIndex, setUserIndex] = useState(0);
+  const [UserIndex, setUserIndex] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatched, setIsMatched] = useState(false);
   const [samegenres, setSamegenres] = useState(false);
@@ -27,6 +27,7 @@ export default function Profile() {
     const res = await fetch("/api/filterUsers");
     if (!res.ok) return [];
     const data = await res.json();
+
     const usersArray = data.map((item: { users: any }) => item.users);
 
     // Setzte Einstellungen für den User
@@ -40,7 +41,7 @@ export default function Profile() {
       return 404;
     }
 
-    // Nicht eigener User darstellen und filtere nach Geschlecht
+    // Nicht eigener User darstellen und filtere nach Alter
     const filteredUsers = usersArray.filter(
       (user: { uuid: string; alter: number }) => {
         // Alter prüfen
@@ -48,17 +49,20 @@ export default function Profile() {
         if (user.alter < minAlter || user.alter > maxAlter) return false;
 
         return true;
-      }
+      },
     );
 
-    //console.log("data",filteredUsers[0]);
+    console.log("Gefilterte User:", filteredUsers);
 
     setUsers(filteredUsers);
+
     return filteredUsers;
   }
 
+
+   // Hole Bilder für den aktuellen User 
   async function fetchPics() {
-    const res = await fetch("/api/addprofilepics");
+    const res = await fetch(`/api/getpicsbyid?id=${users[UserIndex].uuid}`);
     if (!res.ok) return;
     const data = await res.json();
     setImages(data);
@@ -66,16 +70,25 @@ export default function Profile() {
 
   async function usersContain() {
     const fetchedUsers = await fetchUsers();
-    if (!fetchedUsers.length) {
+    if (!fetchedUsers || fetchedUsers.length === 0) {
       setIsEmpty(true);
+      return;
     }
+    const i = getRandomUserIndex(fetchedUsers.length);
+    await setUserIndex(i);
   }
-
   //---- sofort laden ----
   useEffect(() => {
     usersContain();
-    fetchPics();
   }, []);
+
+
+  //---- Bilder holen wenn user sich ändert ----
+  useEffect(() => {
+    console.log("Users updated:", users);
+    if (!users || users.length === 0) return;
+    fetchPics();
+  }, [users]);
 
   //---- randomizer ----
   const getRandomUserIndex = (length: number) => {
@@ -87,10 +100,11 @@ export default function Profile() {
     return newIndex;
   };
 
+  //---- bilder durchklicken ----
   function handleClick() {
     if (!users[UserIndex]) return;
     const userImages = Images.filter(
-      (img) => img.userUuid === users[UserIndex].uuid
+      (img) => img.userUuid === users[UserIndex].uuid,
     );
     if (userImages.length === 0) return;
     setCurrentIndex((prev) => (prev + 1) % userImages.length);
@@ -126,7 +140,7 @@ export default function Profile() {
     const data = await res.json();
 
     const matched = data.some(
-      (item: { to: string }) => item.to === users[UserIndex].uuid
+      (item: { to: string }) => item.to === users[UserIndex].uuid,
     );
 
     setIsMatched(matched);
@@ -263,6 +277,7 @@ export default function Profile() {
 
     const i = getRandomUserIndex(filteredUsers.length);
     setUserIndex(i);
+
     calculateGenres(i);
   }
 
@@ -359,13 +374,11 @@ export default function Profile() {
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
-              {users[UserIndex]?.roles=="fakeUser" && (
-
-                  <div className="absolute sm:top-72 sm:right-5/12 top-32 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
-                    FAKE USER
-                  </div>
-
-                )}
+              {users[UserIndex]?.roles == "fakeUser" && (
+                <div className="absolute sm:top-72 sm:right-5/12 top-32 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
+                  FAKE USER
+                </div>
+              )}
               <div
                 className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
                 onClick={handleClick}
@@ -374,7 +387,7 @@ export default function Profile() {
                   {users[UserIndex] &&
                     Images.length > 0 &&
                     Images.filter(
-                      (img) => img.userUuid === users[UserIndex].uuid
+                      (img) => img.userUuid === users[UserIndex].uuid,
                     ).map((src, index) => (
                       <div
                         key={index}
@@ -390,7 +403,7 @@ export default function Profile() {
                 {users[UserIndex] &&
                   Images.length > 0 &&
                   Images.filter(
-                    (img) => img.userUuid === users[UserIndex].uuid
+                    (img) => img.userUuid === users[UserIndex].uuid,
                   ).map((img, index) => (
                     <Image
                       key={`${img.id} ${index}`}
@@ -558,8 +571,7 @@ export default function Profile() {
                           <div className="flex items-center gap-1">
                             <Image
                               src={
-                                users[UserIndex]?.favorite_artist?.image ||
-                                "/images/Home.png"
+                                users[UserIndex]?.favorite_artist?.image || users[UserIndex]?.favorite_artist?.favorite_artist.image
                               }
                               alt="Album Cover"
                               height={30}
@@ -569,7 +581,7 @@ export default function Profile() {
                             />
                             <div>
                               <p className="font-semibold">
-                                {users[UserIndex]?.favorite_artist?.name}
+                                { users[UserIndex]?.favorite_artist?.name || users[UserIndex]?.favorite_artist?.favorite_artist.name}
                               </p>
                             </div>
                           </div>

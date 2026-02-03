@@ -16,7 +16,7 @@ export default function PopUp({
   bgColor = "bg-white/90",
 }: PopUpProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+    <div className="overflow-y-auto fixed inset-0 flex items-center justify-center bg-white z-50  ">
       <div className={`${bgColor} p-6 rounded-2xl shadow-lg w-full ${width} relative`}>
         <button
           onClick={onClose}

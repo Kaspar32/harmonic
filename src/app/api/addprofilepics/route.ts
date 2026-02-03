@@ -35,7 +35,9 @@ import { cookies } from "next/headers";
   ); 
 } */
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+
+
   try {
     const pictures = await db.select().from(profilePictures);
     return NextResponse.json(pictures);

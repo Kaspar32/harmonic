@@ -1,3 +1,4 @@
+
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { users, likes, dislikes, settings } from "@/db/schema";
@@ -11,6 +12,7 @@ export async function GET() {
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
+
 
   const [interest] = await db
     .select({ myInterest: settings.intresse })
@@ -89,9 +91,10 @@ export async function GET() {
           ),
           // Only add a DB filter for candidate gender when myInterest is set and not "alle"
           myInterest && myInterest !== "alle" ? eq(users.geschlecht, myInterest) : undefined
-        )
+        ), 
       )
     );
 //console.log('alle gefilterten userss:', allUsers);
+
   return NextResponse.json(allUsers);
 }

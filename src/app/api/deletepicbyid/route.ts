@@ -14,7 +14,7 @@ export async function POST(request: Request) {
       and(
 
         eq(profilePictures.userUuid, userId as string),
-        eq(profilePictures.id, `${userId}-img-${id}`)
+        eq(profilePictures.id, id)
       )
     );
 

@@ -58,6 +58,7 @@ export default function ImageUploader({
         />
 
         <input
+          ref={inputRef}
           type="file"
           accept="image/*"
           onChange={handleImageChange}
@@ -89,3 +90,5 @@ export default function ImageUploader({
     </div>
   );
 }
+
+

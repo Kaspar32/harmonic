@@ -23,6 +23,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { convertImagesToBase64 } from "@/lib/convertToImageBase64";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
+import { User } from "lucide-react";
 
 interface TrackItem {
   id: string;
@@ -51,6 +52,7 @@ export default function Profil_Edit() {
     genres: [],
     favorite_track: null,
     favorite_artist: null,
+    favorite_artist2: null,
     roles: "",
     fakeUsersEnabled: true,
   });
@@ -86,6 +88,7 @@ export default function Profil_Edit() {
       if (!res.ok) return;
 
       const data = await res.json();
+
       setUserData((prev) => ({
         ...prev,
         uuid: data.uuid,
@@ -99,16 +102,17 @@ export default function Profil_Edit() {
         genres: data.genres,
         spotify_data: data.spotify_data,
         favorite_track: data.favorite_track,
-        favorite_artist: data.favorite_artist,
+        favorite_artist: data.favorite_artist?.favorite_artist,
+        favorite_artist2: data.favorite_artist?.favorite_artist2,
       }));
 
       const res2 = await fetch(`/api/getpicsbyid?id=${data.uuid}`);
       if (!res2.ok) return;
       const imagesData = await res2.json();
-      setDataImages((prev) =>
+      setImages((prev) =>
         prev.map((img, i) =>
-          imagesData[i] ? { ...img, ...imagesData[i] } : img
-        )
+          imagesData[i] ? { ...img, ...imagesData[i] } : img,
+        ),
       );
     }
     fetchUser();
@@ -137,7 +141,7 @@ export default function Profil_Edit() {
     {
       id: string;
       image?: File | null;
-      image_base64?: string;
+      imageBase64?: string;
       user_id?: string;
       position?: number;
     }[]
@@ -145,7 +149,7 @@ export default function Profil_Edit() {
 
   const handleImageChange = (id: string, image: File | null) => {
     setImages((prev) =>
-      prev.map((img) => (img.id === id ? { ...img, image } : img))
+      prev.map((img) => (img.id === id ? { ...img, image } : img)),
     );
   };
 
@@ -153,7 +157,7 @@ export default function Profil_Edit() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
-    })
+    }),
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -165,11 +169,7 @@ export default function Profil_Edit() {
       const oldIndex = images.findIndex((item) => item.id === active.id);
       const newIndex = images.findIndex((item) => item.id === over.id);
 
-      //alert("oldindex:"+oldIndex+" newindex:"+newIndex);
-
       const newImages = arrayMove(images, oldIndex, newIndex);
-
-      const newImages_1 = arrayMove(dataImages, oldIndex, newIndex);
 
       if (oldIndex === -1 || newIndex === -1) {
         return;
@@ -180,25 +180,19 @@ export default function Profil_Edit() {
         position: index, // wichtig für spätere Speicherung
       }));
 
-      const updatedImages_1 = newImages_1.map((img, index) => ({
-        ...img,
-        position: index, // wichtig für spätere Speicherung
-      }));
-
-      //console.log("updateImages_1:", updatedImages_1);
-
       setImages(updatedImages);
-      setDataImages(updatedImages_1);
 
       const res = await fetch("/api/reorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ images: updatedImages_1, uuid: uuid }),
+        body: JSON.stringify({ images: updatedImages, uuid: uuid }),
       });
 
       console.log(res);
     }
   };
+
+  // Nach dem Klicken des Hinzufügen-Button werden die Bilder in der DB gespeichert
 
   async function addPpics() {
     //Konvertieren zu ImageBase64
@@ -234,47 +228,9 @@ export default function Profil_Edit() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id: id, uuid: uuid }),
+      body: JSON.stringify({ id: id }),
     });
   }
-
-  const [dataImages, setDataImages] = useState<Pics[]>([
-    {
-      id: null,
-      image: null,
-      imageBase64: null,
-      userUuid: null,
-      position: 0,
-    },
-    {
-      id: null,
-      image: null,
-      imageBase64: null,
-      userUuid: null,
-      position: 1,
-    },
-    {
-      id: null,
-      image: null,
-      imageBase64: null,
-      userUuid: null,
-      position: 2,
-    },
-    {
-      id: null,
-      image: null,
-      imageBase64: null,
-      userUuid: null,
-      position: 3,
-    },
-    {
-      id: null,
-      image: null,
-      imageBase64: null,
-      userUuid: null,
-      position: 4,
-    },
-  ]);
 
   //Spotify-Daten
   /*
@@ -342,6 +298,10 @@ export default function Profil_Edit() {
     loadSpotifyData();
   }, []);*/
 
+  {
+    /* Spotify-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+  }
+
   const [serachInput, setSerachInput] = useState("");
   const [serachInput_Artist, setSerachInput_Artist] = useState("");
   const [accessToken, setAccessToken] = useState("");
@@ -386,7 +346,6 @@ export default function Profil_Edit() {
     fetch("https://accounts.spotify.com/api/token", authParameters)
       .then((result) => result.json())
       .then((data) => setAccessToken(data.access_token));
-
   }, []);
 
   async function search() {
@@ -402,16 +361,14 @@ export default function Profil_Edit() {
       "https://api.spotify.com/v1/search?q=" +
         serachInput +
         "&type=track&limit=10",
-      artistParameters
+      artistParameters,
     ).then((response) => response.json());
-
-
 
     setTracks(
       Track.tracks.items.map((t: TrackItem) => ({
         ...t,
         isSelected: false,
-      }))
+      })),
     );
   }
 
@@ -428,14 +385,14 @@ export default function Profil_Edit() {
       "https://api.spotify.com/v1/search?q=" +
         serachInput_Artist +
         "&type=artist&limit=10",
-      artistParameters
+      artistParameters,
     ).then((response) => response.json());
 
     setArtists(
       Artists.artists.items.map((t: ArtistItem) => ({
         ...t,
         isSelected: false,
-      }))
+      })),
     );
   }
 
@@ -444,8 +401,8 @@ export default function Profil_Edit() {
       tracks.map((t) =>
         t.id === track.id
           ? { ...t, isSelected: true }
-          : { ...t, isSelected: false }
-      )
+          : { ...t, isSelected: false },
+      ),
     );
   }
 
@@ -454,8 +411,8 @@ export default function Profil_Edit() {
       artists.map((t) =>
         t.id === artist.id
           ? { ...t, isSelected: true }
-          : { ...t, isSelected: false }
-      )
+          : { ...t, isSelected: false },
+      ),
     );
   }
 
@@ -490,7 +447,7 @@ export default function Profil_Edit() {
       });
   }
 
-  async function saveArtist() {
+  async function saveArtist(index: number) {
     const selectedArtist = artists.find((a) => a.isSelected);
     if (!selectedArtist) return; // Kein Künstler ausgewählt
 
@@ -499,14 +456,41 @@ export default function Profil_Edit() {
       image: selectedArtist.images?.[0]?.url ?? null, // erstes Bild
     };
 
-    setUserData((prev) => ({ ...prev, favorite_artist: artistData }));
+    if (index === 1) {
+      setUserData((prev) => ({
+        ...prev,
+        favorite_artist: {
+          favorite_artist: artistData.name,
+          name: artistData.name,
+          image: artistData.image,
+        },
+      }));
+    }
+
+    if (index === 2) {
+      setUserData((prev) => ({
+        ...prev,
+        favorite_artist2: {
+          favorite_artist: artistData.name,
+          name: artistData.name,
+          image: artistData.image,
+        },
+      }));
+    }
+  }
+
+  function ArtistinDB() {
+    let payload = {
+      favorite_artist: userData.favorite_artist,
+      favorite_artist2: userData.favorite_artist2,
+    };
 
     fetch("/api/savefavoriteartist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(artistData),
+      body: JSON.stringify(payload),
     })
       .then((res) => {
         if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
@@ -545,7 +529,7 @@ export default function Profil_Edit() {
                       }
                     }}
                     initialImageUrl={
-                      dataImages.find((image) => i === image.position)
+                      images.find((image) => i === image.position)
                         ?.imageBase64 ?? undefined
                     }
                   />
@@ -812,10 +796,10 @@ export default function Profil_Edit() {
                           return;
 
                         const updated = userData.intressen?.includes(
-                          interest.name
+                          interest.name,
                         )
                           ? userData.intressen.filter(
-                              (n: string) => n !== interest.name
+                              (n: string) => n !== interest.name,
                             )
                           : [...(userData.intressen || []), interest.name];
 
@@ -869,7 +853,7 @@ export default function Profil_Edit() {
                       onClick={() => {
                         const updated = userData.ichsuche?.includes(suche.name)
                           ? userData.ichsuche.filter(
-                              (n: string) => n !== suche.name
+                              (n: string) => n !== suche.name,
                             )
                           : [...(userData.ichsuche || []), suche.name];
 
@@ -934,7 +918,7 @@ export default function Profil_Edit() {
 
                         const updated = userData.genres?.includes(genre.name)
                           ? userData.genres.filter(
-                              (n: string) => n !== genre.name
+                              (n: string) => n !== genre.name,
                             )
                           : [...(userData.genres || []), genre.name];
 
@@ -1100,7 +1084,7 @@ export default function Profil_Edit() {
                   </button>
                 </div>
 
-                <div className="space-y-2 mt-4 overflow-y-auto max-h-96">
+                <div className="space-y-2 mt-4 overflow-y-auto max-h-48">
                   {artists.map((artist, i) => {
                     return (
                       <div
@@ -1128,16 +1112,21 @@ export default function Profil_Edit() {
                   })}
                 </div>
 
-                <button
-                  onClick={saveArtist}
-                  className="bg-yellow-500 text-white px-3 py-2 mt-5 rounded-md hover:bg-yellow-700 transition"
-                >
-                  Speichern
-                </button>
-
                 <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm ">
-                    Ausgewählter Interpret:
+                  <p
+                    onClick={() => saveArtist(1)}
+                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-6 text-yellow-600 position-relative"
+                    >
+                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                    </svg>
+                    Ausgewählter Interpret Nr. 1<br></br>
+                    (bitte der gesuchte Artist hier per Klick einfügen)
                   </p>
                   {userData.favorite_artist && (
                     <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
@@ -1154,6 +1143,47 @@ export default function Profil_Edit() {
                     </div>
                   )}
                 </div>
+
+                <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                  <p
+                    onClick={() => saveArtist(2)}
+                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="size-6 text-yellow-600 position-relative"
+                    >
+                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                    </svg>
+                    Ausgewählter Interpret Nr. 2<br></br>
+                    (bitte der gesuchte Artist hier per Klick einfügen)
+                  </p>
+                  {userData.favorite_artist2 && (
+                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <img
+                        src={
+                          userData.favorite_artist2?.image || "/fallback.jpg"
+                        }
+                        alt={userData.favorite_artist2?.name}
+                        className="w-15 h-15"
+                      />
+                      <div>
+                        <p className="text-slate-800 font-semibold text-sm">
+                          {userData.favorite_artist2?.name}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => ArtistinDB()}
+                  className="bg-green-300 text-white px-3 py-2 mt-2  rounded-md hover:bg-green-600 transition w-full"
+                >
+                  Speichern
+                </button>
               </PopUp>
             )}
           </div>
