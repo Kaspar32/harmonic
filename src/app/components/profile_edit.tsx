@@ -1020,7 +1020,10 @@ export default function Profil_Edit() {
                 </div>
 
                 <button
-                  onClick={saveTrack}
+                  onClick={() => {
+                    saveTrack();
+                    setFavoriteTune(false);
+                  }}
                   className="bg-yellow-500 text-white px-3 py-2 mt-5 rounded-md hover:bg-yellow-700 transition"
                 >
                   Speichern
@@ -1188,7 +1191,9 @@ export default function Profil_Edit() {
                 </div>
 
                 <button
-                  onClick={() => ArtistinDB()}
+                  onClick={() => {
+                    setFavoriteBand(false);
+                  }}
                   className="bg-green-300 text-white px-3 py-2 mt-2  rounded-md hover:bg-green-600 transition w-full"
                 >
                   Speichern

@@ -59,8 +59,7 @@ export default function Profile() {
     return filteredUsers;
   }
 
-
-   // Hole Bilder für den aktuellen User 
+  // Hole Bilder für den aktuellen User
   async function fetchPics() {
     const res = await fetch(`/api/getpicsbyid?id=${users[UserIndex].uuid}`);
     if (!res.ok) return;
@@ -75,13 +74,13 @@ export default function Profile() {
       return;
     }
     const i = getRandomUserIndex(fetchedUsers.length);
+    calculateGenres(i);
     await setUserIndex(i);
   }
   //---- sofort laden ----
   useEffect(() => {
     usersContain();
   }, []);
-
 
   //---- Bilder holen wenn user sich ändert ----
   useEffect(() => {
@@ -112,12 +111,15 @@ export default function Profile() {
 
   //---- spotify zeugs ----
   async function calculateGenres(i: number) {
+
     const res1 = await fetch("/api/getuserdata");
     const data1 = await res1.json();
 
     const filteredUsers = await fetchUsers();
 
     if (arraysHaveCommonElement(data1.genres, filteredUsers[i].genres)) {
+
+      
       setSamegenres(true);
     }
 
@@ -564,57 +566,57 @@ export default function Profile() {
                       </div>
                       <div
                         className={`  text-center break-normal ${
-                          sameartist ? "animate-pulse text-green-600" : ""
+                          sameartist ? "animate-pulse text-green-400" : ""
                         }`}
                       >
                         {users[UserIndex]?.favorite_artist ? (
-
                           <>
-                          <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3 mb-2">
-                            <Image
-                              src={
-                                users[UserIndex]?.favorite_artist?.favorite_artist1?.image || "/images/file.svg"
-                              }
-                              alt="Album Cover"
-                              height={30}
-                              width={30}
-                              style={{ objectFit: "cover" }} // schneidet es sauber zu
-                              quality={100}
-                            />
-                            <div>
-                              <p className="font-semibold">
-                                {users[UserIndex]?.favorite_artist?.favorite_artist1?.name}
-                              </p>
+                            <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3 mb-2">
+                              <Image
+                                src={
+                                  users[UserIndex]?.favorite_artist
+                                    ?.favorite_artist1?.image ||
+                                  "/images/file.svg"
+                                }
+                                alt="Album Cover"
+                                height={30}
+                                width={30}
+                                style={{ objectFit: "cover" }} // schneidet es sauber zu
+                                quality={100}
+                              />
+                              <div>
+                                <p className="font-semibold">
+                                  {
+                                    users[UserIndex]?.favorite_artist
+                                      ?.favorite_artist1?.name
+                                  }
+                                </p>
+                              </div>
                             </div>
 
-
-
-                            
-                          </div>
-
-                          <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3">
-                            <Image
-                              src={
-                                 users[UserIndex]?.favorite_artist?.favorite_artist2?.image  || "/images/file.svg"
-                              }
-                              alt="Album Cover"
-                              height={30}
-                              width={30}
-                              style={{ objectFit: "cover" }} // schneidet es sauber zu
-                              quality={100}
-                            />
-                            <div>
-                              <p className="font-semibold">
-                                {users[UserIndex]?.favorite_artist?.favorite_artist2?.name}
-                              </p>
+                            <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3">
+                              <Image
+                                src={
+                                  users[UserIndex]?.favorite_artist
+                                    ?.favorite_artist2?.image ||
+                                  "/images/file.svg"
+                                }
+                                alt="Album Cover"
+                                height={30}
+                                width={30}
+                                style={{ objectFit: "cover" }} // schneidet es sauber zu
+                                quality={100}
+                              />
+                              <div>
+                                <p className="font-semibold">
+                                  {
+                                    users[UserIndex]?.favorite_artist
+                                      ?.favorite_artist2?.name
+                                  }
+                                </p>
+                              </div>
                             </div>
-
-
-
-                            
-                          </div>
                           </>
-                          
                         ) : (
                           <p>Keine daten</p>
                         )}
