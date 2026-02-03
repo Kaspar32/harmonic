@@ -563,15 +563,17 @@ export default function Profile() {
                         <h3 className="">interpret:</h3>
                       </div>
                       <div
-                        className={`border-3 rounded-3xl py-1 px-3 text-center break-normal ${
+                        className={`  text-center break-normal ${
                           sameartist ? "animate-pulse text-green-600" : ""
                         }`}
                       >
                         {users[UserIndex]?.favorite_artist ? (
-                          <div className="flex items-center gap-1">
+
+                          <>
+                          <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3 mb-2">
                             <Image
                               src={
-                                users[UserIndex]?.favorite_artist?.image || users[UserIndex]?.favorite_artist?.favorite_artist.image
+                                users[UserIndex]?.favorite_artist?.favorite_artist1?.image || "/images/file.svg"
                               }
                               alt="Album Cover"
                               height={30}
@@ -581,10 +583,38 @@ export default function Profile() {
                             />
                             <div>
                               <p className="font-semibold">
-                                { users[UserIndex]?.favorite_artist?.name || users[UserIndex]?.favorite_artist?.favorite_artist.name}
+                                {users[UserIndex]?.favorite_artist?.favorite_artist1?.name}
                               </p>
                             </div>
+
+
+
+                            
                           </div>
+
+                          <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3">
+                            <Image
+                              src={
+                                 users[UserIndex]?.favorite_artist?.favorite_artist2?.image  || "/images/file.svg"
+                              }
+                              alt="Album Cover"
+                              height={30}
+                              width={30}
+                              style={{ objectFit: "cover" }} // schneidet es sauber zu
+                              quality={100}
+                            />
+                            <div>
+                              <p className="font-semibold">
+                                {users[UserIndex]?.favorite_artist?.favorite_artist2?.name}
+                              </p>
+                            </div>
+
+
+
+                            
+                          </div>
+                          </>
+                          
                         ) : (
                           <p>Keine daten</p>
                         )}

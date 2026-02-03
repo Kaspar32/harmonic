@@ -18,13 +18,16 @@ export interface UserType {
   genres: string[];
   favorite_track: FavoriteTrack | null;
   favorite_artist: FavoriteArtist | null;
-  favorite_artist2: FavoriteArtist | null;
   roles: string;
   fakeUsersEnabled: boolean;
 }
 
 export interface FavoriteArtist {
-  favorite_artist: any;
+  favorite_artist1?: Artist;
+  favorite_artist2?: Artist;
+}
+
+export interface Artist {
   name: string;
   image: string | null;
 }

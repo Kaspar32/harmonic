@@ -52,7 +52,6 @@ export default function Profil_Edit() {
     genres: [],
     favorite_track: null,
     favorite_artist: null,
-    favorite_artist2: null,
     roles: "",
     fakeUsersEnabled: true,
   });
@@ -102,9 +101,10 @@ export default function Profil_Edit() {
         genres: data.genres,
         spotify_data: data.spotify_data,
         favorite_track: data.favorite_track,
-        favorite_artist: data.favorite_artist?.favorite_artist,
-        favorite_artist2: data.favorite_artist?.favorite_artist2,
+        favorite_artist: data.favorite_artist,
       }));
+
+      //alert(data.favorite_artist)
 
       const res2 = await fetch(`/api/getpicsbyid?id=${data.uuid}`);
       if (!res2.ok) return;
@@ -457,23 +457,28 @@ export default function Profil_Edit() {
     };
 
     if (index === 1) {
+      alert("Teeest");
+
       setUserData((prev) => ({
         ...prev,
         favorite_artist: {
-          favorite_artist: artistData.name,
-          name: artistData.name,
-          image: artistData.image,
+          ...prev.favorite_artist,
+          favorite_artist1: {
+            name: artistData.name,
+            image: artistData.image,
+          },
         },
       }));
     }
-
     if (index === 2) {
       setUserData((prev) => ({
         ...prev,
-        favorite_artist2: {
-          favorite_artist: artistData.name,
-          name: artistData.name,
-          image: artistData.image,
+        favorite_artist: {
+          ...prev.favorite_artist,
+          favorite_artist2: {
+            name: artistData.name,
+            image: artistData.image,
+          },
         },
       }));
     }
@@ -481,8 +486,8 @@ export default function Profil_Edit() {
 
   function ArtistinDB() {
     let payload = {
-      favorite_artist: userData.favorite_artist,
-      favorite_artist2: userData.favorite_artist2,
+      favorite_artist1: userData.favorite_artist?.favorite_artist1,
+      favorite_artist2: userData.favorite_artist?.favorite_artist2,
     };
 
     fetch("/api/savefavoriteartist", {
@@ -1131,13 +1136,16 @@ export default function Profil_Edit() {
                   {userData.favorite_artist && (
                     <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
                       <img
-                        src={userData.favorite_artist?.image || "/fallback.jpg"}
-                        alt={userData.favorite_artist?.name}
+                        src={
+                          userData.favorite_artist.favorite_artist1?.image ||
+                          "/fallback.jpg"
+                        }
+                        alt={userData.favorite_artist.favorite_artist1?.name}
                         className="w-15 h-15"
                       />
                       <div>
                         <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist?.name}
+                          {userData.favorite_artist.favorite_artist1?.name}
                         </p>
                       </div>
                     </div>
@@ -1160,18 +1168,19 @@ export default function Profil_Edit() {
                     Ausgewählter Interpret Nr. 2<br></br>
                     (bitte der gesuchte Artist hier per Klick einfügen)
                   </p>
-                  {userData.favorite_artist2 && (
+                  {userData.favorite_artist?.favorite_artist2 && (
                     <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
                       <img
                         src={
-                          userData.favorite_artist2?.image || "/fallback.jpg"
+                          userData.favorite_artist?.favorite_artist2?.image ||
+                          "/fallback.jpg"
                         }
-                        alt={userData.favorite_artist2?.name}
+                        alt={userData.favorite_artist?.favorite_artist2?.name}
                         className="w-15 h-15"
                       />
                       <div>
                         <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist2?.name}
+                          {userData.favorite_artist?.favorite_artist2?.name}
                         </p>
                       </div>
                     </div>
