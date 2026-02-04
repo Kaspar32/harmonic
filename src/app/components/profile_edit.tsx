@@ -55,7 +55,6 @@ export default function Profil_Edit() {
     favorite_artist: null,
     roles: "",
     fakeUsersEnabled: true,
-    questionnaire: {},
   });
 
   // Temporäre Variablen für die Editierfunktion
