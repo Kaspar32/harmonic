@@ -17,10 +17,9 @@ export function evaluateQuestions(answers1: {
 
     if(answers1== null || answers2== null)
     {
-      alert("Fragen sind nicht beantwortet");
+      console.log("Fragen sind nicht beantwortet");
     }
 
-    alert(answers2.question1);
 
     let score = 0;
 
