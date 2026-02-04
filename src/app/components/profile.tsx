@@ -8,6 +8,7 @@ import { Music, User, Users } from "lucide-react";
 import Link from "next/link";
 import { getImageSrc } from "@/lib/getImageSrc";
 import HeartAnimation from "./heartAnimation";
+import Score from "./score";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -56,7 +57,7 @@ export default function Profile() {
 
     setUsers(filteredUsers);
 
-    
+
 
     return filteredUsers;
   }
@@ -510,6 +511,8 @@ export default function Profile() {
                       samegenres ? "animate-bounce" : ""
                     }`}
                   />
+
+                  <Score uuid={users[UserIndex]?.uuid}></Score>
 
                   <div>
                     <div className="grid grid-cols-2 gap-y-2 items-center mx-6 break-normal">

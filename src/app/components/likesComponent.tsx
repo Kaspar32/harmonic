@@ -215,7 +215,7 @@ export default function LikesTest() {
 
       {/* Panel: You Like */}
       <div
-        className={`absolute md:h-[500px] w-full overflow-y-auto h-[570px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
+        className={`absolute md:h-[500px] w-full overflow-y-auto h-[450px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
           toggleYouLike ? "opacity-100 block" : "opacity-0 hidden"
         }`}
       >

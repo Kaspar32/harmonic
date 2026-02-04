@@ -55,6 +55,7 @@ export default function Profil_Edit() {
     favorite_artist: null,
     roles: "",
     fakeUsersEnabled: true,
+    questionnaire: {},
   });
 
   // Temporäre Variablen für die Editierfunktion
@@ -1208,7 +1209,9 @@ export default function Profil_Edit() {
             </h3>
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
+                <div className="position relative top-10">
                 <Questions></Questions>
+                </div>
               </PopUp>
             )}
           </div>

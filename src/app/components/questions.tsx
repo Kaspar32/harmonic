@@ -89,14 +89,14 @@ export default function Questions() {
     <div className="flex flex-col min-h-screen py-2">
       <h1 className="text-4xl font-bold text-yellow-500">Fragen</h1>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-5 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches ist dein Lieblingsopenair?
       </p>
 
       <select
         onChange={(e) => setQuestion1(e.target.value)}
         value={question1}
-        className="w-[200] ml-5 mt-5 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        className="w-[200] ml-5 mt-2 text-gray-400 dark:text-black appearance-none focus:outline-none"
       >
         <option className="bg-gray-200">Auswählen</option>
         <option>St.Galler OpenAir</option>
@@ -109,7 +109,7 @@ export default function Questions() {
         <option>...</option>
       </select>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-10 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Machst du auch Musik?
       </p>
 
@@ -121,7 +121,7 @@ export default function Questions() {
         <input
           onChange={(e) => setQuestion2(e.target.value)}
           defaultValue={answers?.question2}
-          className="bg-yellow-600 shadow-lg rounded-2xl border-t-2 border-slate-200"
+          className="bg-yellow-600 shadow-lg rounded-2xl border-t-2 border-slate-200 w-15"
           type="range"
           max="1"
           id="choice"
@@ -132,14 +132,14 @@ export default function Questions() {
         </span>
       </div>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-10 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches Instrument spielst du?
       </p>
 
       <select
         onChange={(e) => setQuestion3(e.target.value)}
         value={question3}
-        className="w-[200] ml-5 mt-5 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        className="w-[200] ml-5 mt-2 text-gray-400 dark:text-black appearance-none focus:outline-none"
       >
         <option className="bg-gray-200">Auswählen</option>
         <option>Gitarre</option>
@@ -151,7 +151,7 @@ export default function Questions() {
         <option>...</option>
       </select>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-10 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Gehst du auf Raves?
       </p>
 
@@ -163,7 +163,7 @@ export default function Questions() {
         <input
           onChange={(e) => setQuestion4(e.target.value)}
           defaultValue={answers?.question4}
-          className="bg-yellow-600 shadow-lg rounded-2xl"
+          className="bg-yellow-600 shadow-lg rounded-2xl w-15"
           type="range"
           max="1"
           id="choice"
@@ -174,11 +174,11 @@ export default function Questions() {
         </span>
       </div>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-10 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Magst du klassische Musik und Opern?
       </p>
 
-      <div className="mt-5 ml-10">
+      <div className="mt-2 ml-10">
         <label className="screen-reader-only" htmlFor="choice"></label>
         <span className="mr-10 text-gray-400" aria-hidden="true">
           Nein
@@ -186,7 +186,7 @@ export default function Questions() {
         <input
           onChange={(e) => setQuestion5(e.target.value)}
           defaultValue={answers?.question5}
-          className="bg-yellow-600 shadow-lg rounded-2xl"
+          className="bg-yellow-600 shadow-lg rounded-2xl w-15"
           type="range"
           max="1"
           id="choice"
@@ -196,14 +196,14 @@ export default function Questions() {
           Ja
         </span>
       </div>
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-10 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Was für eine Genre hörst du im Flugzeug?
       </p>
 
       <select
         onChange={(e) => setQuestion6(e.target.value)}
         value={question6 || ""}
-        className="w-[200] ml-5 mt-5 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        className="w-[200] ml-5 mt-2 text-gray-400 dark:text-black appearance-none focus:outline-none"
       >
         <option className="bg-gray-200">Auswählen</option>
         <option>Ambient</option>
@@ -215,7 +215,7 @@ export default function Questions() {
 
       <button
         onClick={() => saveAnswers()}
-        className="bg-yellow-400 text-white rounded-2xl p-2 mt-10 shadow-lg"
+        className="bg-yellow-400 text-white rounded-2xl p-2 mt-2 shadow-lg"
       >
         Speichern
       </button>

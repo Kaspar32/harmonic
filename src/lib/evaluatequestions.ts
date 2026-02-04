@@ -15,28 +15,38 @@ export function evaluateQuestions(answers1: {
 }) {
 
 
+    if(answers1== null || answers2== null)
+    {
+      alert("Fragen sind nicht beantwortet");
+    }
+
+    alert(answers2.question1);
+
     let score = 0;
 
     if (answers1.question1 && answers2.question1 && answers1.question1 === answers2.question1) {
+
+      
       score += 1;
     }
-    if (answers1.question2 && answers2.question2 && answers1.question2 === answers2.question2) {
+    if (answers1.question2=="" && answers2.question2=="") {
+
       score += 1;
     }
     if (answers1.question3 && answers2.question3 && answers1.question3 === answers2.question3) {
       score += 1;
     }
-    if (answers1.question4 && answers2.question4 && answers1.question4 === answers2.question4) {
+    if (answers1.question4=="" && answers2.question4=="") {
       score += 1;
     }
-    if (answers1.question5 && answers2.question5 && answers1.question5 === answers2.question5) {
+    if (answers1.question5=="" && answers2.question5=="") {
       score += 1;
     }
     if (answers1.question6 && answers2.question6 && answers1.question6 === answers2.question6) {
       score += 1;
     }
 
-    return score;
+    return Math.round(100/6 *score);
   
 
 
