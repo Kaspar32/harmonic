@@ -39,7 +39,7 @@ export default function Score({ uuid }: Props) {
   return (
    <div className="flex flex-rows gap-x-20 mb-2">
       <p className="ml-5">Fragen:</p>
-      <div className=" w-50 bg-gray-200 rounded-lg h-9 overflow-hidden border-yellow-400 border-3">
+      <div className=" w-40 bg-gray-200 rounded-lg h-9 overflow-hidden border-yellow-400 border-3">
         <div
           className="bg-yellow-600 h-9 transition-all duration-300"
           style={{ width: `${score}%` }}
