@@ -53,11 +53,7 @@ export default function Profile() {
       },
     );
 
-    
-
     setUsers(filteredUsers);
-
-
 
     return filteredUsers;
   }
@@ -114,15 +110,12 @@ export default function Profile() {
 
   //---- spotify zeugs ----
   async function calculateGenres(i: number) {
-
     const res1 = await fetch("/api/getuserdata");
     const data1 = await res1.json();
 
     const filteredUsers = await fetchUsers();
 
     if (arraysHaveCommonElement(data1.genres, filteredUsers[i].genres)) {
-
-      
       setSamegenres(true);
     }
 
@@ -512,12 +505,19 @@ export default function Profile() {
                     }`}
                   />
 
-                  <Score uuid={users[UserIndex]?.uuid}></Score>
-
                   <div>
                     <div className="grid grid-cols-2 gap-y-2 items-center mx-6 break-normal">
-                      <h3>Genres:</h3>
 
+                      <h3>Fragen:</h3>
+                      <div className="grid grid-cols gap-y-1">
+                      
+                          <Score uuid={users[UserIndex]?.uuid}></Score>
+                
+                          
+                   
+                      </div>
+
+                      <h3>Genres:</h3>
                       <div className="grid grid-cols gap-y-1">
                         {Array.isArray(users[UserIndex]?.genres) &&
                         users[UserIndex].genres.length > 0 ? (
@@ -570,7 +570,7 @@ export default function Profile() {
                         <h3 className="">interpret:</h3>
                       </div>
                       <div
-                        className={`  text-center break-normal ${
+                        className={`  border-3 rounded-3xl py-1 px-3 text-center break-normal ${
                           sameartist ? "animate-pulse text-green-400" : ""
                         }`}
                       >

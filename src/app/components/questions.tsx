@@ -86,8 +86,8 @@ export default function Questions() {
   }, [answers]);
 
   return (
-    <div className="flex flex-col min-h-screen py-2">
-      <h1 className="text-4xl font-bold text-yellow-500">Fragen</h1>
+    <div className="flex flex-col min-h-screen py-2 overflow-y-auto">
+      <h1 className="mt-30 text-4xl font-bold text-yellow-500">Fragen</h1>
 
       <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches ist dein Lieblingsopenair?
