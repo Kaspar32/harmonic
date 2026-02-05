@@ -542,7 +542,7 @@ export default function Chatter() {
       )}
 
       {openProfile && (
-        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50/90">
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
           <div className="flex flex-col items-center">
             <h2 className="text-2xl font-bold mb-4 text-yellow-600">
               <p className="text-yellow-500">
@@ -565,27 +565,27 @@ export default function Chatter() {
               </svg>
             </div>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
               <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
               {users[selectedProfileIndex]?.geschlecht}
             </p>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
               <span className="font-semibold text-gray-400">Alter:</span>{" "}
               {users[selectedProfileIndex]?.alter}
             </p>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
               <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
               {users[selectedProfileIndex]?.groesse}
             </p>
 
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
               <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
               {users[selectedProfileIndex]?.genres?.join(", ")}
             </p>
 
-            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl p-2">
               <span className="font-semibold text-gray-400">
                 Lieblingslied:
               </span>
@@ -618,7 +618,7 @@ export default function Chatter() {
               </div>
             </div>
 
-            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
+            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
               <span className="font-semibold text-gray-400">
                 Lieblingsinterpret:
               </span>{" "}
