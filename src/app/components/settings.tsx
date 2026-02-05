@@ -96,7 +96,11 @@ export default function Settings() {
             Speichern
           </button>
         </div>
+
+        <button  className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600">Konto Löschen</button>
       </div>
+
+      
     </div>
   );
 }

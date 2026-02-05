@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { UserType } from "../types/User";
 import { arraysHaveCommonElement } from "@/lib/arraysHaveCommonElement";
-import { Music, User, Users } from "lucide-react";
+import { Music, User } from "lucide-react";
 import Link from "next/link";
 import { getImageSrc } from "@/lib/getImageSrc";
 import HeartAnimation from "./heartAnimation";

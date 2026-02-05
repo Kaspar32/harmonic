@@ -29,8 +29,8 @@ export default function RootLayout({
             <Header />
           </div>
 
-          <div className="flex-1 bg-white z-50"> {children}</div>
-          <div className="sticky bottom-0 z-0">
+          <div className="flex-1 bg-white z-40"> {children}</div>
+          <div className="sticky bottom-0 z-50">
             <Footer />
           </div>
         </div>

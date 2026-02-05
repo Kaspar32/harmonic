@@ -10,13 +10,39 @@ export async function GET(req: { url: string | URL }) {
     const chatPartner = url.searchParams.get("chatPartner");
 
     if (!chatPartner) {
-      return new Response(
-        JSON.stringify({ error: "Chat partner not provided" }),
-        {
-          status: 400,
+
+
+      // Wenn Partner nicht im Url dann ists für die Notification im Footer
+      const cookieStore = cookies();
+      const userId = (await cookieStore).get("userId")?.value;
+
+      if (!userId) {
+        return new Response(JSON.stringify({ error: "User ID not found" }), {
+          status: 401,
           headers: { "Content-Type": "application/json" },
-        },
-      );
+        });
+      }
+      // Fethcing name for uuid
+      const userResult = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.uuid, userId));
+
+
+      const name= userResult[0].name?.toString();
+      if (!name) throw new Error("name is required");
+
+      // Für Notification sind nur Messages toUser 
+      const msgs = await db
+        .select()
+        .from(messages)
+        .where(eq(messages.toUser, name ))
+        .orderBy(messages.createdAt);
+
+      return new Response(JSON.stringify(msgs), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     }
 
     const cookieStore = cookies();

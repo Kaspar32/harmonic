@@ -44,7 +44,7 @@ export default function Score({ uuid }: Props) {
           className="bg-yellow-600 h-9 transition-all duration-300"
           style={{ width: `${score}%` }}
         >
-          <p className="text-gray-200 pl-5 pb-1 leading-9">{score}%</p>
+          <p className="text-yellow-500 pl-5 pb-1 leading-9">{score}%</p>
         </div>
       </div>
     </div>

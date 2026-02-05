@@ -24,7 +24,6 @@ export function evaluateQuestions(answers1: {
     let score = 0;
 
     if (answers1.question1 && answers2.question1 && answers1.question1 === answers2.question1) {
-
       
       score += 1;
     }

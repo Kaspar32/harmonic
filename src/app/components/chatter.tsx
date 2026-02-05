@@ -7,12 +7,19 @@ import Popup from "./popup";
 import { getImageSrc } from "@/lib/getImageSrc";
 import ImageStack from "./shuffler";
 import dotenv from "dotenv";
+import { Loader2 } from "lucide-react";
+import { messagesAtom } from "@/lib/overgivenotifications";
+import { useAtom } from "jotai";
+import { boolean } from "drizzle-orm/gel-core";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
   const [unlike, setUnlike] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  
 
   type Message = {
     id: number;
@@ -70,13 +77,12 @@ export default function Chatter() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
-
 
     //Alle Bilder für ImageStack für die Profileansicht laden
     const allImages = await Promise.all(
@@ -88,11 +94,11 @@ export default function Chatter() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     setAllImages(allImages);
@@ -100,7 +106,7 @@ export default function Chatter() {
     //alert(allFirstImages[0].imageBase64);
 
     const validImages = allFirstImages.map((img) =>
-      Boolean(img) ? img : null
+      Boolean(img) ? img : null,
     );
 
     setImages(validImages);
@@ -114,11 +120,11 @@ export default function Chatter() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
@@ -128,13 +134,13 @@ export default function Chatter() {
 
   //Beim Rendern der Page ausführen
   useEffect(() => {
+    setLoading(true);
     calculateMatch();
+    setLoading(false);
   }, []);
 
   //Beim Rendern der Page ausführen damit ein neuer Socket erstellt wird :::::::::::::::::::::::::::::::::::::
   useEffect(() => {
-
-    
     const socket = io("http://195.15.205.186:4001", {
       transports: ["websocket", "polling"],
     });
@@ -155,28 +161,23 @@ export default function Chatter() {
         if (exists) return prev;
         return [...prev, msg];
       });
-
     });
 
     // Beim Unmouten der Funktion wird der socket disconected
     return () => {
       socket.disconnect();
     };
-
   }, []);
-
-
-  
 
   // Beim Mounten der Komponente den User dem Raum hinzufügen:::::::::::::::::::::::::::::::::::::::::::::
   useEffect(() => {
-  if (!socketRef.current || !currentUser) return;
+    if (!socketRef.current || !currentUser) return;
 
-  socketRef.current.emit("join-room", {
-    room: "test-room",
-    user: currentUser
-  });
-}, [currentUser]);
+    socketRef.current.emit("join-room", {
+      room: "test-room",
+      user: currentUser,
+    });
+  }, [currentUser]);
 
   const fetchMessages = async () => {
     if (!socketRef.current || !currentUser || !chatPartner) return;
@@ -202,7 +203,6 @@ export default function Chatter() {
 
   // Senden der Message
   const sendMessage = () => {
-
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
 
@@ -226,6 +226,10 @@ export default function Chatter() {
 
   // Auswählen der User für den Chat::::::::::::::::::::::::::::::::::::::::::::::::
   async function handleClick(index: number) {
+
+    newMessages[index]=false;
+
+
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
       console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
@@ -352,85 +356,114 @@ export default function Chatter() {
     });
   }
 
-
   // Beim Clicken auf das Profil ein neues Fenster mit dem Profildaten:::::::::::::::::::::
 
-  
   function handlePPClick(index: number) {
     setopenChat(false);
     setSelectedProfileIndex(index);
     setOpenProfile(true);
   }
 
-
   useEffect(() => {
-    const chatWindow = document.getElementById("chatmessagewindow"); 
-    if(chatWindow)
-    {
-      chatWindow.scrollTop=chatWindow.scrollHeight;
+    const chatWindow = document.getElementById("chatmessagewindow");
+    if (chatWindow) {
+      chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-  },[messages, openChat]);
+  }, [messages, openChat]);
+
+  // Notifications für die Messages
+  const newMessages: boolean[] = [];
+  const [newmessagesusers] = useAtom(messagesAtom);
+
+  for (let j = 0; j <= newmessagesusers.length - 1; j++) {
+    const userIndex = users.findIndex((u) => u.name === newmessagesusers[j]);
+    newMessages[userIndex]= true;
+  }
+  
+
+  console.log("Neue Nachricht von:", newmessagesusers[0]);
+  
 
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
-      <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
-        {images.map((item, index) => (
-          <div key={index}>
-            <div className="relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black ">
-              <Image
-                src={
-                  item?.imageBase64
-                    ? getImageSrc(item.imageBase64)
-                    : "/images/defaultProfile.png"
+      {loading && <Loader2 className=" animate-spin text-yellow-400" />}
+      {!loading && (
+        <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
+          {images.map((item, index) => (
+            <div key={index}>
+              <div
+                className={
+                  "relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black"
                 }
-                height={70}
-                width={80}
-                className="rounded-4xl border-2 border-yellow-300 "
-                alt="Profilbild"
-                onClick={() => handlePPClick(index)}
-              />
-
-              <p
-                className="flex text-xl font-bold text-yellow-500 items-center ml-4"
-                onClick={() => handleClick(index)}
               >
-               Schreibe:... {users[index]?.name || ""}
-              </p>
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="cursor-pointer size-6 text-red-300 border-2 hover:text-red-500 border-red-300 hover:border-red-400 bg-red-50 hover:bg-red-100 rounded-full absolute top-[-4] right-[-4]"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCross(index);
-                }}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
+                <Image
+                  src={
+                    item?.imageBase64
+                      ? getImageSrc(item.imageBase64)
+                      : "/images/defaultProfile.png"
+                  }
+                  height={70}
+                  width={80}
+                  className="rounded-4xl border-2 border-yellow-300 "
+                  alt="Profilbild"
+                  onClick={() => handlePPClick(index)}
                 />
-              </svg>
+
+                <p
+                  className="flex text-xl font-bold text-yellow-500 items-center ml-4"
+                  onClick={() => handleClick(index)}
+                >
+                  Schreibe:... {users[index]?.name || ""}
+                </p>
+
+                {newMessages[index] && (
+      
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 text-red-700 mt-15 ml-10 animate-bounce">
+  <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
+  <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
+</svg>
+)}
+
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="1.5"
+                  stroke="currentColor"
+                  className="cursor-pointer size-6 text-red-300 border-2 hover:text-red-500 border-red-300 hover:border-red-400 bg-red-50 hover:bg-red-100 rounded-full absolute top-[-4] right-[-4]"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCross(index);
+                  }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18 18 6M6 6l12 12"
+                  />
+                </svg>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {openChat && (
         <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/90">
-          <div id="chatmessagewindow"className="max-h-[600px] space-y-4 overflow-x-hidden mb-4">
+          <div
+            id="chatmessagewindow"
+            className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
+          >
             <div className="w-screen h-full p-4 md:p-10">
               {messages
                 .filter(
                   (msg) =>
                     (msg.fromUser === currentUser &&
                       msg.toUser === chatPartner) ||
-                    (msg.fromUser === chatPartner && msg.toUser === currentUser)
+                    (msg.fromUser === chatPartner &&
+                      msg.toUser === currentUser),
                 )
                 .map((msg) => {
                   const isCurrentUser = msg.fromUser === currentUser;
@@ -522,19 +555,15 @@ export default function Chatter() {
                 <ImageStack images={Allimages[selectedProfileIndex] || []} />
               )}
 
-               <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-6 text-yellow-600"
-            >
-              <path
-                d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z"
-              />
-            </svg>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-6 text-yellow-600"
+              >
+                <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+              </svg>
             </div>
-
-           
 
             <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl shadow-2xl p-2">
               <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
@@ -598,8 +627,8 @@ export default function Chatter() {
                   <div className="flex items-center gap-1 ">
                     <Image
                       src={
-                        users[selectedProfileIndex]?.favorite_artist?.favorite_artist1?.image ||
-                        "/images/Home.png"
+                        users[selectedProfileIndex]?.favorite_artist
+                          ?.favorite_artist1?.image || "/images/Home.png"
                       }
                       alt="Lieblingsinterpret Bild"
                       height={30}
@@ -609,7 +638,10 @@ export default function Chatter() {
                     />
                     <div className="md:w-full max-w-[120px]">
                       <div className="font-semibold text-yellow-500">
-                        {users[selectedProfileIndex]?.favorite_artist?.favorite_artist1?.name}
+                        {
+                          users[selectedProfileIndex]?.favorite_artist
+                            ?.favorite_artist1?.name
+                        }
                       </div>
                     </div>
                   </div>
