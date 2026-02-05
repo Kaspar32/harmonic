@@ -30,6 +30,11 @@ export default function Settings() {
     window.location.href = "/home";
   }
 
+  function deleteaccount()
+  {
+      
+  }
+
   useEffect(() => {
     async function fetchSettings() {
       try {
@@ -97,7 +102,7 @@ export default function Settings() {
           </button>
         </div>
 
-        <button  className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600">Konto Löschen</button>
+        <button onClick={deleteaccount} className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600">Konto Löschen</button>
       </div>
 
       
