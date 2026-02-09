@@ -550,10 +550,10 @@ export default function Profil_Edit() {
 
 
       <p className="text-gray-400 text-sm mt-1 ml-2">
-        Hier werden die Bilder dargestllt mit der neuen Handhabung
+        Hier werden die Bilder dargestellt mit der neuen Handhabung
       </p>
 
-      <img src={`api/image/3463743f-5b87-47a6-a240-b29c778a7f62-img-1`} alt="Bild 1" />
+      <img src={`images/3463743f-5b87-47a6-a240-b29c778a7f62-img-1blurred.png`} />
 
       
 

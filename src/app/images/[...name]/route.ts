@@ -1,0 +1,54 @@
+// app/images/[...file]/route.js
+import { join } from 'path';
+import { promises as fs } from 'fs';
+import { NextRequest } from 'next/server';
+
+export async function GET(request: Request, { params }: { params: Promise<{ name: string[] }> }) {
+  try {
+
+    // Warte auf das gesamte params-Objekt
+    const awaitedParams = await Promise.resolve(params || {});
+    const fileSegments = awaitedParams.name || [];
+    
+    const filePath = join(
+      process.cwd(),
+      'uploads',
+      'images',
+      ...fileSegments
+    );
+
+    // Dateityp-Erkennung
+    const ext = (filePath.split('.').pop() ?? '').toLowerCase();
+    const contentType = {
+      png: 'image/png',
+      gif: 'image/gif',
+      jpg: 'image/jpeg',
+      jpeg: 'image/jpeg',
+      webp: 'image/webp',
+      svg: 'image/svg+xml'
+    }[ext] || 'application/octet-stream';
+
+    const fileBuffer = await fs.readFile(filePath);
+    
+    // Convert Buffer to Uint8Array for Response compatibility
+    return new Response(new Uint8Array(fileBuffer), {
+      status: 200,
+      headers: { 
+        'Content-Type': contentType,
+        'Cache-Control': 'public, max-age=31536000, immutable' // 1 Jahr Caching
+      }
+    });
+  } catch (error) {
+    console.error('Error serving image:', error);
+    return new Response(
+      JSON.stringify({ error: 'File not found' }), 
+      { 
+        status: 404, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store' 
+        } 
+      }
+    );
+  }
+}
