@@ -1,7 +1,6 @@
-// app/images/[...file]/route.js
+// app/images/[...name]/route.ts
 import { join } from 'path';
 import { promises as fs } from 'fs';
-import { NextRequest } from 'next/server';
 
 export async function GET(request: Request, { params }: { params: Promise<{ name: string[] }> }) {
   try {
