@@ -4,6 +4,10 @@ import { profilePictures } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { cookies } from "next/headers";
+import path from "path";
+import fs from "fs/promises";
+
+
 /* import {
   RekognitionClient,
 } from "@aws-sdk/client-rekognition"; */
@@ -102,6 +106,21 @@ export async function POST(req: NextRequest) {
     for (const [index, img] of processed.entries()) {
       if (!img.image_blurred_base64) continue;
 
+
+      const base64Data= img.image_blurred_base64.replace(/^data:image\/\w+;base64,/, "");
+      
+      const buffer = Buffer.from(base64Data, "base64");
+
+       const filePath = path.join(process.cwd(), "uploads/images", `${img.id}`+"blurred"+".png");
+      
+       await fs.writeFile(filePath, buffer);
+
+
+
+
+
+      //DB-Geschichte:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
       const existing = await db
         .select()
         .from(profilePictures)
@@ -129,6 +148,23 @@ export async function POST(req: NextRequest) {
 
     for (const [index, img] of payload.entries()) {
       if (!img.image_base64) continue;
+
+      
+      const base64Data= img.image_base64.replace(/^data:image\/\w+;base64,/, "");
+      
+      const buffer = Buffer.from(base64Data, "base64");
+
+       const filePath = path.join(process.cwd(), "uploads/images", `${img.id}`+".png");
+      
+       await fs.writeFile(filePath, buffer);
+
+
+
+
+
+
+
+      //DB-Geschichte::::::::::::::::::::::::::::::::::::::::::::::::::
 
       const existing = await db
         .select()

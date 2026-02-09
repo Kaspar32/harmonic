@@ -80,7 +80,7 @@ export default function Profil_Edit() {
   const [genres] = useState(Genres);
   const [ichSucheState] = useState(IchSucheData);
 
-  const [uuid] = useState("");
+  const [uuid] = "3463743f-5b87-47a6-a240-b29c778a7f62";
 
   // User Daten und Bilder direkt laden
   useEffect(() => {
@@ -541,11 +541,13 @@ export default function Profil_Edit() {
                     }
                   />
                 </div>
-              </SortableItem>
+              </SortableItem> 
             ))}
           </div>
         </SortableContext>
       </DndContext>
+
+      
 
       {images.some((img) => img.image) && (
         <div className=" text-yellow-500 font-bold border-2 p-2 h-30 rounded-2xl mt-2 animate-pulse">
