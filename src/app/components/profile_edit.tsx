@@ -108,6 +108,7 @@ export default function Profil_Edit() {
 
       //alert(data.favorite_artist)
 
+      /*
       const res2 = await fetch(`/api/getpicsbyid?id=${data.uuid}`);
       if (!res2.ok) return;
       const imagesData = await res2.json();
@@ -115,7 +116,7 @@ export default function Profil_Edit() {
         prev.map((img, i) =>
           imagesData[i] ? { ...img, ...imagesData[i] } : img,
         ),
-      );
+      );*/
     }
     fetchUser();
   }, []);
@@ -546,6 +547,13 @@ export default function Profil_Edit() {
           </div>
         </SortableContext>
       </DndContext>
+
+
+      <p className="text-gray-400 text-sm mt-1 ml-2">
+        Hier werden die Bilder dargestllt mit der neuen Handhabung
+      </p>
+
+      <img src={`api/image/3463743f-5b87-47a6-a240-b29c778a7f62-img-1`} alt="Bild 1" />
 
       
 
