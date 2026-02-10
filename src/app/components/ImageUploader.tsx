@@ -21,6 +21,8 @@ export default function ImageUploader({
   useEffect(() => {
     if (initialImageUrl) {
       setPreviewUrl(initialImageUrl);
+
+      alert(""+initialImageUrl)
     }
   }, [initialImageUrl]);
 
@@ -68,13 +70,9 @@ export default function ImageUploader({
       <div className="flex flex-wrap">
         {previewUrl && (
           <div className="">
-            <Image
-              src={previewUrl}
-              alt={`preview`}
-              width={43}
-              height={43}
-              className=" h-43 w-45 rounded-2xl  object-cover "
-            />
+      
+
+            <img src={previewUrl} alt="Bild" className="w-45 h-45 pb-2 object-cover rounded-2xl" />
 
             {/* Löschen-Button oben rechts */}
             <button

@@ -117,6 +117,15 @@ export default function Profil_Edit() {
           imagesData[i] ? { ...img, ...imagesData[i] } : img,
         ),
       );*/
+
+      const res2 = await fetch(`/api/getPicsData`);
+      if (!res2.ok) return;
+      const imagesData = await res2.json();
+
+     // console.log("Empfangene Bilderdaten:", imagesData);
+    
+      setImagesData(imagesData.profile_pics);
+
     }
     fetchUser();
   }, []);
@@ -149,6 +158,15 @@ export default function Profil_Edit() {
       position?: number;
     }[]
   >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
+
+
+  const [imagesData, setImagesData] = useState<any>([]);
+
+
+  useEffect(() => { 
+
+    alert(imagesData);
+   }, [imagesData]);
 
   const handleImageChange = (id: string, image: File | null) => {
     setImages((prev) =>
@@ -226,7 +244,7 @@ export default function Profil_Edit() {
   }
 
   async function deleteImage(id: string) {
-    await fetch("/api/deletepicbyid", {
+    await fetch("/api/deleteImageinFolder", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -528,18 +546,16 @@ export default function Profil_Edit() {
             {images.map((img, i) => (
               <SortableItem key={img.id} id={img.id}>
                 <div className="border-2 w-48 h-48 rounded-2xl mt-2 ml-2 p-2 border-yellow-200 relative">
+                  
                   <ImageUploader
                     onImageChange={(image) => {
                       if (image === null) {
-                        deleteImage(img.id); // Deine Funktion zum Löschen des Bildes
+                        deleteImage(`${imagesData[i]}`); // Deine Funktion zum Löschen des Bildes
                       } else {
                         handleImageChange(img.id, image); // Normale Bildbehandlung
                       }
                     }}
-                    initialImageUrl={
-                      images.find((image) => i === image.position)
-                        ?.imageBase64 ?? undefined
-                    }
+                    initialImageUrl={`/images/${imagesData[i]}`}
                   />
                 </div>
               </SortableItem> 
@@ -552,9 +568,8 @@ export default function Profil_Edit() {
       <p className="text-gray-400 text-sm mt-1 ml-2">
         Hier werden die Bilder dargestellt mit der neuen Handhabung
       </p>
-
-      <img src={`images/3463743f-5b87-47a6-a240-b29c778a7f62-img-1blurred.png`} />
-
+      
+      
       
 
       {images.some((img) => img.image) && (

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { profilePictures } from "@/db/schema";
+import { profilePictures, users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import sharp from "sharp";
 import { cookies } from "next/headers";
 import path from "path";
 import fs from "fs/promises";
-
 
 /* import {
   RekognitionClient,
@@ -40,8 +39,6 @@ import fs from "fs/promises";
 } */
 
 export async function GET(req: NextRequest) {
-
-
   try {
     const pictures = await db.select().from(profilePictures);
     return NextResponse.json(pictures);
@@ -54,6 +51,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
   const userId = (await cookieStore).get("userId")?.value;
+
+  if (!userId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const payload: {
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     }*/
 
     //Version Blurred
-
+    /*
     const processed = await Promise.all(
       payload.map(async (item) => {
         if (!item.image_base64) return { ...item, image_blurred_base64: null };
@@ -86,41 +87,45 @@ export async function POST(req: NextRequest) {
         // Base64 -> Buffer
         const base64Data = item.image_base64.replace(
           /^data:image\/\w+;base64,/,
-          ""
+          "",
         );
         const buffer = Buffer.from(base64Data, "base64");
 
         // Mit sharp eine Blur-Version erzeugen
         const blurredBuffer = await sharp(buffer).blur(60).toBuffer();
         const blurredBase64 = `data:image/jpeg;base64,${blurredBuffer.toString(
-          "base64"
+          "base64",
         )}`;
 
         return {
           ...item,
           image_blurred_base64: blurredBase64,
         };
-      })
-    );
+      }),
+    );*/
 
+    /*
     for (const [index, img] of processed.entries()) {
       if (!img.image_blurred_base64) continue;
 
+      const base64Data = img.image_blurred_base64.replace(
+        /^data:image\/\w+;base64,/,
+        "",
+      );
 
-      const base64Data= img.image_blurred_base64.replace(/^data:image\/\w+;base64,/, "");
-      
       const buffer = Buffer.from(base64Data, "base64");
 
-       const filePath = path.join(process.cwd(), "uploads/images", `${img.id}`+"blurred"+".png");
-      
-       await fs.writeFile(filePath, buffer);
+      const timestamp = Date.now();
+      const filePath = path.join(
+        process.cwd(),
+        "uploads/images",
+        `${img.id}_${timestamp}blurred.png`,
+      );
 
-
-
-
+      await fs.writeFile(filePath, buffer);
 
       //DB-Geschichte:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
+      /*
       const existing = await db
         .select()
         .from(profilePictures)
@@ -144,28 +149,50 @@ export async function POST(req: NextRequest) {
           userUuid: userId,
         });
       }
-    }
+  }   */ 
+
+    let eintrag=[];
 
     for (const [index, img] of payload.entries()) {
       if (!img.image_base64) continue;
 
+      // Update profile_pics in users table
       
-      const base64Data= img.image_base64.replace(/^data:image\/\w+;base64,/, "");
       
+      
+
+      // Base64 -> Buffer
+
+      const base64Data = img.image_base64.replace(
+        /^data:image\/\w+;base64,/,
+        "",
+      );
+
       const buffer = Buffer.from(base64Data, "base64");
 
-       const filePath = path.join(process.cwd(), "uploads/images", `${img.id}`+".png");
+      const timestamp = Date.now();
+      const filePath = path.join(
+        process.cwd(),
+        "uploads/images",
+        `${img.id}_${timestamp}.png`,
+      );
+
+      await fs.writeFile(filePath, buffer);
+
+      //Löschen alter Bilder im Ordner
+        
+
+
+
+
+
+      eintrag.push(`${img.id}_${timestamp}.png`);
+
+
       
-       await fs.writeFile(filePath, buffer);
-
-
-
-
-
-
 
       //DB-Geschichte::::::::::::::::::::::::::::::::::::::::::::::::::
-
+      /*
       const existing = await db
         .select()
         .from(profilePictures)
@@ -188,15 +215,23 @@ export async function POST(req: NextRequest) {
           position: index,
           userUuid: userId,
         });
-      }
+      }*/
     }
+
+    await db
+        .update(users)
+        .set({
+          profile_pics: eintrag,
+        })
+        .where(eq(users.uuid, userId));
+
 
     return NextResponse.json({ message: "Images saved successfully" });
   } catch (error) {
     console.error("Error saving images:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
