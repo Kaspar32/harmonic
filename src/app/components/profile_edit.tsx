@@ -25,6 +25,7 @@ import Genres from "../data/Genres";
 import { UserType } from "../types/User";
 import { User } from "lucide-react";
 import Questions from "./questions";
+import { previousDay } from "date-fns";
 
 interface TrackItem {
   id: string;
@@ -126,6 +127,11 @@ export default function Profil_Edit() {
     
       setImagesData(imagesData.profile_pics);
 
+      alert("Bilderdaten: " + JSON.stringify(imagesData.profile_pics));
+
+  
+
+
     }
     fetchUser();
   }, []);
@@ -151,24 +157,23 @@ export default function Profil_Edit() {
   // Constants für das Handle der Reihenfolge der Profilbilder
 
   //Containers
-  const [images, setImages] = useState<
+  const [imagesContainer, setImagesContainer] = useState<
     {
       id: string;
       image?: File | null;
+      imageBase64?: string;
+      position: number;
     }[]
   >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
 
 
   const [imagesData, setImagesData] = useState<any>([]);
 
-
-  useEffect(() => { 
-
-    alert(imagesData);
-   }, [imagesData]);
-
   const handleImageChange = (id: string, image: File | null) => {
-    setImages((prev) =>
+
+    alert(imagesContainer);
+
+    setImagesContainer((prev) =>
       prev.map((img) => (img.id === id ? { ...img, image } : img)),
     );
   };
@@ -181,15 +186,18 @@ export default function Profil_Edit() {
   );
 
   const handleDragEnd = async (event: DragEndEvent) => {
+
+    alert("test");
+
     const { active, over } = event;
 
     if (!over || active.id === over.id) return;
 
     if (active.id !== over?.id) {
-      const oldIndex = images.findIndex((item) => item.id === active.id);
-      const newIndex = images.findIndex((item) => item.id === over.id);
+      const oldIndex = imagesContainer.findIndex((item) => item.id === active.id);
+      const newIndex = imagesContainer.findIndex((item) => item.id === over.id);
 
-      const newImages = arrayMove(images, oldIndex, newIndex);
+      const newImages = arrayMove(imagesContainer, oldIndex, newIndex);
 
       if (oldIndex === -1 || newIndex === -1) {
         return;
@@ -198,17 +206,7 @@ export default function Profil_Edit() {
       const updatedImages = newImages.map((img, index) => ({
         ...img,
         position: index, // wichtig für spätere Speicherung
-      }));
-
-      setImages(updatedImages);
-
-      const res = await fetch("/api/reorder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ images: updatedImages, uuid: uuid }),
-      });
-
-      console.log(res);
+      }))
     }
   };
 
@@ -221,11 +219,11 @@ export default function Profil_Edit() {
 
     const data = await res0.json();
 
-   
+   const base64Array = await convertImagesToBase64(imagesContainer);
 
-    const payload = images.map((img, index) => ({
+    const payload = imagesContainer.map((img, index) => ({
       id: `${data.uuid}-img-${img.id}`,
-      file: img.image,
+      image_base64: base64Array[index],
     }));
 
     const res = await fetch("/api/addprofilepics", {
@@ -248,6 +246,11 @@ export default function Profil_Edit() {
       },
       body: JSON.stringify({ id: id }),
     });
+
+    // setzte die Bilder im State zurück, damit sie nicht mehr angezeigt werden
+
+
+
   }
 
   //Spotify-Daten
@@ -536,11 +539,11 @@ export default function Profil_Edit() {
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={images.map((item) => item.id)}
+          items={imagesContainer.map((item) => item.id)}
           strategy={rectSortingStrategy}
         >
           <div className="flex flex-wrap">
-            {images.map((img, i) => (
+            {imagesContainer.map((img, i) => (
               <SortableItem key={img.id} id={img.id}>
                 <div className="border-2 w-48 h-48 rounded-2xl mt-2 ml-2 p-2 border-yellow-200 relative">
                   
@@ -569,12 +572,12 @@ export default function Profil_Edit() {
       
       
 
-      {images.some((img) => img.image) && (
+      {imagesContainer.some((img) => img.image) && (
         <div className=" text-yellow-500 font-bold border-2 p-2 h-30 rounded-2xl mt-2 animate-pulse">
           Speichere die Bilder nach dem (+) Hinzufügen
         </div>
       )}
-      {images.some((img) => img.image) && (
+      {imagesContainer.some((img) => img.image) && (
         <button
           onClick={addPpics}
           className="border-2  h-30 m-2 border-gray-300 text-2xl font-bold text-gray-300 hover:bg-white rounded-2xl"

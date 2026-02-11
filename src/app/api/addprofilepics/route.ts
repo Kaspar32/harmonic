@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { profilePictures, users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import sharp from "sharp";
 import { cookies } from "next/headers";
 import path from "path";
@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       user_id: string;
     }[] = await req.json();
 
-    console.log(payload);
+    //console.log(payload);
 
     /*
     for (const img of payload) {
@@ -156,8 +156,6 @@ export async function POST(req: NextRequest) {
     for (const [index, img] of payload.entries()) {
 
       if (!img.image_base64) continue;
-
-      // Update profile_pics in users table
       
       
       
@@ -224,7 +222,7 @@ export async function POST(req: NextRequest) {
     await db
         .update(users)
         .set({
-          profile_pics: eintrag,
+          profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}`,
         })
         .where(eq(users.uuid, userId));
 
