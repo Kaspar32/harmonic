@@ -149,13 +149,12 @@ export default function Profil_Edit() {
 
   //Profilbilder logik
   // Constants für das Handle der Reihenfolge der Profilbilder
+
+  //Containers
   const [images, setImages] = useState<
     {
       id: string;
       image?: File | null;
-      imageBase64?: string;
-      user_id?: string;
-      position?: number;
     }[]
   >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
 
@@ -222,13 +221,11 @@ export default function Profil_Edit() {
 
     const data = await res0.json();
 
-    const base64Array = await convertImagesToBase64(images);
+   
 
     const payload = images.map((img, index) => ({
       id: `${data.uuid}-img-${img.id}`,
-      image_base64: base64Array[index],
-      position: index,
-      user_id: uuid,
+      file: img.image,
     }));
 
     const res = await fetch("/api/addprofilepics", {

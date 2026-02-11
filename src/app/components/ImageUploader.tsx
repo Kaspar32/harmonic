@@ -21,8 +21,6 @@ export default function ImageUploader({
   useEffect(() => {
     if (initialImageUrl) {
       setPreviewUrl(initialImageUrl);
-
-      alert(""+initialImageUrl)
     }
   }, [initialImageUrl]);
 
@@ -50,6 +48,8 @@ export default function ImageUploader({
 
   return (
     <div className="flex justify-center items-center ">
+      
+      {!previewUrl && (
       <button className="absolute bottom-2  cursor-pointer">
         <Image
           src="/images/circle-plus.svg"
@@ -66,7 +66,7 @@ export default function ImageUploader({
           onChange={handleImageChange}
           className="absolute inset-0 opacity-0 cursor-pointer "
         ></input>
-      </button>
+      </button>)}
       <div className="flex flex-wrap">
         {previewUrl && (
           <div className="">
@@ -77,10 +77,16 @@ export default function ImageUploader({
             {/* Löschen-Button oben rechts */}
             <button
               onClick={() => handleRemoveImage()}
-              className="absolute left-27 top-40 border-0"
+              className="absolute left-24 top-40"
               title="Bild löschen"
             >
-              X
+              <Image
+          src="/images/delete-filled.svg"
+          width={20}
+          height={20}
+          alt="Add"
+          className=""
+        />
             </button>
           </div>
         )}

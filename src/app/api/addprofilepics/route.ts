@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
       user_id: string;
     }[] = await req.json();
 
-    //console.log(payload);
+    console.log(payload);
 
     /*
     for (const img of payload) {
@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
     let eintrag=[];
 
     for (const [index, img] of payload.entries()) {
+
       if (!img.image_base64) continue;
 
       // Update profile_pics in users table
@@ -169,6 +170,7 @@ export async function POST(req: NextRequest) {
       );
 
       const buffer = Buffer.from(base64Data, "base64");
+      
 
       const timestamp = Date.now();
       const filePath = path.join(
@@ -177,9 +179,10 @@ export async function POST(req: NextRequest) {
         `${img.id}_${timestamp}.png`,
       );
 
+
       await fs.writeFile(filePath, buffer);
 
-      //Löschen alter Bilder im Ordner
+      
         
 
 
