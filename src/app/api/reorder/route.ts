@@ -1,31 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { profilePictures } from "@/db/schema";
-import { eq, and } from "drizzle-orm";
+import { profilePictures, users } from "@/db/schema";
+import { eq, and, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
   const cookieStore = cookies();
   const userId = (await cookieStore).get("userId")?.value;
+  if(!userId){
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const { images } = await req.json();
 
-    //console.log("tesssst", images);
+    await db
+            .update(users)
+            .set({
+              profile_pics: JSON.stringify(images),
+            })
+            .where(eq(users.uuid, userId));
 
-    for (const image of images) {
-      await db
-        .update(profilePictures)
-        .set({
-          position: image.position,
-        })
-        .where(
-          and(
-            eq(profilePictures.id, image.id),
-            eq(profilePictures.userUuid, userId as string)
-          )
-        );
-    }
+    
+
     return NextResponse.json({ message: "Images saved successfully" });
   } catch (error) {
     console.error("Error saving images:", error);

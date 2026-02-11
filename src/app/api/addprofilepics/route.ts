@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
     await db
         .update(users)
         .set({
-          profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}`,
+          profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}`
         })
         .where(eq(users.uuid, userId));
 

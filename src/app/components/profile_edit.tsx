@@ -127,8 +127,6 @@ export default function Profil_Edit() {
     
       setImagesData(imagesData.profile_pics);
 
-      alert("Bilderdaten: " + JSON.stringify(imagesData.profile_pics));
-
   
 
 
@@ -162,7 +160,7 @@ export default function Profil_Edit() {
       id: string;
       image?: File | null;
       imageBase64?: string;
-      position: number;
+      position?: number;
     }[]
   >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
 
@@ -171,7 +169,7 @@ export default function Profil_Edit() {
 
   const handleImageChange = (id: string, image: File | null) => {
 
-    alert(imagesContainer);
+   // alert(imagesContainer);
 
     setImagesContainer((prev) =>
       prev.map((img) => (img.id === id ? { ...img, image } : img)),
@@ -187,7 +185,7 @@ export default function Profil_Edit() {
 
   const handleDragEnd = async (event: DragEndEvent) => {
 
-    alert("test");
+   // alert("test");
 
     const { active, over } = event;
 
@@ -206,7 +204,44 @@ export default function Profil_Edit() {
       const updatedImages = newImages.map((img, index) => ({
         ...img,
         position: index, // wichtig für spätere Speicherung
-      }))
+      }));
+
+      setImagesContainer(updatedImages);
+
+
+
+
+
+
+      let Array= await fetch("api/getPicsData", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const ArrayData = await Array.json();
+
+      //
+
+
+      const newArray = arrayMove(ArrayData.profile_pics, oldIndex, newIndex);
+
+      alert("Das ist ein test"+newArray);
+
+
+      
+      await fetch("api/reorder",{
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ images: newArray }),
+      }
+      )
+
+      window.location.reload();
+
     }
   };
 
@@ -233,7 +268,7 @@ export default function Profil_Edit() {
     });
 
     const result = await res.json();
-    console.log(result);
+    //console.log(result);
 
     window.location.reload();
   }
@@ -555,7 +590,7 @@ export default function Profil_Edit() {
                         handleImageChange(img.id, image); // Normale Bildbehandlung
                       }
                     }}
-                    initialImageUrl={`/images/${imagesData[i]}`}
+                    initialImageUrl={imagesData[i] ? `/images/${imagesData[i]}` : undefined}
                   />
                 </div>
               </SortableItem> 
