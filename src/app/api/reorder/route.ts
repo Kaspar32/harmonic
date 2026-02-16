@@ -14,6 +14,8 @@ export async function POST(req: NextRequest) {
   try {
     const { images } = await req.json();
 
+    console.log("Received images for reordering:", images);
+
     await db
             .update(users)
             .set({

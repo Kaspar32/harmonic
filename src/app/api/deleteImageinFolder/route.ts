@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
 
-    const { id } = await request.json();
+    const { Imageid: id } = await request.json();
     console.log("ID zum Löschen:", id);
 
     const directory = path.join(process.cwd(), "uploads/images");
@@ -34,7 +34,11 @@ export async function POST(request: Request) {
 
     const pics = user[0].profile_pics as string[];
 
-    const newPics = pics.filter((pic) => pic !== id);
+    const newPics = pics.filter(pic => !pic.startsWith(id + "_"));
+
+    console.log("Aktualisierte Bilderliste:", newPics);
+
+    
 
     await db
       .update(users)

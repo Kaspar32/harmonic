@@ -169,7 +169,7 @@ export default function Profil_Edit() {
 
   const handleImageChange = (id: string, image: File | null) => {
 
-   // alert(imagesContainer);
+    alert(imagesContainer);
 
     setImagesContainer((prev) =>
       prev.map((img) => (img.id === id ? { ...img, image } : img)),
@@ -208,11 +208,6 @@ export default function Profil_Edit() {
 
       setImagesContainer(updatedImages);
 
-
-
-
-
-
       let Array= await fetch("api/getPicsData", {
         method: "GET",
         headers: {
@@ -227,7 +222,7 @@ export default function Profil_Edit() {
 
       const newArray = arrayMove(ArrayData.profile_pics, oldIndex, newIndex);
 
-      alert("Das ist ein test"+newArray);
+     // alert("Das ist ein test"+newArray);
 
 
       
@@ -240,7 +235,9 @@ export default function Profil_Edit() {
       }
       )
 
-      window.location.reload();
+
+      setImagesData(newArray);
+      //window.location.reload();
 
     }
   };
@@ -270,7 +267,7 @@ export default function Profil_Edit() {
     const result = await res.json();
     //console.log(result);
 
-    window.location.reload();
+    //window.location.reload();
   }
 
   async function deleteImage(id: string) {
@@ -590,7 +587,7 @@ export default function Profil_Edit() {
                         handleImageChange(img.id, image); // Normale Bildbehandlung
                       }
                     }}
-                    initialImageUrl={imagesData[i] ? `/images/${imagesData[i]}` : undefined}
+                    initialImageUrl={imagesData[i] ? `/images/${imagesData[i+1]}` : undefined}
                   />
                 </div>
               </SortableItem> 

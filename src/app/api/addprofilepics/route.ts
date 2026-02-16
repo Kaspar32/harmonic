@@ -192,6 +192,9 @@ export async function POST(req: NextRequest) {
 
       
 
+
+      
+
       //DB-Geschichte::::::::::::::::::::::::::::::::::::::::::::::::::
       /*
       const existing = await db
@@ -218,6 +221,8 @@ export async function POST(req: NextRequest) {
         });
       }*/
     }
+
+    console.log("Eintrag:", eintrag);
 
     await db
         .update(users)
