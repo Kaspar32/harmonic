@@ -28,6 +28,22 @@ export default function Header() {
     loadUserAndImages();
   }, []);
 
+  const [imagesData, setImagesData] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchImagesData() {
+      const res2 = await fetch(`/api/getPicsData`);
+      if (!res2.ok) return;
+      const imagesData = await res2.json();
+
+      console.log("Empfangene Bilderdaten:", imagesData);
+
+      setImagesData(imagesData.profile_pics);
+    }
+
+    fetchImagesData();
+  }, []);
+
 
   return (
     <div className="flex justify-between bg-blue-200 p-3  border-b-2 border-blue-400">
@@ -48,7 +64,7 @@ export default function Header() {
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-full focus:ring-3 ring-blue-500 ">
             <div className="relative md:h-12 md:w-12 h-8 w-8  overflow-hidden rounded-full focus:ring-2 focus:ring-blue-400">
               <Image
-                src={image[0]?.imageBase64 || "/images/149071.png"}
+                src={`/images/${imagesData[0]}` || "/images/149071.png"}
                 alt="Profilbild"
                 fill
                 className="object-cover"

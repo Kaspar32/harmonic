@@ -25,7 +25,8 @@ import Genres from "../data/Genres";
 import { UserType } from "../types/User";
 import { User } from "lucide-react";
 import Questions from "./questions";
-import { previousDay } from "date-fns";
+
+import Refactoring_Images from "./refactoring_images";
 
 interface TrackItem {
   id: string;
@@ -565,6 +566,8 @@ export default function Profil_Edit() {
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
+      
+      {/*---------- DND-Sortable_Item --------
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -595,11 +598,12 @@ export default function Profil_Edit() {
           </div>
         </SortableContext>
       </DndContext>
+      */}
+<Refactoring_Images />
+      
 
 
-      <p className="text-gray-400 text-sm mt-1 ml-2">
-        Hier werden die Bilder dargestellt mit der neuen Handhabung
-      </p>
+
       
       
       

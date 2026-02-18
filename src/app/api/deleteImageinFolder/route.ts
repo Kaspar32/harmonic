@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
     const pics = user[0].profile_pics as string[];
 
-    const newPics = pics.filter(pic => !pic.startsWith(id + "_"));
+    const newPics = pics.filter(pic => !pic.startsWith(id));
 
     console.log("Aktualisierte Bilderliste:", newPics);
 
