@@ -47,6 +47,16 @@ export default function Refactoring_Images() {
       console.log("Empfangene Bilderdaten:", imagesData);
 
       setImagesData(imagesData.profile_pics);
+
+        setImagesContainer((prev) =>
+          prev.map((item, index) => ({
+            ...item,
+            position: index,
+            previewUrl: imagesData.profile_pics?.[index]
+              ? `/images/${imagesData.profile_pics[index]}`
+              : item.previewUrl,
+          })),
+        );
     }
 
     fetchImagesData();
@@ -96,6 +106,9 @@ export default function Refactoring_Images() {
     });
 
     const result = await res.json();
+
+  
+
 
     window.location.reload();
   }
@@ -147,14 +160,10 @@ export default function Refactoring_Images() {
         return;
       }
 
-      console.log(newImages);
+      console.log("reordered Containers"+newImages);
+      setImagesContainer(newImages);
 
-      const updatedImages = newImages.map((img, index) => ({
-        ...img,
-        position: index, // wichtig für spätere Speicherung
-      }));
 
-      setImagesContainer(updatedImages);
 
       let Array = await fetch("api/getPicsData", {
         method: "GET",
@@ -178,6 +187,15 @@ export default function Refactoring_Images() {
       });
 
       setImagesData(newArray as string[]);
+
+
+
+
+
+
+
+
+      
     }
   };
 
@@ -197,7 +215,8 @@ export default function Refactoring_Images() {
           strategy={rectSortingStrategy}
         >
           {imagesContainer.map((img, index) => (
-            <SortableItem key={img.position} id={img.position as number}>
+            <SortableItem key={img.position} id={img.position as number}
+            disabled={!img.previewUrl}>
               <div
                 key={index}
                 className="mb-4 border-2 rounded-2xl ml-2 p-2 border-yellow-200 relative"
@@ -224,8 +243,6 @@ export default function Refactoring_Images() {
                   src={
                     img?.previewUrl
                       ? img.previewUrl
-                      : imagesData?.[index]
-                        ? `/images/${imagesData[index]}`
                         : undefined
                   }
                   className="w-40 h-40 object-cover"
@@ -271,23 +288,26 @@ export default function Refactoring_Images() {
   );
 
   function SortableItem({
-    id,
+    id, disabled,
     children,
   }: {
     id: string;
     children: React.ReactNode;
   }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
-      useSortable({ id });
+      useSortable({ id, disabled, });
 
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
       touchAction: "none", // wichtig für Mobile!
+       opacity: disabled ? 0.5 : 1,
+    cursor: disabled ? "not-allowed" : "grab",
     };
 
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+
         {children}
       </div>
     );

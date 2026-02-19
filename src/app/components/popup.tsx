@@ -17,7 +17,7 @@ export default function PopUp({
 }: PopUpProps) {
   return (
     <div onClick={onClose}
-    className="overflow-y-auto fixed inset-0 flex items-center justify-center bg-white/80 z-[60]  ">
+    className="overflow-y-auto fixed inset-0 flex items-center justify-center bg-white/80 z-50  ">
       <div 
       onClick={(e) => e.stopPropagation()}
       className={`${bgColor} p-6 rounded-2xl shadow-lg w-full ${width} relative`}>

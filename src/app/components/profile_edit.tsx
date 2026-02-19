@@ -1128,6 +1128,8 @@ export default function Profil_Edit() {
               Lieblingsinterpret
             </h3>
             {showFavoriteBand && (
+
+              <div className=" position absolute top-[-20px]">
               <PopUp
                 onClose={() => {
                   setFavoriteBand(false);
@@ -1266,6 +1268,8 @@ export default function Profil_Edit() {
                   Speichern
                 </button>
               </PopUp>
+
+              </div>
             )}
 
             <h3
@@ -1276,7 +1280,7 @@ export default function Profil_Edit() {
             </h3>
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
-                <div className="position relative top-10">
+                <div className="overflow-y-auto max-h-96">
                 <Questions></Questions>
                 </div>
               </PopUp>
