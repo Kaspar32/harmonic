@@ -152,7 +152,7 @@ export default function LikesTest() {
         className="text-center bg-yellow-100 h-full px-4 py-1 rounded-tl-2xl"
       >
         <label className="text-yellow-400 md:text-3xl text-sm font-extrabold cursor-pointer">
-          Mögen Dich
+          Mögen Sie
         </label>
       </button>
 
@@ -209,7 +209,7 @@ export default function LikesTest() {
         className="h-full w-max bg-yellow-200 px-4 py-1 rounded-tr-2xl"
       >
         <label className="text-yellow-400 mt-5 md:text-3xl text-sm font-extrabold cursor-pointer">
-          Magst Du
+          Sie mögen
         </label>
       </button>
 

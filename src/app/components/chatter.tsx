@@ -543,7 +543,7 @@ export default function Chatter() {
 
       {openProfile && (
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-4 p-4">
             <h2 className="text-2xl font-bold mb-4 text-yellow-600">
               <p className="text-yellow-500">
                 {users[selectedProfileIndex]?.name}
@@ -613,7 +613,7 @@ export default function Chatter() {
                     </div>
                   </div>
                 ) : (
-                  <p>Keine daten</p>
+                  <p>Keine Daten</p>
                 )}
               </div>
             </div>
@@ -646,7 +646,7 @@ export default function Chatter() {
                     </div>
                   </div>
                 ) : (
-                  <p>Keine daten</p>
+                  <p>Keine Daten</p>
                 )}
               </div>
             </div>

@@ -530,7 +530,7 @@ export default function Profile() {
                           ))
                         ) : (
                           <div className="border-3 rounded-3xl py-1 px-4 text-center  break-normal">
-                            Keine daten
+                            Keine Daten
                           </div>
                         )}
                       </div>
@@ -561,7 +561,7 @@ export default function Profile() {
                             </div>
                           </div>
                         ) : (
-                          <p>Keine daten</p>
+                          <p>Keine Daten</p>
                         )}
                       </div>
 
@@ -623,7 +623,7 @@ export default function Profile() {
                             </div>
                           </>
                         ) : (
-                          <p>Keine daten</p>
+                          <p>Keine Daten</p>
                         )}
                       </div>
                     </div>

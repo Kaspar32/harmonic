@@ -108,7 +108,7 @@ export default function UserRegister() {
               href="/loggin"
               className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold text-center flex gap-2 justify-center"
             >
-              <p>Zum loggin</p>
+              <p>Zum Login</p>
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
