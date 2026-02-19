@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     await db
       .update(users)
       .set({
-        profile_pics: sql`${users.profile_pics} || ${JSON.stringify([eintrag])}::jsonb`,
+        profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}::jsonb`,
       })
       .where(eq(users.uuid, userId));
 

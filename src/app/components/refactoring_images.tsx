@@ -132,6 +132,8 @@ export default function Refactoring_Images() {
     // Aktualisiere den State nach dem löschen
 
     setImagesData((prev) => prev.filter((img) => !img.startsWith(imageName)));
+
+    window.location.reload();
   }
 
   // DnD Kit Setup
@@ -219,15 +221,16 @@ export default function Refactoring_Images() {
             disabled={!img.previewUrl}>
               <div
                 key={index}
-                className="mb-4 border-2 rounded-2xl ml-2 p-2 border-yellow-200 relative"
+                className="mb-4 border-2 rounded-2xl ml-2 p-2 border-yellow-500 relative"
               >
+                
                 <button className="absolute bottom-2  cursor-pointer">
                   <Image
                     src="/images/circle-plus.svg"
                     width={20}
                     height={20}
                     alt="Add"
-                    className=""
+                    className={`${img.previewUrl ? "" : "animate-pulse"}`}
                   />
 
                   <input
@@ -254,7 +257,7 @@ export default function Refactoring_Images() {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="size-6 text-gray-400 absolute top-43 right-18"
+                      className="size-6 text-red-400 absolute top-37 left-35"
                     >
                       <path
                         fillRule="evenodd"
@@ -269,7 +272,7 @@ export default function Refactoring_Images() {
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="size-6 text-gray-400 absolute top-43 right-18"
+                      className="size-6 text-green-400 absolute top-43 right-18 hover:text-green-800"
                     >
                       <path
                         fillRule="evenodd"
@@ -302,7 +305,7 @@ export default function Refactoring_Images() {
       transition,
       touchAction: "none", // wichtig für Mobile!
        opacity: disabled ? 0.5 : 1,
-    cursor: disabled ? "not-allowed" : "grab",
+    cursor: disabled ? "not-allowed" : "",
     };
 
     return (
