@@ -169,7 +169,6 @@ export default function Refactoring_Images() {
 
       const newArray = arrayMove(ArrayData.profile_pics, oldIndex, newIndex);
 
-      // Hier Stimmt etwas gar nicht :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::!!!!!!!!!
       await fetch("api/reorder", {
         method: "POST",
         headers: {

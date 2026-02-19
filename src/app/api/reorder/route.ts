@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     await db
             .update(users)
             .set({
-              profile_pics: JSON.stringify(images),
+              profile_pics: images,
             })
             .where(eq(users.uuid, userId));
 
