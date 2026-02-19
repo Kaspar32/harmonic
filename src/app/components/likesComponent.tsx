@@ -19,9 +19,10 @@ export default function LikesTest() {
     const allFirstImages = await Promise.all(
       data.map(async (like: { to: string }) => {
         try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
+          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.to}`);
           const pics = await res2.json();
-          return pics[0]; // nur das erste Bild zurückgeben
+          console.log(`Bilder für ID:`, pics[0]);
+          return pics;
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
@@ -128,10 +129,8 @@ export default function LikesTest() {
 
   const [images_likes, setImages_likes] = useState<
     {
-      id: string;
-      imageBase64?: string;
-      user_id?: string;
-      position?: number;
+      user_id: string;
+      image_path: string;
     }[]
   >([]);
 
@@ -226,14 +225,14 @@ export default function LikesTest() {
             <>
               {images_likes.length > 0 ? (
                 images_likes.map((img, index) =>
-                  img?.imageBase64 ? (
+                  img?.image_path ? (
                     <div
                       key={index}
                       className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={getImageSrc(img.imageBase64)}
+                          src={`/images/${img.image_path}`}
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}

@@ -12,9 +12,7 @@ import Score from "./score";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
-  const [Images, setImages] = useState<
-    { id: string; imageBase64: string; position: number; userUuid: string }[]
-  >([]);
+  const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
   const [UserIndex, setUserIndex] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatched, setIsMatched] = useState(false);
@@ -60,9 +58,10 @@ export default function Profile() {
 
   // Hole Bilder für den aktuellen User
   async function fetchPics() {
-    const res = await fetch(`/api/getpicsbyid?id=${users[UserIndex].uuid}`);
+    const res = await fetch(`/api/getallpicsbyuserid?id=${users[UserIndex].uuid}`);
     if (!res.ok) return;
     const data = await res.json();
+    console.log("Fetched images:", data);
     setImages(data);
   }
 
@@ -101,11 +100,11 @@ export default function Profile() {
   //---- bilder durchklicken ----
   function handleClick() {
     if (!users[UserIndex]) return;
-    const userImages = Images.filter(
-      (img) => img.userUuid === users[UserIndex].uuid,
-    );
-    if (userImages.length === 0) return;
-    setCurrentIndex((prev) => (prev + 1) % userImages.length);
+
+    const imageLength = Images?.image_path ? Images.image_path.length : 0;
+    
+    if (Images && Images?.image_path && Images?.image_path.length === 0) return;
+    setCurrentIndex((prev) => (prev + 1) % imageLength);
   }
 
   //---- spotify zeugs ----
@@ -381,7 +380,7 @@ export default function Profile() {
                 className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
                 onClick={handleClick}
               >
-                <div className="flex space-x-2 relative top-2 z-10">
+                {/* <div className="flex space-x-2 relative top-2 z-10">
                   {users[UserIndex] &&
                     Images.length > 0 &&
                     Images.filter(
@@ -396,17 +395,15 @@ export default function Profile() {
                         }`}
                       ></div>
                     ))}
-                </div>
+                </div> */}
 
                 {users[UserIndex] &&
-                  Images.length > 0 &&
-                  Images.filter(
-                    (img) => img.userUuid === users[UserIndex].uuid,
-                  ).map((img, index) => (
+                  Images?.image_path &&
+                  Images.image_path.map((img, index) => (
                     <Image
-                      key={`${img.id} ${index}`}
-                      src={getImageSrc(img.imageBase64)}
-                      alt={`Bild ${img.id}`}
+                      key={`${img} ${index}`}
+                      src={`/images/${img}`}
+                      alt={`Bild ${img}`}
                       height={650}
                       width={650}
                       className={` z-0 absolute top-0 left-0 rounded-3xl shadow-2xl pb-10 object-cover transition-opacity duration-500 ${

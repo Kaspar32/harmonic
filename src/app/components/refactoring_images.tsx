@@ -217,7 +217,7 @@ export default function Refactoring_Images() {
           strategy={rectSortingStrategy}
         >
           {imagesContainer.map((img, index) => (
-            <SortableItem key={img.position} id={img.position as number}
+            <SortableItem key={img.position} id={`{img.position as number}`}
             disabled={!img.previewUrl}>
               <div
                 key={index}
@@ -295,6 +295,7 @@ export default function Refactoring_Images() {
     children,
   }: {
     id: string;
+    disabled?: boolean;
     children: React.ReactNode;
   }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
