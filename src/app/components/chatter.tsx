@@ -510,7 +510,7 @@ export default function Chatter() {
         
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
 
-          <ProfileSingleView />
+          <ProfileSingleView selectedProfileIndex={1} />
 
           
         </Popup>
