@@ -15,9 +15,10 @@ export function evaluateQuestions(answers1: {
 }) {
 
 
-    if(answers1== null || answers2== null)
+    if(answers1== undefined || answers2== undefined)
     {
       console.log("Fragen sind nicht beantwortet");
+      return;
     }
 
 
