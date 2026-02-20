@@ -217,7 +217,7 @@ export default function Refactoring_Images() {
           strategy={rectSortingStrategy}
         >
           {imagesContainer.map((img, index) => (
-            <SortableItem key={img.position} id={`{img.position as number}`}
+            <SortableItem key={img.position} id={`${img.position as number}`}
             disabled={!img.previewUrl}>
               <div
                 key={index}

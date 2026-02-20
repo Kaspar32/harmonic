@@ -19,7 +19,6 @@ export default function Chatter() {
   const [unlike, setUnlike] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  
 
   type Message = {
     id: number;
@@ -38,24 +37,12 @@ export default function Chatter() {
 
   const [images, setImages] = useState<
     {
-      id: string;
-      imageBase64?: string;
-      user_id?: string;
-      position?: number;
+      user_id: string;
+      image_path: string;
     }[]
   >([]);
 
-  const [Allimages, setAllImages] = useState<
-    (
-      | {
-          id: string;
-          imageBase64?: string;
-          user_id?: string;
-          position?: number;
-        }[]
-      | null
-    )[]
-  >([]);
+  const [Allimages, setAllImages] = useState<{ image_path: string[]; user_id: string }>();
 
   const [users, setUsers] = useState<UserType[]>([]);
 
@@ -71,9 +58,9 @@ export default function Chatter() {
     const allFirstImages = await Promise.all(
       data1.map(async (like: { to: string }) => {
         try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
+          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.to}`);
           const pics = await res2.json();
-          return pics[0]; // nur das erste Bild zurückgeben
+          return pics;
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
@@ -83,25 +70,6 @@ export default function Chatter() {
         }
       }),
     );
-
-    //Alle Bilder für ImageStack für die Profileansicht laden
-    const allImages = await Promise.all(
-      data1.map(async (like: { to: string }) => {
-        try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
-          const pics = await res2.json();
-          return pics; // nur das erste Bild zurückgeben
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
-
-    setAllImages(allImages);
 
     //alert(allFirstImages[0].imageBase64);
 
@@ -226,9 +194,7 @@ export default function Chatter() {
 
   // Auswählen der User für den Chat::::::::::::::::::::::::::::::::::::::::::::::::
   async function handleClick(index: number) {
-
-    newMessages[index]=false;
-
+    newMessages[index] = false;
 
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -377,13 +343,10 @@ export default function Chatter() {
 
   for (let j = 0; j <= newmessagesusers.length - 1; j++) {
     const userIndex = users.findIndex((u) => u.name === newmessagesusers[j]);
-    newMessages[userIndex]= true;
+    newMessages[userIndex] = true;
   }
-  
 
   console.log("Neue Nachricht von:", newmessagesusers[0]);
-  
-
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
@@ -399,8 +362,8 @@ export default function Chatter() {
               >
                 <Image
                   src={
-                    item?.imageBase64
-                      ? getImageSrc(item.imageBase64)
+                    item?.image_path
+                      ? `/images/${item.image_path}`
                       : "/images/defaultProfile.png"
                   }
                   height={70}
@@ -418,13 +381,16 @@ export default function Chatter() {
                 </p>
 
                 {newMessages[index] && (
-      
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 text-red-700 mt-15 ml-10 animate-bounce">
-  <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
-  <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
-</svg>
-)}
-
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-6 text-red-700 mt-15 ml-10 animate-bounce"
+                  >
+                    <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
+                    <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
+                  </svg>
+                )}
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -540,8 +506,10 @@ export default function Chatter() {
           </button>
         </div>
       )}
-
+{/* Profil Pop-Up 
       {openProfile && (
+
+        
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
           <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-4 p-4">
             <h2 className="text-2xl font-bold mb-4 text-yellow-600">
@@ -552,7 +520,21 @@ export default function Chatter() {
 
             <div className="flex gap-4 mb-4">
               {selectedProfileIndex >= 0 && (
-                <ImageStack images={Allimages[selectedProfileIndex] || []} />
+
+                <Image
+                  src={
+              
+                      ? `/images/${users[selectedProfileIndex].image_path}`
+                      : "/images/defaultProfile.png"
+
+                  }
+                  height={70}
+                  width={80}
+                  className="rounded-4xl border-2 border-yellow-300 "
+                  alt="Profilbild"
+      
+                />
+
               )}
 
               <svg
@@ -652,7 +634,8 @@ export default function Chatter() {
             </div>
           </div>
         </Popup>
-      )}
+        
+      )}*/}
 
       {unlike && (
         <Popup onClose={() => setUnlike(false)}>

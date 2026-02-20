@@ -380,12 +380,10 @@ export default function Profile() {
                 className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
                 onClick={handleClick}
               >
-                {/* <div className="flex space-x-2 relative top-2 z-10">
+                 <div className="flex space-x-2 relative top-2 z-10">
                   {users[UserIndex] &&
-                    Images.length > 0 &&
-                    Images.filter(
-                      (img) => img.userUuid === users[UserIndex].uuid,
-                    ).map((src, index) => (
+                    Images?.image_path &&
+                    Images.image_path.map((src, index) => (
                       <div
                         key={index}
                         className={`flex-1 h-2 rounded-md ${
@@ -395,7 +393,7 @@ export default function Profile() {
                         }`}
                       ></div>
                     ))}
-                </div> */}
+                </div> 
 
                 {users[UserIndex] &&
                   Images?.image_path &&
