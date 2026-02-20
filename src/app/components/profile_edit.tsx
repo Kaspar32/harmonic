@@ -1,29 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import Interests from "../data/Intrests";
-import ImageUploader from "./ImageUploader";
-import { Pics } from "../types/Pics";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { convertImagesToBase64 } from "@/lib/convertToImageBase64";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
-import { User } from "lucide-react";
+
 import Questions from "./questions";
 
 import Refactoring_Images from "./refactoring_images";
@@ -57,6 +40,7 @@ export default function Profil_Edit() {
     favorite_artist: null,
     roles: "",
     fakeUsersEnabled: true,
+
   });
 
   // Temporäre Variablen für die Editierfunktion
@@ -82,8 +66,6 @@ export default function Profil_Edit() {
   const [genres] = useState(Genres);
   const [ichSucheState] = useState(IchSucheData);
 
-  const [uuid] = "3463743f-5b87-47a6-a240-b29c778a7f62";
-
   // User Daten und Bilder direkt laden
   useEffect(() => {
     async function fetchUser() {
@@ -108,17 +90,6 @@ export default function Profil_Edit() {
         favorite_artist: data.favorite_artist,
       }));
 
-      //alert(data.favorite_artist)
-
-      /*
-      const res2 = await fetch(`/api/getpicsbyid?id=${data.uuid}`);
-      if (!res2.ok) return;
-      const imagesData = await res2.json();
-      setImages((prev) =>
-        prev.map((img, i) =>
-          imagesData[i] ? { ...img, ...imagesData[i] } : img,
-        ),
-      );*/
 
       const res2 = await fetch(`/api/getPicsData`);
       if (!res2.ok) return;
@@ -153,138 +124,8 @@ export default function Profil_Edit() {
   }
 
   //Profilbilder logik
-  // Constants für das Handle der Reihenfolge der Profilbilder
-
-  //Containers
-  const [imagesContainer, setImagesContainer] = useState<
-    {
-      id: string;
-      image?: File | null;
-      imageBase64?: string;
-      position?: number;
-    }[]
-  >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
-
 
   const [imagesData, setImagesData] = useState<any>([]);
-
-  const handleImageChange = (id: string, image: File | null) => {
-
-    alert(imagesContainer);
-
-    setImagesContainer((prev) =>
-      prev.map((img) => (img.id === id ? { ...img, image } : img)),
-    );
-  };
-
-  // Konstante und Funktionen für die Reihenfolge der Bilder
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-  );
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-
-   // alert("test");
-
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) return;
-
-    if (active.id !== over?.id) {
-      const oldIndex = imagesContainer.findIndex((item) => item.id === active.id);
-      const newIndex = imagesContainer.findIndex((item) => item.id === over.id);
-
-      const newImages = arrayMove(imagesContainer, oldIndex, newIndex);
-
-      if (oldIndex === -1 || newIndex === -1) {
-        return;
-      }
-
-      const updatedImages = newImages.map((img, index) => ({
-        ...img,
-        position: index, // wichtig für spätere Speicherung
-      }));
-
-      setImagesContainer(updatedImages);
-
-      let Array= await fetch("api/getPicsData", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const ArrayData = await Array.json();
-
-      //
-
-
-      const newArray = arrayMove(ArrayData.profile_pics, oldIndex, newIndex);
-
-     // alert("Das ist ein test"+newArray);
-
-
-      
-      await fetch("api/reorder",{
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ images: newArray }),
-      }
-      )
-
-
-      setImagesData(newArray);
-      //window.location.reload();
-
-    }
-  };
-
-  // Nach dem Klicken des Hinzufügen-Button werden die Bilder in der DB gespeichert
-
-  async function addPpics() {
-    //Konvertieren zu ImageBase64
-    const res0 = await fetch("/api/auth");
-    if (!res0.ok) return;
-
-    const data = await res0.json();
-
-   const base64Array = await convertImagesToBase64(imagesContainer);
-
-    const payload = imagesContainer.map((img, index) => ({
-      id: `${data.uuid}-img-${img.id}`,
-      image_base64: base64Array[index],
-    }));
-
-    const res = await fetch("/api/addprofilepics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await res.json();
-    //console.log(result);
-
-    //window.location.reload();
-  }
-
-  async function deleteImage(id: string) {
-    await fetch("/api/deleteImageinFolder", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id }),
-    });
-
-    // setzte die Bilder im State zurück, damit sie nicht mehr angezeigt werden
-
-
-
-  }
 
   //Spotify-Daten
   /*
@@ -566,69 +407,9 @@ export default function Profil_Edit() {
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
-      
-      {/*---------- DND-Sortable_Item --------
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={imagesContainer.map((item) => item.id)}
-          strategy={rectSortingStrategy}
-        >
-          <div className="flex flex-wrap">
-            {imagesContainer.map((img, i) => (
-              <SortableItem key={img.id} id={img.id}>
-                <div className="border-2 w-48 h-48 rounded-2xl mt-2 ml-2 p-2 border-yellow-200 relative">
-                  
-                  <ImageUploader
-                    onImageChange={(image) => {
-                      if (image === null) {
-                        deleteImage(`${imagesData[i]}`); // Deine Funktion zum Löschen des Bildes
-                      } else {
-                        handleImageChange(img.id, image); // Normale Bildbehandlung
-                      }
-                    }}
-                    initialImageUrl={imagesData[i] ? `/images/${imagesData[i+1]}` : undefined}
-                  />
-                </div>
-              </SortableItem> 
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-      */}
-
-      
+    
      <Refactoring_Images />
-
-
-      
-
-      
-      
-
-
-
-      
-      
-      
-
-      {imagesContainer.some((img) => img.image) && (
-        <div className=" text-yellow-500 font-bold border-2 p-2 h-30 rounded-2xl mt-2 animate-pulse">
-          Speichere die Bilder nach dem (+) Hinzufügen
-        </div>
-      )}
-      {imagesContainer.some((img) => img.image) && (
-        <button
-          onClick={addPpics}
-          className="border-2  h-30 m-2 border-gray-300 text-2xl font-bold text-gray-300 hover:bg-white rounded-2xl"
-        >
-          <div>Bilder speichern (jpg/png)</div>
-        </button>
-      )}
-
+    
       <div className="flex flex-wrap md:flex-nowrap gap-2">
         {/*---------- über mich --------*/}
         <div className="flex-1">
@@ -1292,25 +1073,4 @@ export default function Profil_Edit() {
   );
 }
 
-function SortableItem({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    touchAction: "none", // wichtig für Mobile!
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
-    </div>
-  );
-}

@@ -73,9 +73,9 @@ export default function LikesTest() {
     const allFirstImages = await Promise.all(
       data.map(async (like: { from: string }) => {
         try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.from}`);
+          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.from}`);
           const pics = await res2.json();
-          return pics[0]; // nur das erste Bild zurückgeben
+          return pics; // nur das erste Bild zurückgeben
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.from}:`,
@@ -120,10 +120,8 @@ export default function LikesTest() {
 
   const [images_youlikes, setImages_youlikes] = useState<
     {
-      id: string;
-      imageBase64_blurred?: string;
-      user_id?: string;
-      position?: number;
+     user_id: string;
+      image_path: string;
     }[]
   >([]);
 
@@ -168,18 +166,18 @@ export default function LikesTest() {
             <>
               {images_youlikes.length > 0 ? (
                 images_youlikes.map((img, index) =>
-                  img?.imageBase64_blurred ? (
+                  img?.image_path ? (
                     <div
                       key={index}
                       className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={getImageSrc(img.imageBase64_blurred)}
+                          src={`/images/${img.image_path}`}
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
-                          className="w-full h-full blur-md object-cover"
+                          className="w-full h-full object-cover"
                         />
                       </div>
 

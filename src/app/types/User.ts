@@ -20,7 +20,6 @@ export interface UserType {
   favorite_artist: FavoriteArtist | null;
   roles: string;
   fakeUsersEnabled: boolean;
-  profile_pics: string[];
 }
 
 

@@ -104,60 +104,13 @@ export async function POST(req: NextRequest) {
       }),
     );*/
 
-    /*
-    for (const [index, img] of processed.entries()) {
-      if (!img.image_blurred_base64) continue;
-
-      const base64Data = img.image_blurred_base64.replace(
-        /^data:image\/\w+;base64,/,
-        "",
-      );
-
-      const buffer = Buffer.from(base64Data, "base64");
-
-      const timestamp = Date.now();
-      const filePath = path.join(
-        process.cwd(),
-        "uploads/images",
-        `${img.id}_${timestamp}blurred.png`,
-      );
-
-      await fs.writeFile(filePath, buffer);
-
-      //DB-Geschichte:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      /*
-      const existing = await db
-        .select()
-        .from(profilePictures)
-        .where(eq(profilePictures.id, img.id));
-
-      if (existing.length > 0) {
-        await db
-          .update(profilePictures)
-          .set({
-            imageBase64_blurred: img.image_blurred_base64,
-            position: index,
-            userUuid: userId,
-            id: img.id,
-          })
-          .where(eq(profilePictures.id, img.id));
-      } else {
-        await db.insert(profilePictures).values({
-          id: img.id,
-          imageBase64_blurred: img.image_blurred_base64,
-          position: index,
-          userUuid: userId,
-        });
-      }
-  }   */ 
+     
 
     let eintrag=[];
 
     for (const [index, img] of payload.entries()) {
 
       if (!img.image_base64) continue;
-      
-      
       
 
       // Base64 -> Buffer
@@ -180,46 +133,8 @@ export async function POST(req: NextRequest) {
 
       await fs.writeFile(filePath, buffer);
 
-      
-        
-
-
-
-
-
       eintrag.push(`${img.id}_${timestamp}.png`);
 
-
-      
-
-
-      
-
-      //DB-Geschichte::::::::::::::::::::::::::::::::::::::::::::::::::
-      /*
-      const existing = await db
-        .select()
-        .from(profilePictures)
-        .where(eq(profilePictures.id, img.id));
-
-      if (existing.length > 0) {
-        await db
-          .update(profilePictures)
-          .set({
-            imageBase64: img.image_base64,
-            position: index,
-            userUuid: userId,
-            id: img.id,
-          })
-          .where(eq(profilePictures.id, img.id));
-      } else {
-        await db.insert(profilePictures).values({
-          id: img.id,
-          imageBase64: img.image_base64,
-          position: index,
-          userUuid: userId,
-        });
-      }*/
     }
 
     console.log("Eintrag:", eintrag);
