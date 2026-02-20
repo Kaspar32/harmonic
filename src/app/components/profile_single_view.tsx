@@ -3,8 +3,15 @@ import { users } from "@/db/schema";
 import { useState, useEffect } from "react";
 import { UserType } from "../types/User";
 
-export default function ProfileSingleView(selectedProfileIndex: number) {
+
+
+type Props = {
+selectedProfileIndex: number
+};
+
+export default function ProfileSingleView( {selectedProfileIndex}:Props) {
   const [users, setUsers] = useState<UserType[]>([]);
+  const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
 
   async function fetchusers() {
     const res = await fetch("/api/getuserdata");
@@ -34,13 +41,17 @@ export default function ProfileSingleView(selectedProfileIndex: number) {
 
     setUsers(validUsers);
 
+    const res2 = await fetch(`/api/getallpicsbyuserid?id=${validUsers[selectedProfileIndex].uuid}`);
+    if (!res2.ok) return;
+    const data2 = await res2.json();
+    setImages(data2);
+    
 
 
   }
 
-  useEffect(() => {
 
-    console.log("number:  "+selectedProfileIndex);
+  useEffect(() => {
 
     fetchusers();
   }, []);
@@ -50,6 +61,14 @@ export default function ProfileSingleView(selectedProfileIndex: number) {
       <h2 className="text-2xl font-bold mb-4 text-yellow-600">
         <p className="text-yellow-500">{users[selectedProfileIndex]?.name}</p>
       </h2>
+
+
+      <Image
+        src={`/images/${Images?.image_path[0]}`|| "images/defaultProfile.png"}
+        width={1000}
+        height={1000}
+        alt=""
+      />
 
       <div className="flex gap-4 mb-4">
         <svg

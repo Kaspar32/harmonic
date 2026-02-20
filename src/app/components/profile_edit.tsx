@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Interests from "../data/Intrests";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
-import { convertImagesToBase64 } from "@/lib/convertToImageBase64";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
 
@@ -408,6 +407,9 @@ export default function Profil_Edit() {
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
     
+
+
+     {/*---------- Images und die Container --------*/}
      <Refactoring_Images />
     
       <div className="flex flex-wrap md:flex-nowrap gap-2">

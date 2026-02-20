@@ -63,48 +63,8 @@ export async function POST(req: NextRequest) {
       user_id: string;
     }[] = await req.json();
 
-    //console.log(payload);
 
-    /*
-    for (const img of payload) {
-      if (img.image_base64) {
-        const isNSFW = await isExplicitImage(img.image_base64);
-        if (isNSFW) {
-          return NextResponse.json(
-            { message: "Unerlaubte Inhalte erkannt. Upload blockiert." },
-            { status: 400 }
-          );
-        }
-      }
-    }*/
 
-    //Version Blurred
-    /*
-    const processed = await Promise.all(
-      payload.map(async (item) => {
-        if (!item.image_base64) return { ...item, image_blurred_base64: null };
-
-        // Base64 -> Buffer
-        const base64Data = item.image_base64.replace(
-          /^data:image\/\w+;base64,/,
-          "",
-        );
-        const buffer = Buffer.from(base64Data, "base64");
-
-        // Mit sharp eine Blur-Version erzeugen
-        const blurredBuffer = await sharp(buffer).blur(60).toBuffer();
-        const blurredBase64 = `data:image/jpeg;base64,${blurredBuffer.toString(
-          "base64",
-        )}`;
-
-        return {
-          ...item,
-          image_blurred_base64: blurredBase64,
-        };
-      }),
-    );*/
-
-     
 
     let eintrag=[];
 

@@ -21,7 +21,6 @@ export default function LikesTest() {
         try {
           const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.to}`);
           const pics = await res2.json();
-          console.log(`Bilder für ID:`, pics[0]);
           return pics;
         } catch (err) {
           console.error(
