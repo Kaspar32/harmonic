@@ -20,7 +20,7 @@ export async function POST(req: Request) {
 
   const comparePasswords = await bcrypt.compare(
     password,
-    user.password as string
+    user.password as string,
   );
 
   if (!comparePasswords) {
@@ -35,6 +35,21 @@ export async function POST(req: Request) {
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
+
+
+  //neuer Token setzten mit JWT
+  const jwt = require("jsonwebtoken");
+
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  res.cookies.set("authtoken", token, {
+  httpOnly: true,
+  secure: true,       
+  sameSite: "lax",
+  maxAge: 3600000
+});
 
   return res;
 }

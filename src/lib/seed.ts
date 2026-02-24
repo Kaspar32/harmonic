@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { users, profilePictures, settings } from "@/db/schema";
+import { users, settings } from "@/db/schema";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import Genres from "@/app/data/Genres";
@@ -16,7 +16,6 @@ async function urlToBase64(url: string) {
 
 export async function createRandomProfiles(count: number) {
   const userEntries = [];
-  const picturesEntry = [];
   const settingsEntry = [];
 
   for (let i = 0; i < count; i++) {

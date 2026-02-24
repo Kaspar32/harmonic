@@ -39,6 +39,7 @@ export default function Profil_Edit() {
     favorite_artist: null,
     roles: "",
     fakeUsersEnabled: true,
+    profile_pics: [],
 
   });
 

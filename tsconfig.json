@@ -34,7 +34,7 @@
     "src/**/*.tsx",
     ".next/types/**/*.ts",
     "types/**/*.d.ts",
-    "middleware.ts",
+    "src/middleware.ts",
     ".next/dev/types/**/*.ts", "uploads/images/route.ts",
   ],
   "exclude": [
