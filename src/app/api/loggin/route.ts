@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ message: "Loggin erfolgreich" });
 
+
   res.cookies.set("userId", user.uuid, {
     httpOnly: true,
     sameSite: "lax",
@@ -44,11 +45,12 @@ export async function POST(req: Request) {
     expiresIn: "1h",
   });
 
+  // Cookie setzten 
   res.cookies.set("authtoken", token, {
   httpOnly: true,
   secure: true,       
   sameSite: "lax",
-  maxAge: 3600000
+  maxAge: 60*60
 });
 
   return res;

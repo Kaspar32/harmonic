@@ -22,7 +22,6 @@ export default function Footer() {
       // Checken obs ein neuer Match gegeben hat:::::::
       const res1 = await fetch("/api/auth");
       const data1 = await res1.json();
-
       setUseruuid(data1.uuid);
 
       const res2 = await fetch(`/api/getmatchbyid?id=${data1.uuid}`);

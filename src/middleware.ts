@@ -1,14 +1,35 @@
 import { NextResponse, NextRequest } from "next/server";
+import jwt from "jsonwebtoken";
 
 export function middleware(req: NextRequest) {
   
+  /*
   const user = req.cookies.get("userId");
 
   if (!user) {
     return NextResponse.redirect(new URL("/loggin", req.url));
+  }*/
+
+  
+
+  // JWT-Token im Cookie
+
+   const token = req.cookies.get("authtoken")?.value;
+
+  if(!token)
+  {
+    return NextResponse.redirect(new URL("/loggin", req.url));
   }
 
-  return NextResponse.next();
+   try {
+    jwt.verify(token, process.env.JWT_SECRET!);
+    return NextResponse.next(); // alles gut
+  }
+  catch (err) {
+    return NextResponse.redirect(new URL("/loggin", req.url));
+  }
+
+  
 }
 
 
