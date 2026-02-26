@@ -10,6 +10,8 @@ import Questions from "./questions";
 
 import Refactoring_Images from "./refactoring_images";
 
+import { useUser } from "@/app/context/UserContext";
+
 interface TrackItem {
   id: string;
   name: string;
@@ -40,7 +42,6 @@ export default function Profil_Edit() {
     roles: "",
     fakeUsersEnabled: true,
     profile_pics: [],
-
   });
 
   // Temporäre Variablen für die Editierfunktion
@@ -66,45 +67,36 @@ export default function Profil_Edit() {
   const [genres] = useState(Genres);
   const [ichSucheState] = useState(IchSucheData);
 
+  const { user } = useUser();
+
   // User Daten und Bilder direkt laden
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/auth");
-      if (!res.ok) return;
-
-      const data = await res.json();
+      if (!user) {
+        return;
+      }
 
       setUserData((prev) => ({
         ...prev,
-        uuid: data.uuid,
-        name: data.name,
-        geschlecht: data.geschlecht,
-        alter: data.alter,
-        groesse: data.groesse,
-        ausbildung: data.ausbildung,
-        intressen: data.intressen,
-        ichsuche: data.ichsuche,
-        genres: data.genres,
-        spotify_data: data.spotify_data,
-        favorite_track: data.favorite_track,
-        favorite_artist: data.favorite_artist,
+        uuid: user?.uuid,
+        name: user?.name,
+        geschlecht: user?.geschlecht,
+        alter: user?.alter,
+        groesse: user?.groesse,
+        ausbildung: user?.ausbildung,
+        intressen: user?.intressen,
+        ichsuche: user?.ichsuche,
+        genres: user?.genres,
+        favorite_track: user?.favorite_track,
+        favorite_artist: user?.favorite_artist,
+        roles: user?.roles,
+        fakeUsersEnabled: user?.fakeUsersEnabled,
+        profile_pics: user?.profile_pics,
       }));
-
-
-      const res2 = await fetch(`/api/getPicsData`);
-      if (!res2.ok) return;
-      const imagesData = await res2.json();
-
-     // console.log("Empfangene Bilderdaten:", imagesData);
-    
-      setImagesData(imagesData.profile_pics);
-
-  
-
 
     }
     fetchUser();
-  }, []);
+  }, [user]);
 
   //User updaten
   async function updateUser(updates: Partial<typeof userData>) {
@@ -123,9 +115,6 @@ export default function Profil_Edit() {
     setUserData((prev) => ({ ...prev, ...updatedData }));
   }
 
-  //Profilbilder logik
-
-  const [imagesData, setImagesData] = useState<any>([]);
 
   //Spotify-Daten
   /*
@@ -406,17 +395,19 @@ export default function Profil_Edit() {
 
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
-      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
-    
+      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
+        Bilder
+      </h2>
 
+      {/*---------- Images und die Container --------*/}
+      <Refactoring_Images />
 
-     {/*---------- Images und die Container --------*/}
-     <Refactoring_Images />
-    
       <div className="flex flex-wrap md:flex-nowrap gap-2">
         {/*---------- über mich --------*/}
         <div className="flex-1">
-          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Über Mich</h2>
+          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
+            Über Mich
+          </h2>
 
           <div className="mb-4">
             {/* Name */}
@@ -742,7 +733,9 @@ export default function Profil_Edit() {
 
         {/*--------------- Genre -------------*/}
         <div className="flex-1">
-          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Musik</h2>
+          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
+            Musik
+          </h2>
 
           <div className="flex-1">
             <h3
@@ -912,147 +905,145 @@ export default function Profil_Edit() {
               Lieblingsinterpret
             </h3>
             {showFavoriteBand && (
-
               <div className=" position absolute top-[-20px]">
-              <PopUp
-                onClose={() => {
-                  setFavoriteBand(false);
-                }}
-              >
-                <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
-                  Suche nache einem Künstler
-                </p>
+                <PopUp
+                  onClose={() => {
+                    setFavoriteBand(false);
+                  }}
+                >
+                  <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
+                    Suche nache einem Künstler
+                  </p>
 
-                <div className="flex items-center gap-3">
-                  {/* input */}
-                  <div className="w-full max-w-sm">
-                    <input
-                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
-                      placeholder="Tippen Sie hier..."
-                      onChange={(event) =>
-                        setSerachInput_Artist(event.target.value)
-                      }
-                    />
+                  <div className="flex items-center gap-3">
+                    {/* input */}
+                    <div className="w-full max-w-sm">
+                      <input
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                        placeholder="Tippen Sie hier..."
+                        onChange={(event) =>
+                          setSerachInput_Artist(event.target.value)
+                        }
+                      />
+                    </div>
+
+                    {/* ssearch button */}
+                    <button
+                      onClick={search_artist}
+                      className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
+                    >
+                      Suche
+                    </button>
                   </div>
 
-                  {/* ssearch button */}
-                  <button
-                    onClick={search_artist}
-                    className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
-                  >
-                    Suche
-                  </button>
-                </div>
-
-                <div className="space-y-2 mt-4 overflow-y-auto max-h-48">
-                  {artists.map((artist, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className={`rounded-md px-3 py-1 flex gap-2 items-center
+                  <div className="space-y-2 mt-4 overflow-y-auto max-h-48">
+                    {artists.map((artist, i) => {
+                      return (
+                        <div
+                          key={i}
+                          className={`rounded-md px-3 py-1 flex gap-2 items-center
                                 border ${
                                   artist.isSelected
                                     ? "border-yellow-400 bg-yellow-100"
                                     : "border-slate-200"
                                 }`}
-                        onClick={() => toggleArtist(artist)}
+                          onClick={() => toggleArtist(artist)}
+                        >
+                          <img
+                            src={artist.images[0]?.url || "/fallback.jpg"}
+                            alt={artist.name}
+                            className="w-15 h-15"
+                          />
+                          <div>
+                            <p className="text-slate-800 font-semibold text-sm">
+                              {artist.name}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(1)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
                       >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 1<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
                         <img
-                          src={artist.images[0]?.url || "/fallback.jpg"}
-                          alt={artist.name}
+                          src={
+                            userData.favorite_artist.favorite_artist1?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist.favorite_artist1?.name}
                           className="w-15 h-15"
                         />
                         <div>
                           <p className="text-slate-800 font-semibold text-sm">
-                            {artist.name}
+                            {userData.favorite_artist.favorite_artist1?.name}
                           </p>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </div>
 
-                <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p
-                    onClick={() => saveArtist(1)}
-                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-6 text-yellow-600 position-relative"
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(2)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
-                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                    Ausgewählter Interpret Nr. 1<br></br>
-                    (bitte der gesuchte Artist hier per Klick einfügen)
-                  </p>
-                  {userData.favorite_artist && (
-                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
-                      <img
-                        src={
-                          userData.favorite_artist.favorite_artist1?.image ||
-                          "/fallback.jpg"
-                        }
-                        alt={userData.favorite_artist.favorite_artist1?.name}
-                        className="w-15 h-15"
-                      />
-                      <div>
-                        <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist.favorite_artist1?.name}
-                        </p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 2<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist2 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist2?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist2?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist2?.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p
-                    onClick={() => saveArtist(2)}
-                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                  <button
+                    onClick={() => {
+                      setFavoriteBand(false);
+                      ArtistinDB();
+                    }}
+                    className="bg-yellow-400 text-white border-t-2 border-slate-200 px-3 py-2 mt-2  rounded-md hover:bg-yellow-500 transition w-full"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-6 text-yellow-600 position-relative"
-                    >
-                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                    Ausgewählter Interpret Nr. 2<br></br>
-                    (bitte der gesuchte Artist hier per Klick einfügen)
-                  </p>
-                  {userData.favorite_artist?.favorite_artist2 && (
-                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
-                      <img
-                        src={
-                          userData.favorite_artist?.favorite_artist2?.image ||
-                          "/fallback.jpg"
-                        }
-                        alt={userData.favorite_artist?.favorite_artist2?.name}
-                        className="w-15 h-15"
-                      />
-                      <div>
-                        <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist?.favorite_artist2?.name}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    setFavoriteBand(false);
-                    ArtistinDB();
-                  }}
-                  className="bg-yellow-400 text-white border-t-2 border-slate-200 px-3 py-2 mt-2  rounded-md hover:bg-yellow-500 transition w-full"
-                >
-                  Speichern
-                </button>
-              </PopUp>
-
+                    Speichern
+                  </button>
+                </PopUp>
               </div>
             )}
 
@@ -1065,7 +1056,7 @@ export default function Profil_Edit() {
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
                 <div className="overflow-y-auto max-h-96">
-                <Questions></Questions>
+                  <Questions></Questions>
                 </div>
               </PopUp>
             )}
@@ -1075,5 +1066,3 @@ export default function Profil_Edit() {
     </div>
   );
 }
-
-

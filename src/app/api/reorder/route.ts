@@ -1,14 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { profilePictures, users } from "@/db/schema";
-import { eq, and, sql } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
-  if(!userId){
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") ?? "",
+      },
+    });
+
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
   }
 
   try {
@@ -17,24 +27,18 @@ export async function POST(req: NextRequest) {
     console.log("Received images for reordering:", images);
 
     await db
-            .update(users)
-            .set({
-              profile_pics: images,
-            })
-            .where(eq(users.uuid, userId));
-
-    
+      .update(users)
+      .set({
+        profile_pics: images,
+      })
+      .where(eq(users.uuid, userfromAuth.uuid));
 
     return NextResponse.json({ message: "Images saved successfully" });
   } catch (error) {
     console.error("Error saving images:", error);
     return NextResponse.json(
       { message: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
-
-
-
-

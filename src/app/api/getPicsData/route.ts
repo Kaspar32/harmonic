@@ -6,17 +6,27 @@ import { cookies } from "next/headers";
 
 export async function GET(request: Request) {
 
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
+  let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
+    });
 
-  if (!userId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
   }
 
   const imagesData = await db
     .select({ profile_pics: users.profile_pics })
     .from(users)
-    .where(eq(users.uuid, userId));
+    .where(eq(users.uuid, userfromAuth.uuid));
 
   console.log(imagesData);
 

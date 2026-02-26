@@ -3,17 +3,16 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { UserType } from "../types/User";
 import { Loader2 } from "lucide-react";
-import { getImageSrc } from "@/lib/getImageSrc";
+import { useUser } from "@/app/context/UserContext";
 
 export default function LikesTest() {
   const [loading, setLoading] = useState(false);
-
+  const {user}= useUser();
   //Fetche Likes und die Daten dazu und speichere das Bild von jenem die du geliket hast
   async function fetchlikes() {
     setLoading(true);
-    const res1 = await fetch("/api/getuserdata");
-    const data1 = await res1.json();
-    const res = await fetch(`/api/getlikesbyid?id=${data1.uuid}`);
+    
+    const res = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
     const data = await res.json();
 
     const allFirstImages = await Promise.all(
@@ -61,12 +60,9 @@ export default function LikesTest() {
   }
 
   async function fetchLikesyou() {
-    //Fetch uuid
-    const res1 = await fetch("/api/getuserdata");
-    const data1 = await res1.json();
 
     //getLikes by uuid
-    const res = await fetch(`/api/getlikesyoubyid?id=${data1.uuid}`);
+    const res = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
     const data = await res.json();
 
     const allFirstImages = await Promise.all(
@@ -115,7 +111,7 @@ export default function LikesTest() {
   useEffect(() => {
     fetchlikes();
     fetchLikesyou();
-  }, []);
+  }, [user]);
 
   const [images_youlikes, setImages_youlikes] = useState<
     {

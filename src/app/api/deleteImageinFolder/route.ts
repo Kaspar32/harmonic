@@ -7,15 +7,26 @@ import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
+  // Authentifizierung
+
+  let userfromAuth;
   try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
+    });
 
-    const cookieStore = cookies();
-      const userId = (await cookieStore).get("userId")?.value;
-    
-      if (!userId) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-      }
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
+  }
 
+  try {
     const { Imageid: id } = await request.json();
     console.log("ID zum Löschen:", id);
 
@@ -30,20 +41,18 @@ export async function POST(request: Request) {
 
     // Löschen des Namens in der Datenbank
 
-    const user = await db.select().from(users).where(eq(users.uuid, userId));
+    const user = await db.select().from(users).where(eq(users.uuid, userfromAuth.uuid));
 
     const pics = user[0].profile_pics as string[];
 
-    const newPics = pics.filter(pic => !pic.startsWith(id));
+    const newPics = pics.filter((pic) => !pic.startsWith(id));
 
     console.log("Aktualisierte Bilderliste:", newPics);
-
-    
 
     await db
       .update(users)
       .set({ profile_pics: newPics })
-      .where(eq(users.uuid, userId));
+      .where(eq(users.uuid, userfromAuth.uuid));
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

@@ -19,6 +19,8 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import { useUser, fetchUser } from "@/app/context/UserContext";
+
 export default function Refactoring_Images() {
   const [imagesContainer, setImagesContainer] = useState<
     {
@@ -37,6 +39,8 @@ export default function Refactoring_Images() {
 
   const [imagesData, setImagesData] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const {user}= useUser();
 
   useEffect(() => {
     async function fetchImagesData() {
@@ -103,11 +107,12 @@ export default function Refactoring_Images() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      credentials: "include",
     });
 
     const result = await res.json();
 
-  
+    
 
 
     window.location.reload();

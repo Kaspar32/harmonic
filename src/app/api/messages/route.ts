@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { eq, and, or } from "drizzle-orm";
 
 export async function GET(req: { url: string | URL }) {
+
   try {
     // Extract chatPartner from query parameters
     const url = new URL(req.url);

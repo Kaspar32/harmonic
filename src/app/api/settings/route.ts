@@ -1,22 +1,31 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { settings } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 
 //GET
-export async function GET() {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
+export async function GET(req:NextRequest) {
+  let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") ?? "",
+      },
+    });
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
   }
 
   const einstellungen = await db
     .select()
     .from(settings)
-    .where(eq(settings.uuid, userId));
+    .where(eq(settings.uuid, userfromAuth.uuid));
 
   if (einstellungen.length === 0) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -27,15 +36,21 @@ export async function GET() {
 
 //POST
 export async function POST(request: Request) {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
-
-  console.log(userId);
-
-  if (!userId) {
-    return new Response(JSON.stringify({ error: "User ID is required" }), {
-      status: 400,
+ let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
     });
+
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
   }
 
   try {
@@ -54,15 +69,15 @@ export async function POST(request: Request) {
     const existingSettings = await db
       .select()
       .from(settings)
-      .where(eq(settings.uuid, userId));
+      .where(eq(settings.uuid, userfromAuth.uuid));
 
     if (existingSettings.length > 0) {
       await db
         .update(settings)
         .set({ intresse: intresse, alter: alter })
-        .where(eq(settings.uuid, userId));
+        .where(eq(settings.uuid, userfromAuth.uuid));
     } else {
-      await db.insert(settings).values({ intresse, uuid: userId, alter });
+      await db.insert(settings).values({ intresse, uuid: userfromAuth.uuid, alter });
     }
 
     return new Response(JSON.stringify({ message: "Settings added" }), {

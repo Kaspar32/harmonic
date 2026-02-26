@@ -1,38 +1,48 @@
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { users, likes, dislikes, settings } from "@/db/schema";
 import { eq, not, inArray, and, or } from "drizzle-orm";
-import { cookies } from "next/headers";
 
-export async function GET() {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
+export async function GET(request:NextRequest) {
 
-  if (!userId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+  let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
+    });
+
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
   }
 
 
   const [interest] = await db
     .select({ myInterest: settings.intresse })
     .from(settings)
-    .where(eq(settings.uuid, userId));
+    .where(eq(settings.uuid, userfromAuth.uuid));
 
   const [result] = await db
     .select({ mygender: users.geschlecht })
     .from(users)
-    .where(eq(users.uuid, userId));
+    .where(eq(users.uuid, userfromAuth.uuid));
 
   const liked = await db
     .select({ to: likes.to })
     .from(likes)
-    .where(eq(likes.from, userId));
+    .where(eq(likes.from, userfromAuth.uuid));
 
   const disliked = await db
     .select()
     .from(dislikes)
-    .where(eq(dislikes.from, userId));
+    .where(eq(dislikes.from, userfromAuth.uuid));
 
   const likedUuids = liked
     .map((l) => l.to)
@@ -47,7 +57,7 @@ export async function GET() {
   const areFakeUsersEnabled = await db //true oder false
     .select({ fakeUsersEnabled: users.fakeUsersEnabled })
     .from(users)
-    .where(eq(users.uuid, userId))
+    .where(eq(users.uuid, userfromAuth.uuid))
     .then((res) => res[0]?.fakeUsersEnabled ?? false);
 
   //In settings werden die interessen mit 'mann', 'frau', 'divers', 'alle' gespeichert
@@ -72,7 +82,7 @@ export async function GET() {
     .innerJoin(settings, eq(settings.uuid, users.uuid)) //nimmt die settings mit
     .where(
       and(
-        not(eq(users.uuid, userId)), //sich selber ausschliessen
+        not(eq(users.uuid, userfromAuth.uuid)), //sich selber ausschliessen
 
         likedUuids.length > 0
           ? not(inArray(users.uuid, likedUuids)) // nur die holen, dessen user.uuid nicht im likedUuids vorkommt

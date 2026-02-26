@@ -3,10 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Loggin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  
 
   const [user, setUser] = useState<{ name: string } | null>(null);
 
@@ -20,6 +23,8 @@ export default function Loggin() {
       })
       .then((data) => setUser(data))
       .catch(() => setUser(null));
+
+  
   }, []);
 
   const router = useRouter();

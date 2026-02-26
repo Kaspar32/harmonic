@@ -7,8 +7,8 @@ import Popup from "./popup";
 import { Loader2 } from "lucide-react";
 import { messagesAtom } from "@/lib/overgivenotifications";
 import { useAtom } from "jotai";
-import { boolean } from "drizzle-orm/gel-core";
 import ProfileSingleView from "./profile_single_view";
+
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);

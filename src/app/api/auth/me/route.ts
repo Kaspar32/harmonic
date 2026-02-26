@@ -20,8 +20,6 @@ export async function GET(req: NextRequest) {
 
 
     try {
-
-        console.log("Token"+token);
         payload = jwt.verify(token, process.env.JWT_SECRET!);
 
         

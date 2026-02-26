@@ -7,27 +7,25 @@ import { eq, sql } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
 
+
   let user;
-
   try {
-      const res = await fetch("http://localhost:3000/api/auth/me", {
-        method: "GET",
-        credentials: "include",
-      });
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") ?? "",
+      },
+    });
 
-      if (res.ok) {
-        const UserData = await res.json();
-        console.log("Erste Daten"+UserData);
-        user= UserData;
-      } 
-    } catch (err) {
-      console.error("Error fetching user:", err);
+    if (res.ok) {
+      const UserData = await res.json();
+      user = UserData;
     }
-
-
+  } catch (err) {
+    console.error("Error fetching user:", err);
+  }
 
   try {
-
     const payload: {
       id: string;
       image_base64: string | null;
