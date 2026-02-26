@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import path from "path";
 import fs from "fs/promises";
 import { db } from "@/lib/test";
@@ -7,14 +6,28 @@ import { users } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
 
-  if (!userId) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  let user;
 
   try {
+      const res = await fetch("http://localhost:3000/api/auth/me", {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        const UserData = await res.json();
+        console.log("Erste Daten"+UserData);
+        user= UserData;
+      } 
+    } catch (err) {
+      console.error("Error fetching user:", err);
+    }
+
+
+
+  try {
+
     const payload: {
       id: string;
       image_base64: string | null;
@@ -67,7 +80,7 @@ export async function POST(req: NextRequest) {
       .set({
         profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}::jsonb`,
       })
-      .where(eq(users.uuid, userId));
+      .where(eq(users.uuid, user.uuid));
 
     return NextResponse.json({ message: "Images saved successfully" });
   } catch (error) {

@@ -1,22 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 
 export default function Test() {
-  const [user, setUser] = useState<{ name: string } | null>(null);
 
-  useEffect(() => {
-    fetch("/api/auth")
-      .then((res) => {
-        if (!res.ok) throw new Error("Nicht eingeloggt oder Fehler");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
+  const {user} = useUser();
 
   return (
     <div className="m-10">
+
       {!user ? (
         <div className="flex flex-col items-center justify-center gap-10">
           <p className="flex justify-center font-extrabold text-3xl md:text-4xl text-yellow-500 text-shadow-2xs ">

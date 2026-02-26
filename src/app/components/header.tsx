@@ -3,46 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Pics } from "../types/Pics";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Header() {
-  const [user, setUser] = useState<{ name?: string } | null>(null);
-  const [image, setImage] = useState<Pics[]>([]);
 
-  useEffect(() => {
-    async function loadUserAndImages() {
-      const res = await fetch("/api/auth", { credentials: "include" });
-      if (!res.ok) {
-        setUser(null);
-        return;
-      }
+  const {user}= useUser();
 
-      const userData = await res.json();
-      setUser(userData);
-
-      const res2 = await fetch(`/api/getpicsbyid?id=${userData.uuid}`);
-      if (!res2.ok) return;
-
-      const imagesData = await res2.json();
-      setImage(imagesData);
-    }
-    loadUserAndImages();
-  }, []);
-
-  const [imagesData, setImagesData] = useState<string[]>([]);
-
-  useEffect(() => {
-    async function fetchImagesData() {
-      const res2 = await fetch(`/api/getPicsData`);
-      if (!res2.ok) return;
-      const imagesData = await res2.json();
-
-      console.log("Empfangene Bilderdaten:", imagesData);
-
-      setImagesData(imagesData.profile_pics);
-    }
-
-    fetchImagesData();
-  }, []);
 
   return (
     <div className="flex justify-between bg-blue-200 p-3  border-b-2 border-blue-400">
@@ -64,8 +30,8 @@ export default function Header() {
             <div className="relative md:h-12 md:w-12 h-8 w-8  overflow-hidden rounded-full focus:ring-2 focus:ring-blue-400">
               <Image
                 src={
-                  imagesData?.[0]
-                    ? `/images/${imagesData[0]}`
+                  user?.profile_pics[0]
+                    ? `/images/${user?.profile_pics[0]}`
                     : "/images/149071.png"
                 }
                 alt="Profilbild"

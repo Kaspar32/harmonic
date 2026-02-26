@@ -1,37 +1,28 @@
 import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
-export function middleware(req: NextRequest) {
-  
-  /*
-  const user = req.cookies.get("userId");
+export async function middleware(req: NextRequest) {
+  const user = req.cookies.get("userId")?.value;
+  const token = req.cookies.get("authtoken")?.value;
+  const secret = process.env.JWT_SECRET;
 
-  if (!user) {
-    return NextResponse.redirect(new URL("/loggin", req.url));
-  }*/
+  const redirectToLogin = () => NextResponse.redirect(new URL("/loggin", req.url));
 
-  
+  if (!user || !token || !secret) return redirectToLogin();
 
-  // JWT-Token im Cookie
+  try {
+    const encoder = new TextEncoder();
+    const key = encoder.encode(secret);
 
-   const token = req.cookies.get("authtoken")?.value;
-
-  if(!token)
-  {
-    return NextResponse.redirect(new URL("/loggin", req.url));
+    // JWT überprüfen
+    await jwtVerify(token, key);
+    
+    return NextResponse.next();
+  } catch (err) {
+    console.log("JWT invalid:", err);
+    return redirectToLogin();
   }
-
-   try {
-    jwt.verify(token, process.env.JWT_SECRET!);
-    return NextResponse.next(); // alles gut
-  }
-  catch (err) {
-    return NextResponse.redirect(new URL("/loggin", req.url));
-  }
-
-  
 }
-
 
 export const config = {
   matcher: [
@@ -39,7 +30,6 @@ export const config = {
     "/home/:path*",
     "/likes/:path*",
     "/chat/:path*",
-    "/likes/:path*",
-    "/profile_edit/:path*"
+    "/profile_edit/:path*",
   ],
 };

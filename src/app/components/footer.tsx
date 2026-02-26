@@ -16,6 +16,8 @@ export default function Footer() {
   const setMessages = useSetAtom(messagesAtom);
 
   useEffect(() => {
+
+    
     const controller = new AbortController();
 
     async function checkNewMatchMessages() {
@@ -23,6 +25,8 @@ export default function Footer() {
       const res1 = await fetch("/api/auth");
       const data1 = await res1.json();
       setUseruuid(data1.uuid);
+
+      //alert("Test"+data1.uuid);
 
       const res2 = await fetch(`/api/getmatchbyid?id=${data1.uuid}`);
       const data = await res2.json();
@@ -62,8 +66,8 @@ export default function Footer() {
 
           setMessages((prev) => [...prev, data3[i]?.fromUser]);
 
+          }
         }
-      }
       
       localStorage.setItem(storageKey2, String(data3[data3.length - 1].id));
       }

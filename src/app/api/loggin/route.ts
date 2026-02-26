@@ -41,7 +41,7 @@ export async function POST(req: Request) {
   //neuer Token setzten mit JWT
   const jwt = require("jsonwebtoken");
 
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ userId: user.uuid }, process.env.JWT_SECRET, {
     expiresIn: "1h",
   });
 
