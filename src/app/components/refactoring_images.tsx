@@ -19,7 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { useUser, fetchUser } from "@/app/context/UserContext";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Refactoring_Images() {
   const [imagesContainer, setImagesContainer] = useState<
@@ -40,31 +40,29 @@ export default function Refactoring_Images() {
   const [imagesData, setImagesData] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const {user}= useUser();
+  const { user, fetchUser } = useUser();
 
   useEffect(() => {
     async function fetchImagesData() {
-      const res2 = await fetch(`/api/getPicsData`);
-      if (!res2.ok) return;
-      const imagesData = await res2.json();
+      if (!user) {
+        return;
+      }
 
-      console.log("Empfangene Bilderdaten:", imagesData);
+      setImagesData(user?.profile_pics);
 
-      setImagesData(imagesData.profile_pics);
-
-        setImagesContainer((prev) =>
-          prev.map((item, index) => ({
-            ...item,
-            position: index,
-            previewUrl: imagesData.profile_pics?.[index]
-              ? `/images/${imagesData.profile_pics[index]}`
-              : item.previewUrl,
-          })),
-        );
+      setImagesContainer((prev) =>
+        prev.map((item, index) => ({
+          ...item,
+          position: index,
+          previewUrl: user.profile_pics?.[index]
+            ? `/images/${user.profile_pics[index]}`
+            : item.previewUrl,
+        })),
+      );
     }
 
     fetchImagesData();
-  }, []);
+  }, [user]);
 
   function handleImageChange(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -90,15 +88,12 @@ export default function Refactoring_Images() {
   }, [imagesContainer]);
 
   async function savePictures() {
-    const res0 = await fetch("/api/auth");
-    if (!res0.ok) return;
-
-    const data = await res0.json();
+    
 
     const base64Array = await convertImagesToBase64(imagesContainer);
 
     const payload = imagesContainer.map((img, index) => ({
-      id: `${data.uuid}-img-${img.position}`,
+      id: `${user?.uuid}-img-${img.position}`,
       image_base64: base64Array[index],
       position: img.position,
     }));
@@ -112,19 +107,12 @@ export default function Refactoring_Images() {
 
     const result = await res.json();
 
-    
-
-
-    window.location.reload();
+    //Rufe den Context-fetchUser auf um die ànderungen zu synchroiniesieren:
+    fetchUser();
   }
 
   async function deleteImage(imageName: string) {
-    const res0 = await fetch("/api/auth");
-    if (!res0.ok) return;
 
-    const data = await res0.json();
-
-    //const imageid = imageName;
 
     await fetch("/api/deleteImageinFolder", {
       method: "POST",
@@ -137,6 +125,8 @@ export default function Refactoring_Images() {
     // Aktualisiere den State nach dem löschen
 
     setImagesData((prev) => prev.filter((img) => !img.startsWith(imageName)));
+
+    fetchUser();
 
     window.location.reload();
   }
@@ -167,10 +157,8 @@ export default function Refactoring_Images() {
         return;
       }
 
-      console.log("reordered Containers"+newImages);
+      console.log("reordered Containers" + newImages);
       setImagesContainer(newImages);
-
-
 
       let Array = await fetch("api/getPicsData", {
         method: "GET",
@@ -194,15 +182,6 @@ export default function Refactoring_Images() {
       });
 
       setImagesData(newArray as string[]);
-
-
-
-
-
-
-
-
-      
     }
   };
 
@@ -222,13 +201,15 @@ export default function Refactoring_Images() {
           strategy={rectSortingStrategy}
         >
           {imagesContainer.map((img, index) => (
-            <SortableItem key={img.position} id={img.position as number}
-            disabled={!img.previewUrl}>
+            <SortableItem
+              key={img.position}
+              id={img.position as number}
+              disabled={!img.previewUrl}
+            >
               <div
                 key={index}
                 className="mb-4 border-2 rounded-2xl ml-2 p-2 border-yellow-500 relative"
               >
-                
                 <button className="absolute bottom-2  cursor-pointer">
                   <Image
                     src="/images/circle-plus.svg"
@@ -248,11 +229,7 @@ export default function Refactoring_Images() {
                 </button>
 
                 <img
-                  src={
-                    img?.previewUrl
-                      ? img.previewUrl
-                        : undefined
-                  }
+                  src={img?.previewUrl ? img.previewUrl : undefined}
                   className="w-40 h-40 object-cover"
                 />
 
@@ -296,7 +273,8 @@ export default function Refactoring_Images() {
   );
 
   function SortableItem({
-    id, disabled,
+    id,
+    disabled,
     children,
   }: {
     id: number;
@@ -304,19 +282,18 @@ export default function Refactoring_Images() {
     children: React.ReactNode;
   }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
-      useSortable({ id, disabled, });
+      useSortable({ id, disabled });
 
     const style = {
       transform: CSS.Transform.toString(transform),
       transition,
       touchAction: "none", // wichtig für Mobile!
-       opacity: disabled ? 0.5 : 1,
-    cursor: disabled ? "not-allowed" : "",
+      opacity: disabled ? 0.5 : 1,
+      cursor: disabled ? "not-allowed" : "",
     };
 
     return (
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-
         {children}
       </div>
     );

@@ -1,6 +1,7 @@
 "use client";
 import { evaluateQuestions } from "@/lib/evaluatequestions";
 import { useEffect, useState } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 type Props = {
   uuid: string;
@@ -9,13 +10,15 @@ type Props = {
 export default function Score({ uuid }: Props) {
   let [score, setScore] = useState(0);
 
+  const {user}= useUser();
+
   useEffect(() => {
     const loadData = async () => {
-      const userRes = await fetch("/api/auth", { credentials: "include" });
-      const userData = await userRes.json();
-      const userUuid = userData.uuid;
+      
 
-      const res = await fetch("api/savequestionaire" + `?uuid=${userUuid}`, {
+
+
+      const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

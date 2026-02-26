@@ -6,7 +6,6 @@ import { UserType } from "../types/User";
 import { arraysHaveCommonElement } from "@/lib/arraysHaveCommonElement";
 import { Music, User } from "lucide-react";
 import Link from "next/link";
-import { getImageSrc } from "@/lib/getImageSrc";
 import HeartAnimation from "./heartAnimation";
 import Score from "./score";
 

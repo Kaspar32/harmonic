@@ -1,9 +1,6 @@
 "use client";
-
-import { set } from "date-fns";
-import { uuid } from "drizzle-orm/gel-core";
-import { NextResponse } from "next/server";
 import React, { use, useEffect, useState } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Questions() {
   interface Questions {
@@ -22,13 +19,10 @@ export default function Questions() {
   const [question5, setQuestion5] = useState("");
   const [question6, setQuestion6] = useState("");
 
+  const {user} = useUser();
+
   async function saveAnswers() {
-    const userRes = await fetch("/api/auth", { credentials: "include" });
-    if (!userRes.ok) {
-      throw new Error("Nicht eingeloggt oder Fehler");
-    }
-    const userData = await userRes.json();
-    const userUuid = userData.uuid;
+    
 
     let payload = {
       question1,
@@ -37,7 +31,7 @@ export default function Questions() {
       question4,
       question5,
       question6,
-      uuid: userUuid,
+      uuid: user?.uuid,
     };
 
     const res = await fetch("/api/savequestionaire", {
@@ -52,12 +46,11 @@ export default function Questions() {
 
   useEffect(() => {
     const loadData = async () => {
-      const userRes = await fetch("/api/auth", { credentials: "include" });
+    
 
-      const userData = await userRes.json();
-      const userUuid = userData.uuid;
+  
 
-      const res = await fetch("api/savequestionaire" + `?uuid=${userUuid}`, {
+      const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
