@@ -4,10 +4,8 @@ import { promises as fs } from 'fs';
 import sharp from "sharp";
 
 export async function GET(request: Request, { params }: { params: Promise<{ name: string[] }> }) {
+
   try {
-
-
-    
 
     // Warte auf das gesamte params-Objekt
     const awaitedParams = await Promise.resolve(params || {});
@@ -31,17 +29,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ name
       svg: 'image/svg+xml'
     }[ext] || 'application/octet-stream';
 
-    const isblurred= false;
 
-    
-
+    let isblurred= false;
 
     let fileBuffer = await fs.readFile(filePath);
 
     if(isblurred)
     {
-
       console.log("Testing blurred image");
+      
        const blurredBuffer = await sharp(fileBuffer).blur(60).toBuffer();
        fileBuffer = blurredBuffer;
     }

@@ -13,19 +13,16 @@ export default function Loggin() {
 
   const [user, setUser] = useState<{ name: string } | null>(null);
 
+  const{user:user2}= useUser();
+
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/auth")
-      .then((res) => {
-        if (!res.ok) throw new Error("Nicht eingeloggt oder Fehler");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
+
+      setUser(user2);
 
   
-  }, []);
+  }, [user2]);
 
   const router = useRouter();
 

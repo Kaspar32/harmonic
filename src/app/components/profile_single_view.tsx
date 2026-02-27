@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { users } from "@/db/schema";
 import { useState, useEffect } from "react";
 import { UserType } from "../types/User";
+import { useUser } from "@/app/context/UserContext";
+
 
 
 
@@ -13,11 +14,12 @@ export default function ProfileSingleView( {selectedProfileIndex}:Props) {
   const [users, setUsers] = useState<UserType[]>([]);
   const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
 
-  async function fetchusers() {
-    const res = await fetch("/api/getuserdata");
-    const data = await res.json();
+  const {user}= useUser();
 
-    const res1 = await fetch(`/api/getmatchbyid?id=${data.uuid}`);
+  async function fetchusers() {
+   
+
+    const res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
     const data1 = await res1.json();
     const allUsers = await Promise.all(
       data1.map(async (like: { to: string }) => {
@@ -54,7 +56,7 @@ export default function ProfileSingleView( {selectedProfileIndex}:Props) {
   useEffect(() => {
 
     fetchusers();
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-4 p-4">

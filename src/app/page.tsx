@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useUser } from "@/app/context/UserContext";
 
 
@@ -7,8 +6,11 @@ export default function Test() {
 
   const {user} = useUser();
 
+
   return (
     <div className="m-10">
+
+      <img src={`/images/42692353-7f62-4ad0-9f76-a32584a7166e-img-0_1771510968141.png`} ></img>
 
       {!user ? (
         <div className="flex flex-col items-center justify-center gap-10">

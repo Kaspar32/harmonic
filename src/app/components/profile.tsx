@@ -8,6 +8,7 @@ import { Music, User } from "lucide-react";
 import Link from "next/link";
 import HeartAnimation from "./heartAnimation";
 import Score from "./score";
+import { useUser } from "@/app/context/UserContext";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -19,6 +20,7 @@ export default function Profile() {
   const [sameartist, setSameartist] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const controls = useAnimation();
+  const {user}= useUser();
 
   //---- api fetch ----
   async function fetchUsers() {
@@ -29,10 +31,9 @@ export default function Profile() {
     const usersArray = data.map((item: { users: any }) => item.users);
 
     // Setzte Einstellungen für den User
-    const res1 = await fetch("/api/getuserdata");
-    const data1 = await res1.json();
 
-    const res2 = await fetch("/api/settings?id=" + data1.uuid);
+
+    const res2 = await fetch("/api/settings?id=" + user?.uuid);
     const settings = await res2.json();
 
     if (res2.status === 404) {

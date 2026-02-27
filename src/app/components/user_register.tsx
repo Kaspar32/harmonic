@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 export default function UserRegister() {
   const [user, setUser] = useState<{ name: string } | null>(null);
@@ -11,15 +12,12 @@ export default function UserRegister() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const {user: user2}= useUser();
+
+
   useEffect(() => {
-    fetch("/api/auth")
-      .then((res) => {
-        if (!res.ok) throw new Error("Nicht eingeloggt oder Fehler");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
+      setUser(user2);
+  }, [user2]);
 
   async function loggout() {
     await fetch("/api/loggout", {
