@@ -39,7 +39,7 @@ export default function ProfileSingleView( {selectedProfileIndex}:Props) {
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
 
 
-    console.log("fetchUsers:    ", validUsers);
+    console.log("fetchUsers:   ", validUsers);
 
     setUsers(validUsers);
 
@@ -64,9 +64,10 @@ export default function ProfileSingleView( {selectedProfileIndex}:Props) {
         <p className="text-yellow-500">{users[selectedProfileIndex]?.name}</p>
       </h2>
 
-
+    
       <Image
-        src={`/images/${Images?.image_path[0]}`|| "images/defaultProfile.png"}
+     
+        src={`/images/${Images?.image_path?.[0] ?? "defaultProfile.png"}`}
         width={1000}
         height={1000}
         alt=""

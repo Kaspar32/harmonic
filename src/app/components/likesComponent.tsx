@@ -133,6 +133,16 @@ export default function LikesTest() {
   const [toggleLikesYou, settoggleLikesYou] = useState(true);
   const [toggleYouLike, settoggleYouLike] = useState(false);
 
+
+  function blurred(str:string)
+  {
+    const blurred = str.replace(/\.png$/, "_blurred.png");
+
+
+    return blurred
+    ;
+  }
+
   return (
     <div className="relative">
       {/* Button: Likes You */}
@@ -168,7 +178,7 @@ export default function LikesTest() {
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={`/images/${img.image_path}`}
+                          src={blurred(`/images/${img.image_path}`)}
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}

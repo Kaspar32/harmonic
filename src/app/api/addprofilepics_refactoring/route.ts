@@ -4,6 +4,7 @@ import fs from "fs/promises";
 import { db } from "@/lib/test";
 import { users } from "@/db/schema";
 import { eq, sql } from "drizzle-orm";
+import sharp from "sharp";
 
 export async function POST(req: NextRequest) {
 
@@ -61,6 +62,8 @@ export async function POST(req: NextRequest) {
 
       const buffer = Buffer.from(base64Data, "base64");
 
+      const blurredBuffer = await sharp(buffer).blur(60).toBuffer();
+
       const timestamp = Date.now();
       const filePath = path.join(
         process.cwd(),
@@ -68,6 +71,16 @@ export async function POST(req: NextRequest) {
         `${img.id}_${timestamp}.png`,
       );
       await fs.writeFile(filePath, buffer);
+
+
+      const filePathblurred = path.join(
+        process.cwd(),
+        "uploads/images",
+        `${img.id}_${timestamp}_blurred.png`,
+      );
+      await fs.writeFile(filePathblurred, blurredBuffer);
+
+
       eintrag.push(`${img.id}_${timestamp}.png`);
     }
 
