@@ -30,7 +30,6 @@ export default function Footer() {
       
 
       //alert("Test"+data1.uuid);
-
       const res2 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
       const data = await res2.json();
 

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const user = foundUser[0];
 
   if (!user) {
-    return new Response("User doesn't exist.", { status: 400 });
+    return new Response("Login fehlgeschlagen!", { status: 400 });
   }
 
   const comparePasswords = await bcrypt.compare(
@@ -24,7 +24,7 @@ export async function POST(req: Request) {
   );
 
   if (!comparePasswords) {
-    return new Response("Falsches Passwort.", { status: 400 });
+    return new Response("Login fehlgeschlagen! ", { status: 400 });
   }
 
   const res = NextResponse.json({ message: "Loggin erfolgreich" });
