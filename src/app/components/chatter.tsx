@@ -221,8 +221,7 @@ export default function Chatter() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   async function handleunmatch() {
-    //alert("test"+selectedIndex);
-    // alert("test"+users[selectedIndex].name);
+    
 
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -239,6 +238,13 @@ export default function Chatter() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+    });
+
+    const payload2 = { from: users[selectedIndex].uuid, to:data.uuid };
+    await fetch("/api/deletelikebyid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload2),
     });
 
     calculateMatch();
@@ -261,6 +267,14 @@ export default function Chatter() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+    });
+
+    const payload2 = { from: users[selectedIndex].uuid , to: data.uuid };
+
+    await fetch("/api/deletelikebyid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload2),
     });
 
     await fetch("/api/adddislike", {

@@ -136,11 +136,9 @@ export default function LikesTest() {
 
   function blurred(str:string)
   {
-    const blurred = str.replace(/\.png$/, "_blurred.png");
+  const blurred = str.replace(/\.png$/, "_blurred.png");
+  return `${blurred}?blur=1`;
 
-
-    return blurred
-    ;
   }
 
   return (

@@ -1,12 +1,11 @@
 // app/images/[...name]/route.ts
 import { join } from 'path';
 import { promises as fs } from 'fs';
-import { hasMatch } from '@/lib/likesService';
-import {users} from  "@/db/schema";
-import { db } from "@/db";
-import { like } from "drizzle-orm";
 
 export async function GET(request: Request, { params }: { params: Promise<{ name: string[] }> }) {
+
+  const url = new URL(request.url);
+  const blurFlag = url.searchParams.get("blur");
 
 
   let userfromAuth;
@@ -33,26 +32,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ name
     const fileSegments = awaitedParams.name || [];
 
 
-    /*const requestedImage  = join(...awaitedParams.name);
+    
 
-
-    if(requestedImage.indexOf("_blurred")==-1)
-    {
-
-      console.log(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::");
-      const result= await  db.select().from(users).where(like(users.profile_pics,requestedImage))
-
-      const owneruuid= result[0].uuid;
-
-
-      
-
-      const ismatch= hasMatch(owneruuid,userfromAuth.uuid);
-
-
-
-      
-    }*/
 
 
     
@@ -66,6 +47,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ name
       'images',
       ...fileSegments
     );
+
+
+    const isBlurred = filePath.endsWith("_blurred.png");
+
+    if (isBlurred && !blurFlag) {
+      return new Response(null, { status: 404 });
+    }
 
     // Dateityp-Erkennung
     const ext = (filePath.split('.').pop() ?? '').toLowerCase();

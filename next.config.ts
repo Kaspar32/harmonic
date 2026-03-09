@@ -10,6 +10,13 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+
+    localPatterns: [
+      {
+        pathname: '/images/**', // alle Bilder im /images Ordner
+        // query erlaubt optional ?blur=1
+      },
+    ],
   },
 };
 
