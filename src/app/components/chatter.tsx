@@ -40,7 +40,6 @@ export default function Chatter() {
     }[]
   >([]);
 
-  const [Allimages, setAllImages] = useState<{ image_path: string[]; user_id: string }>();
 
   const [users, setUsers] = useState<UserType[]>([]);
 
@@ -360,16 +359,28 @@ export default function Chatter() {
 
   console.log("Neue Nachricht von:", newmessagesusers[0]);
 
+  const [animateindex, setAnimateindex]= useState(0);
+
+   useEffect(() => {
+    const interval = setInterval(() => {
+      setAnimateindex(prev => prev + 1);
+    }, 200); // 1000 ms = 1 Sekunde
+
+    return () => clearInterval(interval); // Cleanup
+  }, []);
+
+
+
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       {loading && <Loader2 className=" animate-spin text-yellow-400" />}
       {!loading && (
-        <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
+        <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
           {images.map((item, index) => (
             <div key={index}>
               <div
                 className={
-                  "relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black"
+                  `${index===animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`
                 }
               >
                 <Image
@@ -524,8 +535,7 @@ export default function Chatter() {
         
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
 
-          <ProfileSingleView selectedProfileIndex={selectedProfileIndex} />
-
+          <ProfileSingleView selectedProfileIndex={selectedProfileIndex} fromWhere="chatter" />
           
         </Popup>
         

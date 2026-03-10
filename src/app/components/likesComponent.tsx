@@ -4,6 +4,8 @@ import Image from "next/image";
 import { UserType } from "../types/User";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@/app/context/UserContext";
+import Popup from "./popup";
+import ProfileSingleView from "./profile_single_view";
 
 export default function LikesTest() {
   const [loading, setLoading] = useState(false);
@@ -141,6 +143,23 @@ export default function LikesTest() {
 
   }
 
+
+   const [openProfile, setOpenProfile] = useState(false);
+   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
+
+
+  function handlePPClick(index: number): void {
+   
+    setSelectedProfileIndex(index);
+    setOpenProfile(true);
+    
+  }
+
+  const [openDialog, setOpenDialog]= useState(false);
+
+
+
+
   return (
     <div className="relative">
       {/* Button: Likes You */}
@@ -181,6 +200,8 @@ export default function LikesTest() {
                           width={96}
                           height={96}
                           className="w-full h-full object-cover"
+                          onClick={() => setOpenDialog(true)}
+                          
                         />
                       </div>
 
@@ -196,6 +217,29 @@ export default function LikesTest() {
                 </div>
               )}
             </>
+          )}
+
+          {openDialog &&(
+
+            <div>
+
+              <Popup onClose={()=>setOpenDialog(false)}>
+
+                <div>
+                  Abos
+                </div>
+
+
+              </Popup>
+
+
+
+
+
+            </div>
+
+
+
           )}
         </div>
       </div>
@@ -238,6 +282,7 @@ export default function LikesTest() {
                           width={96}
                           height={96}
                           className="w-full h-full object-cover"
+                          onClick={() => handlePPClick(index)}
                         />
                       </div>
 
@@ -255,7 +300,21 @@ export default function LikesTest() {
             </>
           )}
         </div>
+
+        
       </div>
+
+      {openProfile && (
+      
+              
+              <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+      
+                <ProfileSingleView selectedProfileIndex={selectedProfileIndex} fromWhere={"likesComponent"} />
+      
+                
+              </Popup>
+              
+            )}
     </div>
   );
 }

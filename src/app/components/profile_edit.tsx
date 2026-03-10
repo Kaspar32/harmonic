@@ -422,9 +422,11 @@ export default function Profil_Edit() {
                 <h2 className="text-xl font-bold mb-4 text-gray-400 dark:text-gray-400">
                   Name
                 </h2>
-                <textarea
+                <textarea 
+                  disabled
                   defaultValue={userData.name}
                   onChange={(e) => setTemp_Name(e.target.value)}
+
                   className="bg-yellow-200 rounded-xl w-full h-24 p-2 focus:outline-none dark:text-black"
                 />
                 <button

@@ -7,19 +7,27 @@ import { useUser } from "@/app/context/UserContext";
 
 
 type Props = {
-selectedProfileIndex: number
+selectedProfileIndex: number;
+fromWhere: string;
 };
 
-export default function ProfileSingleView( {selectedProfileIndex}:Props) {
+export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Props) {
   const [users, setUsers] = useState<UserType[]>([]);
   const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
 
   const {user}= useUser();
 
   async function fetchusers() {
-   
 
-    const res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
+    let res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
+   
+    
+
+    if(fromWhere=="likesComponent")
+    {
+       res1 = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
+    }
+    
     const data1 = await res1.json();
     const allUsers = await Promise.all(
       data1.map(async (like: { to: string }) => {
@@ -58,19 +66,32 @@ export default function ProfileSingleView( {selectedProfileIndex}:Props) {
     fetchusers();
   }, [user]);
 
+  const [imageIndex, setImageIndex]= useState(0);
+
+   function handleClick() {
+    if (!users[selectedProfileIndex]) return;
+
+    const imageLength = Images?.image_path ? Images.image_path.length : 0;
+    
+    if (Images && Images?.image_path && Images?.image_path.length === 0) return;
+    setImageIndex((prev) => (prev + 1) % imageLength);
+  }
+
   return (
-    <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-4 p-4">
+    <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-2 p-4">
       <h2 className="text-2xl font-bold mb-4 text-yellow-600">
         <p className="text-yellow-500">{users[selectedProfileIndex]?.name}</p>
       </h2>
 
     
       <Image
-     
-        src={`/images/${Images?.image_path?.[0] ?? "defaultProfile.png"}`}
+        onClick={handleClick}
+        src={`/images/${Images?.image_path?.[imageIndex] ?? "defaultProfile.png"}`}
         width={1000}
         height={1000}
         alt=""
+
+        className="border-2 border-yellow-500 rounded-2xl p-1"
       />
 
       <div className="flex gap-4 mb-4">

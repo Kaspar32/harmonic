@@ -571,7 +571,7 @@ export default function Profile() {
                       >
                         {users[UserIndex]?.favorite_artist ? (
                           <>
-                            <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3 mb-2">
+                            <div className="flex items-center gap-1 py-1 px-3 mb-2">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
@@ -594,7 +594,7 @@ export default function Profile() {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1 border-3 rounded-3xl py-1 px-3">
+                            <div className="flex items-center gap-1  py-1 px-3">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
