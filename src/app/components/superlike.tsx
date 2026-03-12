@@ -153,9 +153,11 @@ export default function Superlike() {
                 width={100}
                 className="ml-2 mt-2 rounded-4xl border-3 border-blue-300 justify-center "
                 alt="Profilbild"
+
+                onClick={() => handlePPClick(index)}
               />
 
-              <p className="text-yellow-800 font-bold text-xl ml-10 mt-10">
+              <p className="text-yellow-500 font-bold text-xl ml-10 mt-10">
                 SUPERLIKE von {users?.[index]?.name}
               </p>
             </div>
