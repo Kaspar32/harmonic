@@ -154,7 +154,7 @@ export default function Superlike() {
                 className="ml-2 mt-2 rounded-4xl border-3 border-blue-300 justify-center "
                 alt="Profilbild"
 
-                onClick={() => handlePPClick(index)}
+                
               />
 
               <p className="text-yellow-500 font-bold text-xl ml-10 mt-10">
