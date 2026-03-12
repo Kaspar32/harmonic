@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 import { messagesAtom } from "@/lib/overgivenotifications";
 import { useAtom } from "jotai";
 import ProfileSingleView from "./profile_single_view";
-
+import Superlike from "./superlike";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
@@ -39,7 +39,6 @@ export default function Chatter() {
       image_path: string;
     }[]
   >([]);
-
 
   const [users, setUsers] = useState<UserType[]>([]);
 
@@ -220,8 +219,6 @@ export default function Chatter() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   async function handleunmatch() {
-    
-
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
       console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
@@ -239,7 +236,7 @@ export default function Chatter() {
       body: JSON.stringify(payload),
     });
 
-    const payload2 = { from: users[selectedIndex].uuid, to:data.uuid };
+    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
     await fetch("/api/deletelikebyid", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -268,7 +265,7 @@ export default function Chatter() {
       body: JSON.stringify(payload),
     });
 
-    const payload2 = { from: users[selectedIndex].uuid , to: data.uuid };
+    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
 
     await fetch("/api/deletelikebyid", {
       method: "POST",
@@ -357,31 +354,36 @@ export default function Chatter() {
     newMessages[userIndex] = true;
   }
 
-  console.log("Neue Nachricht von:", newmessagesusers[0]);
+  //console.log("Neue Nachricht von:", newmessagesusers[0]);
 
-  const [animateindex, setAnimateindex]= useState(0);
+  // kleine animation beim laden der Page
+  const [animateindex, setAnimateindex] = useState(0);
 
-   useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
-      setAnimateindex(prev => prev + 1);
+      setAnimateindex((prev) => prev + 1);
     }, 200); // 1000 ms = 1 Sekunde
 
     return () => clearInterval(interval); // Cleanup
   }, []);
 
 
+  //Superlikes POPUP
+  const [opensuperlikes, setOpenSuperlikes]=useState(false);
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       {loading && <Loader2 className=" animate-spin text-yellow-400" />}
+
+      <Superlike></Superlike>
       {!loading && (
+
+        
         <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
           {images.map((item, index) => (
             <div key={index}>
               <div
-                className={
-                  `${index===animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`
-                }
+                className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
               >
                 <Image
                   src={
@@ -531,15 +533,17 @@ export default function Chatter() {
       )}
 
       {openProfile && (
-
-        
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
-
-          <ProfileSingleView selectedProfileIndex={selectedProfileIndex} fromWhere="chatter" />
-          
+          <ProfileSingleView
+            selectedProfileIndex={selectedProfileIndex}
+            fromWhere="chatter"
+          />
         </Popup>
-        
       )}
+
+    
+      
+
 
       {unlike && (
         <Popup onClose={() => setUnlike(false)}>

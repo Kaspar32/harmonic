@@ -22,6 +22,13 @@
       "when": 1770718289283,
       "tag": "0002_wild_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1773146120338,
+      "tag": "0003_free_steve_rogers",
+      "breakpoints": true
     }
   ]
 }

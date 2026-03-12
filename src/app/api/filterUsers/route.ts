@@ -1,11 +1,9 @@
-
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { users, likes, dislikes, settings } from "@/db/schema";
+import { users, likes, superlikes, dislikes, settings } from "@/db/schema";
 import { eq, not, inArray, and, or } from "drizzle-orm";
 
-export async function GET(request:NextRequest) {
-
+export async function GET(request: NextRequest) {
   let userfromAuth;
   try {
     const res = await fetch("http://localhost:3000/api/auth/me", {
@@ -23,7 +21,6 @@ export async function GET(request:NextRequest) {
     console.error("Error fetching user:", err);
   }
 
-
   const [interest] = await db
     .select({ myInterest: settings.intresse })
     .from(settings)
@@ -39,6 +36,11 @@ export async function GET(request:NextRequest) {
     .from(likes)
     .where(eq(likes.from, userfromAuth.uuid));
 
+  const superliked = await db
+    .select()
+    .from(superlikes)
+    .where(eq(superlikes.from, userfromAuth.uuid));
+
   const disliked = await db
     .select()
     .from(dislikes)
@@ -48,7 +50,9 @@ export async function GET(request:NextRequest) {
     .map((l) => l.to)
     .filter((id): id is string => id != null);
 
-   //console.log('likedUuids:', likedUuids);
+  const superlikedUuids = superliked
+    .map((l) => l.to)
+    .filter((id): id is string => id != null);
 
   const dislikedUuids = disliked
     .map((d) => d.to)
@@ -69,12 +73,11 @@ export async function GET(request:NextRequest) {
   else if (myGender === "Männlich") myGender = "mann";
   else if (myGender === "Divers") myGender = "divers";
 
-
   if (myInterest === "frau") myInterest = "Weiblich";
   else if (myInterest === "mann") myInterest = "Männlich";
   else if (myInterest === "divers") myInterest = "Divers";
 
- //console.log(myGender, myInterest);
+  //console.log(myGender, myInterest);
 
   const allUsers = await db
     .select()
@@ -87,6 +90,10 @@ export async function GET(request:NextRequest) {
         likedUuids.length > 0
           ? not(inArray(users.uuid, likedUuids)) // nur die holen, dessen user.uuid nicht im likedUuids vorkommt
           : undefined,
+        
+        superlikedUuids.length > 0
+          ? not(inArray(users.uuid, superlikedUuids)) // nur die holen, dessen user.uuid nicht im superlikedUuids vorkommt
+          : undefined,
 
         dislikedUuids.length > 0
           ? not(inArray(users.uuid, dislikedUuids)) // nur die holen, dessen user.uuid nicht im dislikedUuids vorkommt
@@ -97,14 +104,16 @@ export async function GET(request:NextRequest) {
         and(
           or(
             myGender ? eq(settings.intresse, myGender) : undefined, // hole nur die user dessen interesse mein geschlecht ist oder alle
-            eq(settings.intresse, "alle")
+            eq(settings.intresse, "alle"),
           ),
           // Only add a DB filter for candidate gender when myInterest is set and not "alle"
-          myInterest && myInterest !== "alle" ? eq(users.geschlecht, myInterest) : undefined
-        ), 
-      )
+          myInterest && myInterest !== "alle"
+            ? eq(users.geschlecht, myInterest)
+            : undefined,
+        ),
+      ),
     );
-//console.log('alle gefilterten userss:', allUsers);
+  //console.log('alle gefilterten userss:', allUsers);
 
   return NextResponse.json(allUsers);
 }

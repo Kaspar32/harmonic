@@ -36,6 +36,14 @@ export const likes = pgTable("likes",{
 
 } );
 
+export const superlikes = pgTable("superlikes",{
+  id: serial("id").primaryKey(),
+  from: uuid("from").references(() => users.uuid),
+  to: uuid("to").references(() => users.uuid),
+  likedAt: timestamp("liked_at").defaultNow(),
+
+} );
+
 export const dislikes = pgTable("dislikes",{
   id: serial("id").primaryKey(),
   from: uuid("from").references(() => users.uuid),

@@ -12,7 +12,10 @@ import { useUser } from "@/app/context/UserContext";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
-  const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
+  const [Images, setImages] = useState<{
+    image_path: string[];
+    user_id: string;
+  }>();
   const [UserIndex, setUserIndex] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatched, setIsMatched] = useState(false);
@@ -20,7 +23,7 @@ export default function Profile() {
   const [sameartist, setSameartist] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const controls = useAnimation();
-  const {user}= useUser();
+  const { user } = useUser();
 
   //---- api fetch ----
   async function fetchUsers() {
@@ -31,7 +34,6 @@ export default function Profile() {
     const usersArray = data.map((item: { users: any }) => item.users);
 
     // Setzte Einstellungen für den User
-
 
     const res2 = await fetch("/api/settings?id=" + user?.uuid);
     const settings = await res2.json();
@@ -58,7 +60,9 @@ export default function Profile() {
 
   // Hole Bilder für den aktuellen User
   async function fetchPics() {
-    const res = await fetch(`/api/getallpicsbyuserid?id=${users[UserIndex].uuid}`);
+    const res = await fetch(
+      `/api/getallpicsbyuserid?id=${users[UserIndex].uuid}`,
+    );
     if (!res.ok) return;
     const data = await res.json();
     console.log("Fetched images:", data);
@@ -102,7 +106,7 @@ export default function Profile() {
     if (!users[UserIndex]) return;
 
     const imageLength = Images?.image_path ? Images.image_path.length : 0;
-    
+
     if (Images && Images?.image_path && Images?.image_path.length === 0) return;
     setCurrentIndex((prev) => (prev + 1) % imageLength);
   }
@@ -263,6 +267,63 @@ export default function Profile() {
     console.log("disliked", user.name);
   }
 
+  //---- superlike logik -----
+
+  const handlesuperlike = async () => {
+    if (buttonsDisabled) return;
+    if (isMatched) return;
+
+    if (!users.length || !users[UserIndex]) {
+      setIsEmpty(true);
+      setButtonsDisabled(false);
+      return;
+    }
+
+    await addsuperlike();
+
+    setSamegenres(false);
+    setSameartist(false);
+
+    await controls.start({
+      x: 100,
+      opacity: 0,
+      transition: { duration: 1, ease: "easeOut" },
+    });
+
+    setIsMatched(false);
+    setButtonsDisabled(false);
+    await getNewFilteredUsers();
+
+    await controls.set({ x: 0, opacity: 1 });
+  };
+
+   async function addsuperlike() {
+    if (buttonsDisabled) return;
+
+    if (!users[UserIndex]) return;
+
+
+
+
+    const data = await fetch("/api/getuserdata");
+    const user = await data.json();
+
+    const payload = {
+      from: user.uuid,
+      to: users[UserIndex].uuid,
+    };
+
+    await fetch("/api/addsuperlike", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    await calculateMatch(user.uuid);
+  }
+
+  
+
   // ---- neue users holen nach swipe ----
   async function getNewFilteredUsers() {
     const filteredUsers = await fetchUsers();
@@ -343,6 +404,23 @@ export default function Profile() {
                 </svg>
               </button>
 
+              {/*- superlike button*/}
+              <button className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-300 bg-yellow-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
+              onClick={handlesuperlike}>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="size-20 justify-center items-center text-yellow-300"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </button>
+
               {/*- like button*/}
               <button
                 onClick={handleLike}
@@ -366,13 +444,17 @@ export default function Profile() {
                   />
                 </svg>
               </button>
+
+              
             </div>
+
+            
           </div>
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
-                <div className="absolute sm:top-72 sm:right-5/12 top-32 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
+                <div className="absolute sm:top-72 sm:right-5/12 top-41 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
                   FAKE USER
                 </div>
               )}
@@ -380,7 +462,7 @@ export default function Profile() {
                 className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
                 onClick={handleClick}
               >
-                 <div className="flex space-x-2 relative top-2 z-10">
+                <div className="flex space-x-2 relative top-2 z-10">
                   {users[UserIndex] &&
                     Images?.image_path &&
                     Images.image_path.map((src, index) => (
@@ -393,7 +475,7 @@ export default function Profile() {
                         }`}
                       ></div>
                     ))}
-                </div> 
+                </div>
 
                 {users[UserIndex] &&
                   Images?.image_path &&
@@ -502,14 +584,9 @@ export default function Profile() {
 
                   <div>
                     <div className="grid grid-cols-2 gap-y-2 items-center mx-6 break-normal">
-
                       <h3>Fragen:</h3>
                       <div className="grid grid-cols gap-y-1">
-                      
-                          <Score uuid={users[UserIndex]?.uuid}></Score>
-                
-                          
-                   
+                        <Score uuid={users[UserIndex]?.uuid}></Score>
                       </div>
 
                       <h3>Genres:</h3>
@@ -566,7 +643,9 @@ export default function Profile() {
                       </div>
                       <div
                         className={`  border-3 rounded-3xl py-1 px-3 text-center break-normal ${
-                          sameartist ? "animate-pulse text-green-400" : ""
+                          sameartist
+                            ? "animate-pulse text-yellow-400 border-green-400"
+                            : ""
                         }`}
                       >
                         {users[UserIndex]?.favorite_artist ? (
