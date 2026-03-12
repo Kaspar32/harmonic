@@ -3,7 +3,6 @@ import crypto from "crypto";
 export function signImagePath(path: string) {
   const SECRET = process.env.IMAGE_SECRET!;
 
-  console.lgo
 
   if (!SECRET) {
     throw new Error("IMAGE_SECRET is not defined");
