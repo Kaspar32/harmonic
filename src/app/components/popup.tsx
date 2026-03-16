@@ -12,7 +12,7 @@ type PopUpProps = {
 export default function PopUp({
   onClose,
   children,
-  width = "max-w-sm",
+  width = "max-w-128",
   bgColor = "bg-white/50",
 }: PopUpProps) {
   return (
@@ -20,7 +20,7 @@ export default function PopUp({
     className="overflow-y-auto fixed inset-0 flex items-center justify-center bg-white/80 z-50  ">
       <div 
       onClick={(e) => e.stopPropagation()}
-      className={`${bgColor} p-6 rounded-2xl shadow-lg w-full ${width} relative`}>
+      className={`${bgColor} mt-10 p-6 rounded-2xl shadow-lg w-full ${width} relative`}>
         <button
           onClick={onClose}
           className="absolute top-2 right-2 text-black bg-yellow-200 hover:bg-yellow-100 px-3 py-1 rounded font-bold"

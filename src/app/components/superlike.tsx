@@ -164,7 +164,7 @@ export default function Superlike() {
 
             <div className="flex justify-between position relative bottom-7 m-2">
               <button
-                className="rounded-xl bg-red-200"
+                className="rounded-xl bg-red-200 hover:bg-red-950"
                 onClick={() => unliked(index)}
               >
                 <svg
@@ -181,13 +181,13 @@ export default function Superlike() {
                   />
                 </svg>
               </button>
-              <button className="border-2 border-green-400 rounded-xl bg-green-200"
+              <button className="border-2 border-green-400 rounded-xl bg-green-200 hover:bg-green-950"
               onClick={()=> liked(index)}>
                 <svg
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke="currentColor"
-                  className="w-6 h-6 text-green-400 fill-current"
+                  className="w-6 h-6 text-green-400 fill-current "
                 >
                   <path
                     strokeLinecap="round"

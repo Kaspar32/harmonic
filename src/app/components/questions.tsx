@@ -207,7 +207,7 @@ export default function Questions() {
       </select>
 
       <button
-        onClick={() => saveAnswers()}
+        onClick={() => {saveAnswers()}}
         className="bg-yellow-400 text-white rounded-2xl p-2 mt-2 shadow-lg"
       >
         Speichern

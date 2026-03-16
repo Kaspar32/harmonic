@@ -307,7 +307,7 @@ export default function LikesTest() {
       {openProfile && (
       
               
-              <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+              <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50" >
       
                 <ProfileSingleView selectedProfileIndex={selectedProfileIndex} fromWhere={"likesComponent"} />
       
