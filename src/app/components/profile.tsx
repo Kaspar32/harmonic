@@ -9,6 +9,8 @@ import Link from "next/link";
 import HeartAnimation from "./heartAnimation";
 import Score from "./score";
 import { useUser } from "@/app/context/UserContext";
+import { useNotification } from "../context/NotificationContext";
+import SuperLike_Animation from "./superlike_animation";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -19,6 +21,7 @@ export default function Profile() {
   const [UserIndex, setUserIndex] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatched, setIsMatched] = useState(false);
+  const [isSuperlike, setIsSuperlike] = useState(false);
   const [samegenres, setSamegenres] = useState(false);
   const [sameartist, setSameartist] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
@@ -144,9 +147,13 @@ export default function Profile() {
       (item: { to: string }) => item.to === users[UserIndex].uuid,
     );
 
+
+
     setIsMatched(matched);
 
     if (matched) {
+
+
       setButtonsDisabled(true);
 
       await delay(8000);
@@ -320,6 +327,15 @@ export default function Profile() {
     });
 
     await calculateMatch(user.uuid);
+
+
+    setButtonsDisabled(true);
+    setIsSuperlike(true);
+
+    await delay(8000);
+
+    setIsSuperlike(false);
+    setButtonsDisabled(false);
   }
 
   
@@ -346,6 +362,14 @@ export default function Profile() {
           <HeartAnimation />
         </div>
       )}
+
+      {isSuperlike && buttonsDisabled && (
+        <div className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
+          <SuperLike_Animation />
+        </div>
+      )}
+
+
 
       {isEmpty ? (
         <div className="h-full w-full flex justify-center">
@@ -405,13 +429,13 @@ export default function Profile() {
               </button>
 
               {/*- superlike button*/}
-              <button className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-300 bg-yellow-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
+              <button className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
               onClick={handlesuperlike}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="size-20 justify-center items-center text-yellow-300"
+                className="size-20 justify-center items-center text-blue-300"
               >
                 <path
                   fillRule="evenodd"
@@ -454,7 +478,7 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
-                <div className="absolute sm:top-72 sm:right-5/12 top-41 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold rotate-35">
+                <div className="absolute sm:top-72 sm:right-5/12 top-41 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
                   FAKE USER
                 </div>
               )}

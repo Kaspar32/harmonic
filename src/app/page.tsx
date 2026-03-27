@@ -1,10 +1,13 @@
 "use client";
 import { useUser } from "@/app/context/UserContext";
+import { useNotification } from "./context/NotificationContext";
 
 
 export default function Test() {
 
   const {user} = useUser();
+
+  const{addNotification, notifications}= useNotification();
 
 
   return (
@@ -58,7 +61,16 @@ export default function Test() {
 
         
       ) : (
-        <p className="flex justify-center font-extrabold text-lg sm:text-xl md:text-4xl text-gray-300 border-2 rounded-2xl ">
+        <p className="flex justify-center font-extrabold text-lg sm:text-xl md:text-4xl text-gray-300 border-2 rounded-2xl "
+        
+        onClick={()=>{
+
+          addNotification("säödfsölädfs");
+
+          //alert(notifications);
+
+
+        }}>
           Willkommen {user?.name}!
         </p>
       )}

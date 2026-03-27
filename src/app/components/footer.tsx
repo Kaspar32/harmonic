@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
 import { messagesAtom } from "@/lib/overgivenotifications";
 import { useUser } from "@/app/context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Footer() {
   const [newMatch, setNewMatch] = useState(false);
   const { user } = useUser();
+
+
+  const {addNotification, notifications}= useNotification();
 
   function changechat() {
     setNewMatch(false);
@@ -42,6 +46,10 @@ export default function Footer() {
       if (data.length > 0 && data[data.length - 1]?.id > lastId) {
         //alert("test");
         setNewMatch(true);
+
+
+
+
         localStorage.setItem(storageKey, String(data[data.length - 1].id));
       }
 
@@ -63,6 +71,9 @@ export default function Footer() {
         for (let i = 0; i <= data3.length - 1; i++) {
           if (data3.length > 0 && data3[i]?.id > lastId2) {
             setMessages((prev) => [...prev, data3[i]?.fromUser]);
+            addNotification(data3[i]?.fromUser);
+
+            //alert(notifications);
           }
         }
 

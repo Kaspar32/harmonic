@@ -93,14 +93,9 @@ button {
   transform: translate(-50%, -50%);
 }
 
-
-.glass {
-  background: rgba(255, 255, 255, 0.15); /* halbtransparentes Weiß */
-  backdrop-filter: blur(50px);           /* der Frost-Effekt */
-  -webkit-backdrop-filter: blur(12px);   /* Safari ist… speziell */
-  
-  border-radius: 10px;
-  border: 4px solid rgba(247, 160, 0, 0.479);
-  box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.2);
-  padding: 20px;
+.outlineText2 {
+-webkit-text-stroke: 4px blue;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

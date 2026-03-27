@@ -3,6 +3,7 @@ import Header from "./components/header";
 import Footer from "./components/footer";
 import "./globals.css";
 import {UserProvider} from "@/app/context/UserContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 
 const geistSans = Geist({
@@ -26,6 +27,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>
+        <NotificationProvider>
 
         <div className="flex flex-col h-screen ">
           <div className="sticky top-0 z-50">
@@ -38,6 +40,7 @@ export default function RootLayout({
           </div>
         </div>
 
+        </NotificationProvider>
         </UserProvider>
       </body>
     </html>

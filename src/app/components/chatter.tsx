@@ -9,6 +9,7 @@ import { messagesAtom } from "@/lib/overgivenotifications";
 import { useAtom } from "jotai";
 import ProfileSingleView from "./profile_single_view";
 import Superlike from "./superlike";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
@@ -190,7 +191,11 @@ export default function Chatter() {
 
   // Auswählen der User für den Chat::::::::::::::::::::::::::::::::::::::::::::::::
   async function handleClick(index: number) {
-    newMessages[index] = false;
+    setNewMessages((prev) => {
+      const updated = [...prev];
+      updated[index] = false;
+      return updated;
+    });
 
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -346,13 +351,21 @@ export default function Chatter() {
   }, [messages, openChat]);
 
   // Notifications für die Messages
-  const newMessages: boolean[] = [];
-  const [newmessagesusers] = useAtom(messagesAtom);
 
-  for (let j = 0; j <= newmessagesusers.length - 1; j++) {
-    const userIndex = users.findIndex((u) => u.name === newmessagesusers[j]);
-    newMessages[userIndex] = true;
-  }
+  const {notifications} = useNotification();
+  const [newMessages, setNewMessages] = useState<boolean[]>([]);
+
+  // Initialize newMessages array when users change
+  useEffect(() => {
+    const newMsgArray: boolean[] = [];
+    for (let j = 0; j < notifications.length; j++) {
+      const userIndex = users.findIndex((u) => u.name === notifications[j].from);
+      if (userIndex !== -1) {
+        newMsgArray[userIndex] = true;
+      }
+    }
+    setNewMessages(newMsgArray);
+  }, [notifications, users]);
 
   //console.log("Neue Nachricht von:", newmessagesusers[0]);
 
@@ -368,8 +381,6 @@ export default function Chatter() {
   }, []);
 
 
-  //Superlikes POPUP
-  const [opensuperlikes, setOpenSuperlikes]=useState(false);
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
