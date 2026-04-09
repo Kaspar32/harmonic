@@ -157,7 +157,7 @@ export default function Refactoring_Images() {
         return;
       }
 
-      console.log("reordered Containers" + newImages);
+      //console.log("reordered Containers" + newImages);
       setImagesContainer(newImages);
 
       let Array = await fetch("api/getPicsData", {
@@ -233,7 +233,7 @@ export default function Refactoring_Images() {
                   className="w-40 h-40 object-cover"
                 />
 
-                {imagesData[index] ? (
+                {imagesData?.[index] ? (
                   <div onClick={() => deleteImage(`${imagesData[index]}`)}>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

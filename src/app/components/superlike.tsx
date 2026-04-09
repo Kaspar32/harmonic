@@ -4,7 +4,11 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { UserType } from "../types/User";
 
-export default function Superlike() {
+type Props = {
+  onImageClick?: (user: UserType) => void;
+};
+
+export default function Superlike({ onImageClick }: Props) {
   const [opensuperlike, setOpensuperlike] = useState(false);
 
   const [superlikes, setSuperlikes] = useState<
@@ -151,10 +155,13 @@ export default function Superlike() {
                 }
                 height={100}
                 width={100}
-                className="ml-2 mt-2 rounded-4xl border-3 border-blue-300 justify-center "
+                className="ml-2 mt-2 rounded-4xl border-3 border-blue-300 justify-center cursor-pointer"
                 alt="Profilbild"
-
-                
+                onClick={() => {
+                  if (onImageClick && users[index]) {
+                    onImageClick(users[index]);
+                  }
+                }}
               />
 
               <p className="text-yellow-500 font-bold text-xl ml-10 mt-10">

@@ -16,6 +16,8 @@ export default function Chatter() {
   const [openProfile, setOpenProfile] = useState(false);
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
   const [unlike, setUnlike] = useState(false);
+  const [openSuperlikeProfile, setOpenSuperlikeProfile] = useState(false);
+  const [selectedSuperlikeUser, setSelectedSuperlikeUser] = useState<UserType | null>(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -386,7 +388,12 @@ export default function Chatter() {
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       {loading && <Loader2 className=" animate-spin text-yellow-400" />}
 
-      <Superlike></Superlike>
+      <Superlike
+        onImageClick={(user) => {
+          setSelectedSuperlikeUser(user);
+          setOpenSuperlikeProfile(true);
+        }}
+      />
       {!loading && (
 
         
@@ -548,6 +555,16 @@ export default function Chatter() {
           <ProfileSingleView
             selectedProfileIndex={selectedProfileIndex}
             fromWhere="chatter"
+          />
+        </Popup>
+      )}
+
+      {openSuperlikeProfile && selectedSuperlikeUser && (
+        <Popup onClose={() => setOpenSuperlikeProfile(false)} bgColor="bg-yellow-50">
+          <ProfileSingleView
+            selectedProfileIndex={0}
+            fromWhere="chatter"
+            directUser={selectedSuperlikeUser}
           />
         </Popup>
       )}

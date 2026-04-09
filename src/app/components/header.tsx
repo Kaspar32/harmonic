@@ -30,8 +30,8 @@ export default function Header() {
             <div className="relative md:h-12 md:w-12 h-8 w-8  overflow-hidden rounded-full focus:ring-2 focus:ring-blue-400">
               <Image
                 src={
-                  user?.profile_pics[0]
-                    ? `/images/${user?.profile_pics[0]}`
+                  user?.profile_pics?.[0]
+                    ? `/images/${user?.profile_pics?.[0]}`
                     : "/images/149071.png"
                 }
                 alt="Profilbild"

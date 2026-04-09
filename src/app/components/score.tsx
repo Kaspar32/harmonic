@@ -34,7 +34,7 @@ export default function Score({ uuid }: Props) {
       });
       const data2 = await res2.json();
 
-      setScore(evaluateQuestions(data2[0]?.answers, data[0].answers) ?? 0);
+      setScore(evaluateQuestions(data2[0]?.answers, data[0]?.answers) ?? 0);
     };
     loadData();
   }, []);

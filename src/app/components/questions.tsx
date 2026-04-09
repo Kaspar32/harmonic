@@ -2,7 +2,7 @@
 import React, { use, useEffect, useState } from "react";
 import { useUser } from "@/app/context/UserContext";
 
-export default function Questions() {
+export default function Questions({ onClose }: { onClose: () => void }) {
   interface Questions {
     question1?: string;
     question2?: string;
@@ -41,14 +41,13 @@ export default function Questions() {
       },
       body: JSON.stringify(payload),
     });
+
+    onClose();
   }
   const [answers, setAnswers] = useState<Questions>({});
 
   useEffect(() => {
     const loadData = async () => {
-    
-
-  
 
       const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",

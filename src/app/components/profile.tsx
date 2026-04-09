@@ -9,8 +9,9 @@ import Link from "next/link";
 import HeartAnimation from "./heartAnimation";
 import Score from "./score";
 import { useUser } from "@/app/context/UserContext";
-import { useNotification } from "../context/NotificationContext";
 import SuperLike_Animation from "./superlike_animation";
+import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
+
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -279,6 +280,16 @@ export default function Profile() {
   const handlesuperlike = async () => {
     if (buttonsDisabled) return;
     if (isMatched) return;
+    if(!user) return;
+
+    //Wenn schon einLike in der Woche geben, dann kein Superlike mehr möglich
+    const hasLikedInWeek = await checkIfLikedInWeek(user.uuid);
+
+    if(hasLikedInWeek)
+    {
+      return;
+    }
+    
 
     if (!users.length || !users[UserIndex]) {
       setIsEmpty(true);

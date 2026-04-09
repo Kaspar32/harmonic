@@ -9,9 +9,10 @@ import { useUser } from "@/app/context/UserContext";
 type Props = {
 selectedProfileIndex: number;
 fromWhere: string;
+directUser?: UserType;
 };
 
-export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Props) {
+export default function ProfileSingleView( {selectedProfileIndex, fromWhere, directUser}:Props) {
   const [users, setUsers] = useState<UserType[]>([]);
   const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
 
@@ -20,7 +21,7 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
   async function fetchusers() {
 
     let res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
-   
+    
     
 
     if(fromWhere=="likesComponent")
@@ -57,19 +58,32 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
     setImages(data2);
     
 
+  }
 
+  async function fetchDirectUser() {
+    if (!directUser?.uuid) return;
+    setUsers([directUser]);
+    const res2 = await fetch(`/api/getallpicsbyuserid?id=${directUser.uuid}`);
+    if (!res2.ok) return;
+    const data2 = await res2.json();
+    setImages(data2);
   }
 
 
   useEffect(() => {
-
-    fetchusers();
-  }, [user]);
+    if (directUser) {
+      fetchDirectUser();
+    } else {
+      fetchusers();
+    }
+  }, [user, directUser]);
 
   const [imageIndex, setImageIndex]= useState(0);
 
+  const effectiveIndex = directUser ? 0 : selectedProfileIndex;
+
    function handleClick() {
-    if (!users[selectedProfileIndex]) return;
+    if (!users[effectiveIndex]) return;
 
     const imageLength = Images?.image_path ? Images.image_path.length : 0;
     
@@ -78,9 +92,9 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
   }
 
   return (
-    <div className="flex flex-col items-center overflow-y-auto max-h-[80vh] gap-2 p-4">
+    <div className="flex flex-col items-center gap-2">
       <h2 className="text-2xl font-bold mb-4 text-yellow-600">
-        <p className="text-yellow-500">{users[selectedProfileIndex]?.name}</p>
+        <p className="text-yellow-500">{users[effectiveIndex]?.name}</p>
       </h2>
 
     
@@ -107,32 +121,32 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
-        {users[selectedProfileIndex]?.geschlecht}
+        {users[effectiveIndex]?.geschlecht}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Alter:</span>{" "}
-        {users[selectedProfileIndex]?.alter}
+        {users[effectiveIndex]?.alter}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
-        {users[selectedProfileIndex]?.groesse}
+        {users[effectiveIndex]?.groesse}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
-        {users[selectedProfileIndex]?.genres?.join(", ")}
+        {users[effectiveIndex]?.genres?.join(", ")}
       </p>
 
       <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl p-2">
         <span className="font-semibold text-gray-400">Lieblingslied:</span>
         <div className="border-3 rounded-3xl border-yellow-500 py-1 px-3 text-center  break-normal">
-          {users[selectedProfileIndex]?.favorite_track ? (
+          {users[effectiveIndex]?.favorite_track ? (
             <div className="flex items-center gap-1">
               <Image
                 src={
-                  users[selectedProfileIndex]?.favorite_track?.image ||
+                  users[effectiveIndex]?.favorite_track?.image ||
                   "/images/Home.png"
                 }
                 alt="Album Cover"
@@ -143,10 +157,10 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
               />
               <div className="md:w-full max-w-[120px]">
                 <div className="font-semibold text-yellow-500">
-                  {users[selectedProfileIndex]?.favorite_track?.name}
+                  {users[effectiveIndex]?.favorite_track?.name}
                 </div>
                 <div className="text-sm text-yellow-500">
-                  {users[selectedProfileIndex]?.favorite_track?.artist}
+                  {users[effectiveIndex]?.favorite_track?.artist}
                 </div>
               </div>
             </div>
@@ -159,11 +173,11 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
       <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Lieblingsinterpret:</span>{" "}
         <div className="border-3 border-yellow-500 rounded-3xl py-1 px-3 text-center  break-normal">
-          {users[selectedProfileIndex]?.favorite_artist ? (
+          {users[effectiveIndex]?.favorite_artist ? (
             <div className="flex items-center gap-1 ">
               <Image
                 src={
-                  users[selectedProfileIndex]?.favorite_artist?.favorite_artist1
+                  users[effectiveIndex]?.favorite_artist?.favorite_artist1
                     ?.image || "/images/Home.png"
                 }
                 alt="Lieblingsinterpret Bild"
@@ -175,7 +189,7 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere}:Pro
               <div className="md:w-full max-w-[120px]">
                 <div className="font-semibold text-yellow-500">
                   {
-                    users[selectedProfileIndex]?.favorite_artist
+                    users[effectiveIndex]?.favorite_artist
                       ?.favorite_artist1?.name
                   }
                 </div>

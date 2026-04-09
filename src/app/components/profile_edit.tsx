@@ -1058,7 +1058,7 @@ export default function Profil_Edit() {
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
                 <div className="overflow-y-auto max-h-96">
-                  <Questions></Questions>
+                  <Questions onClose={() => setShowQuestions(false)}></Questions>
                 </div>
               </PopUp>
             )}
