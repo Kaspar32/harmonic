@@ -52,16 +52,16 @@ export default function SuperLike_Animation() {
     const container = containerRef.current;
     if (!canvas || !container) return;
 
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d")!;
     if (!ctx) return;
 
     const dpr = window.devicePixelRatio || 1;
 
     function resize() {
-      const rect = container.getBoundingClientRect();
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
-      ctx.scale(dpr, dpr);
+      const rect = container!.getBoundingClientRect();
+      canvas!.width = (rect.width ?? 0) * dpr;
+      canvas!.height = (rect.height ?? 0) * dpr;
+      ctx!.scale(dpr, dpr);
     }
     resize();
 
@@ -134,23 +134,23 @@ export default function SuperLike_Animation() {
         const radius = 2 + life * 2.5;
 
         // Glow behind each trail point
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius * 3);
+        const glow = ctx!.createRadialGradient(p.x, p.y, 0, p.x, p.y, radius * 3);
         glow.addColorStop(0, `rgba(30, 64, 175, ${alpha * 0.6})`);
         glow.addColorStop(1, "rgba(59, 130, 246, 0)");
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
-        ctx.fill();
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, radius * 3, 0, Math.PI * 2);
+        ctx!.fillStyle = glow;
+        ctx!.fill();
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(30, 64, 175, ${alpha})`;
-        ctx.fill();
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        ctx!.fillStyle = `rgba(30, 64, 175, ${alpha})`;
+        ctx!.fill();
       }
     }
 
     function animate() {
-      ctx.clearRect(0, 0, w, h);
+      ctx!.clearRect(0, 0, w, h);
 
       // Age trail
       for (const p of trail) p.age++;
