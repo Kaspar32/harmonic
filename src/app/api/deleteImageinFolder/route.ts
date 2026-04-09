@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   // Authentifizierung
@@ -32,9 +31,10 @@ export async function POST(request: Request) {
 
     const directory = path.join(process.cwd(), "uploads/images");
     const files = await fs.readdir(directory);
+    const blurredFile = id.replace('.png', '_blurred.png');
     for (const file of files) {
-      if (file.startsWith(`${id}`)) {
-        //console.log("Lösche Datei:", file);
+      if (file === id || file === blurredFile) {
+        console.log("Lösche Datei:", file);
         await fs.unlink(path.join(directory, file));
       }
     }
@@ -45,7 +45,8 @@ export async function POST(request: Request) {
 
     const pics = user[0].profile_pics as string[];
 
-    const newPics = pics.filter((pic) => !pic.startsWith(id));
+    const blurredPic = id.replace('.png', '_blurred.png');
+    const newPics = pics.filter((pic) => pic !== id && pic !== blurredPic);
 
     console.log("Aktualisierte Bilderliste:", newPics);
 

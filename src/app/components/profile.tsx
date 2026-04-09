@@ -22,7 +22,7 @@ export default function Profile() {
   const [UserIndex, setUserIndex] = useState(100);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMatched, setIsMatched] = useState(false);
-  const [isSuperlike, setIsSuperlike] = useState(false);
+  const [isSuperlike, setIsSuperlike] = useState(true);
   const [samegenres, setSamegenres] = useState(false);
   const [sameartist, setSameartist] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
@@ -135,7 +135,7 @@ export default function Profile() {
     }
   }
 
-  const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  const [buttonsDisabled, setButtonsDisabled] = useState(true);
 
   //---- match überprüfen ----
   async function calculateMatch(uuid: string) {

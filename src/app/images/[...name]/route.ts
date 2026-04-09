@@ -31,15 +31,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ name
     const awaitedParams = await Promise.resolve(params || {});
     const fileSegments = awaitedParams.name || [];
 
-
-    
-
-
-
-    
-
-
-
     
     const filePath = join(
       process.cwd(),
@@ -68,12 +59,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ name
 
 
     let fileBuffer = await fs.readFile(filePath);
-
-
-
-   
-
-    
     
     // Convert Buffer to Uint8Array for Response compatibility
     return new Response(new Uint8Array(fileBuffer), {

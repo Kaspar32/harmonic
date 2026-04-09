@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       eintrag.push(`${img.id}_${timestamp}.png`);
     }
 
-    //console.log("Eintrag:", eintrag);
+    console.log("Eintrag:", eintrag);
 
     await db
       .update(users)
