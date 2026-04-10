@@ -33,9 +33,11 @@ export async function POST(req: NextRequest) {
       position: number;
     }[] = await req.json();
 
-    let eintrag = [];
+    const currentPics = user.profile_pics || [];
+    let newPics = [...currentPics];
+    const positionToFilename: { [key: number]: string } = {};
 
-    for (const [index, img] of payload.entries()) {
+    for (const img of payload) {
       if (!img.image_base64) continue;
 
       const uploadDir = path.join(process.cwd(), "uploads/images");
@@ -65,10 +67,11 @@ export async function POST(req: NextRequest) {
       const blurredBuffer = await sharp(buffer).blur(60).toBuffer();
 
       const timestamp = Date.now();
+      const filename = `${img.id}_${timestamp}.png`;
       const filePath = path.join(
         process.cwd(),
         "uploads/images",
-        `${img.id}_${timestamp}.png`,
+        filename,
       );
       await fs.writeFile(filePath, buffer);
 
@@ -80,16 +83,24 @@ export async function POST(req: NextRequest) {
       );
       await fs.writeFile(filePathblurred, blurredBuffer);
 
-
-      eintrag.push(`${img.id}_${timestamp}.png`);
+      positionToFilename[img.position] = filename;
     }
 
-    console.log("Eintrag:", eintrag);
+    // Update newPics with the new filenames at their positions
+    for (const pos in positionToFilename) {
+      const position = parseInt(pos);
+      newPics[position] = positionToFilename[position];
+    }
+
+    // Remove null or undefined entries if any, but since it's an array, keep the length
+    // But to avoid sparse arrays, perhaps filter, but better keep as is for positions
+
+    console.log("New Pics:", newPics);
 
     await db
       .update(users)
       .set({
-        profile_pics: sql`${users.profile_pics} || ${JSON.stringify(eintrag)}::jsonb`,
+        profile_pics: JSON.stringify(newPics),
       })
       .where(eq(users.uuid, user.uuid));
 
