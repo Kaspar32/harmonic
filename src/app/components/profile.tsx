@@ -12,7 +12,6 @@ import { useUser } from "@/app/context/UserContext";
 import SuperLike_Animation from "./superlike_animation";
 import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
 
-
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
   const [Images, setImages] = useState<{
@@ -148,13 +147,9 @@ export default function Profile() {
       (item: { to: string }) => item.to === users[UserIndex].uuid,
     );
 
-
-
     setIsMatched(matched);
 
     if (matched) {
-
-
       setButtonsDisabled(true);
 
       await delay(8000);
@@ -280,16 +275,14 @@ export default function Profile() {
   const handlesuperlike = async () => {
     if (buttonsDisabled) return;
     if (isMatched) return;
-    if(!user) return;
+    if (!user) return;
 
     //Wenn schon einLike in der Woche geben, dann kein Superlike mehr möglich
     const hasLikedInWeek = await checkIfLikedInWeek(user.uuid);
 
-    if(hasLikedInWeek)
-    {
+    if (hasLikedInWeek) {
       return;
     }
-    
 
     if (!users.length || !users[UserIndex]) {
       setIsEmpty(true);
@@ -315,13 +308,10 @@ export default function Profile() {
     await controls.set({ x: 0, opacity: 1 });
   };
 
-   async function addsuperlike() {
+  async function addsuperlike() {
     if (buttonsDisabled) return;
 
     if (!users[UserIndex]) return;
-
-
-
 
     const data = await fetch("/api/getuserdata");
     const user = await data.json();
@@ -339,7 +329,6 @@ export default function Profile() {
 
     await calculateMatch(user.uuid);
 
-
     setButtonsDisabled(true);
     setIsSuperlike(true);
 
@@ -348,8 +337,6 @@ export default function Profile() {
     setIsSuperlike(false);
     setButtonsDisabled(false);
   }
-
-  
 
   // ---- neue users holen nach swipe ----
   async function getNewFilteredUsers() {
@@ -379,8 +366,6 @@ export default function Profile() {
           <SuperLike_Animation />
         </div>
       )}
-
-
 
       {isEmpty ? (
         <div className="h-full w-full flex justify-center">
@@ -440,21 +425,26 @@ export default function Profile() {
               </button>
 
               {/*- superlike button*/}
-              <button className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
-              onClick={handlesuperlike}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-20 justify-center items-center text-blue-300"
+              <button
+                className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
+                onClick={handlesuperlike}
               >
-                <path
-                  fillRule="evenodd"
-                  d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+                <div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-15 sm:size-20 justify-center items-center text-blue-300"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M9 4.5a.75.75 0 0 1 .721.544l.813 2.846a3.75 3.75 0 0 0 2.576 2.576l2.846.813a.75.75 0 0 1 0 1.442l-2.846.813a3.75 3.75 0 0 0-2.576 2.576l-.813 2.846a.75.75 0 0 1-1.442 0l-.813-2.846a3.75 3.75 0 0 0-2.576-2.576l-2.846-.813a.75.75 0 0 1 0-1.442l2.846-.813A3.75 3.75 0 0 0 7.466 7.89l.813-2.846A.75.75 0 0 1 9 4.5ZM18 1.5a.75.75 0 0 1 .728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 0 1 0 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 0 1-1.456 0l-.258-1.036a2.625 2.625 0 0 0-1.91-1.91l-1.036-.258a.75.75 0 0 1 0-1.456l1.036-.258a2.625 2.625 0 0 0 1.91-1.91l.258-1.036A.75.75 0 0 1 18 1.5ZM16.5 15a.75.75 0 0 1 .712.513l.394 1.183c.15.447.5.799.948.948l1.183.395a.75.75 0 0 1 0 1.422l-1.183.395c-.447.15-.799.5-.948.948l-.395 1.183a.75.75 0 0 1-1.422 0l-.395-1.183a1.5 1.5 0 0 0-.948-.948l-1.183-.395a.75.75 0 0 1 0-1.422l1.183-.395c.447-.15.799-.5.948-.948l.395-1.183A.75.75 0 0 1 16.5 15Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <label className="text-xs sm:text-base text-blue-600 font-bold">Superlike</label>
+                </div>
+              </button>
 
               {/*- like button*/}
               <button
@@ -479,11 +469,7 @@ export default function Profile() {
                   />
                 </svg>
               </button>
-
-              
             </div>
-
-            
           </div>
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">

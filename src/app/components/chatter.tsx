@@ -8,6 +8,8 @@ import { Loader2 } from "lucide-react";
 import ProfileSingleView from "./profile_single_view";
 import Superlike from "./superlike";
 import { useNotification } from "../context/NotificationContext";
+import { useUser } from "../context/UserContext";
+
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
@@ -16,6 +18,8 @@ export default function Chatter() {
   const [unlike, setUnlike] = useState(false);
   const [openSuperlikeProfile, setOpenSuperlikeProfile] = useState(false);
   const [selectedSuperlikeUser, setSelectedSuperlikeUser] = useState<UserType | null>(null);
+  const { user } = useUser();
+  const [isUserOnline, setIsUserOnline] = useState<{ [key: string]: boolean }>({});
 
   const [loading, setLoading] = useState(true);
 
@@ -112,6 +116,8 @@ export default function Chatter() {
 
     socket.on("connect", () => {
       console.log("Verbunden mit Socket-Server:", socket.id);
+      let uuid= user?.uuid || "";
+      setIsUserOnline((prev) => ({ ...prev, [uuid]: true }));
     });
 
     socketRef.current = socket;
@@ -420,6 +426,15 @@ export default function Chatter() {
                 >
                   Schreibe:... {users[index]?.name || ""}
                 </p>
+
+                <label>
+
+                  {isUserOnline[users[index]?.uuid || ""] ? (
+                    <span className="text-green-500 text-xs ml-2">Online</span> 
+                  ) : ( 
+                    <span className="text-gray-500 text-xs ml-2">Offline</span> 
+                  )}
+                </label>
 
                 {newMessages[index] && (
                   <svg
