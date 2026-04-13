@@ -32,6 +32,7 @@ export default function Profil_Edit() {
     name: "",
     geschlecht: "",
     alter: "Auswählen",
+    geburtstag: "Auswählen",
     groesse: "Auswählen",
     ausbildung: "Auswählen",
     intressen: [],
@@ -47,7 +48,7 @@ export default function Profil_Edit() {
   // Temporäre Variablen für die Editierfunktion
   const [Temp_Name, setTemp_Name] = useState("");
   const [Temp_Geschlecht, setTemp_Geschlecht] = useState("");
-  const [Temp_Alter, setTemp_Alter] = useState("");
+  const [Temp_Geburtstag, setTemp_Geburtstag] = useState("");
   const [Temp_Groesse, setTemp_Groesse] = useState("");
   const [Temp_Ausbildung, setTemp_Ausbildung] = useState("");
 
@@ -82,6 +83,7 @@ export default function Profil_Edit() {
         name: user?.name,
         geschlecht: user?.geschlecht,
         alter: user?.alter,
+        geburtstag: user?.geburtstag,
         groesse: user?.groesse,
         ausbildung: user?.ausbildung,
         intressen: user?.intressen,
@@ -103,6 +105,7 @@ export default function Profil_Edit() {
     if (!userData.uuid) return;
 
     const newUserData = { uuid: userData.uuid, ...updates };
+    console.log("newUserData:", newUserData);
     const res = await fetch("/api/updateUserData", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -114,6 +117,19 @@ export default function Profil_Edit() {
     const updatedData = await res.json();
     setUserData((prev) => ({ ...prev, ...updatedData }));
   }
+
+  function calculateAge(birthday: string) {
+
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();  
+
+    return age;
+
+  }
+
+
+  
 
 
   //Spotify-Daten
@@ -341,7 +357,6 @@ export default function Profil_Edit() {
     };
 
     if (index === 1) {
-      alert("Teeest");
 
       setUserData((prev) => ({
         ...prev,
@@ -443,7 +458,9 @@ export default function Profil_Edit() {
 
             {/* Alter */}
             <h3
-              onClick={() => setAlter(true)}
+              onClick={() => {
+                setAlter(true);
+              }}
               className="ml-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
               Alter: {userData.alter}
@@ -451,22 +468,20 @@ export default function Profil_Edit() {
 
             {!userData.alter && (
               <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
-                Du musst dein Alter angegeben, um angezeigt zu werden!
+                Du musst dein Geburtstag angegeben, um angezeigt zu werden!
               </div>
             )}
             {showAlter && (
               <PopUp onClose={() => setAlter(false)}>
                 <h2 className="text-xl font-bold mb-4  text-gray-400 dark:text-gray-400 ">
-                  Alter
+                  Geburtstag
                 </h2>
 
                 <input
-                  type="number"
-                  min={18}
-                  max={99}
-                  defaultValue={userData.alter}
-                  onChange={(e) => setTemp_Alter(e.target.value)}
-                  className="w-24 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
+                  type="date"
+                  value={userData.geburtstag?.split("T")[0] || ""}
+                  onChange={(e) => setTemp_Geburtstag(e.target.value)}
+                  className="w-50 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
                 />
 
                 <div className="flex gap-4 mt-4">
@@ -474,7 +489,8 @@ export default function Profil_Edit() {
                     className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
                     onClick={async () => {
                       setAlter(false);
-                      await updateUser({ alter: Temp_Alter });
+                      await updateUser({ geburtstag: Temp_Geburtstag, alter: calculateAge(Temp_Geburtstag).toString() });
+
                     }}
                   >
                     Speichern

@@ -7,6 +7,7 @@ export const users = pgTable('users', {
   password: text('passwort'),
   name: text('name'),
   alter: integer('alter'),
+  geburtstag: timestamp('geburtstag'),
   geschlecht: text('geschlecht'),
   groesse: integer('groesse'),
   ausbildung: text('ausbildung'),

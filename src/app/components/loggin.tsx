@@ -9,20 +9,17 @@ export default function Loggin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  
-
   const [user, setUser] = useState<{ name: string } | null>(null);
 
-  const{user:user2}= useUser();
+  const { user: user2 } = useUser();
 
   const [error, setError] = useState("");
 
   useEffect(() => {
-
-      setUser(user2);
+    setUser(user2);
+  }, [user2]);
 
   
-  }, [user2]);
 
   const router = useRouter();
 
@@ -72,6 +69,11 @@ export default function Loggin() {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown = {(e) => {
+                if (e.key === "Enter") {
+                  login();
+                }
+              }}
               className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
               type="password"
               placeholder="Passwort"
@@ -91,9 +93,7 @@ export default function Loggin() {
               <p className="text-gray-400">Noch kein Account?</p>
               <Link href="/User_register">
                 <div className="flex gap-2 bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
-                  <button>
-                    Registrieren
-                  </button>
+                  <button>Registrieren</button>
                   <div>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"

@@ -29,6 +29,34 @@
       "when": 1773146120338,
       "tag": "0003_free_steve_rogers",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775819647831,
+      "tag": "0004_open_fenris",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775819725698,
+      "tag": "0005_clumsy_lorna_dane",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775820012304,
+      "tag": "0006_massive_talkback",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775820025415,
+      "tag": "0007_giant_doctor_strange",
+      "breakpoints": true
     }
   ]
 }

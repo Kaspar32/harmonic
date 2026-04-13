@@ -11,6 +11,7 @@ export interface UserType {
   name: string;
   geschlecht: string;
   alter: string;
+  geburtstag: string;
   groesse: string;
   ausbildung: string;
   intressen: string[];

@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type UserType = {
+  [x: string]: string;
   id: string;
   uuid: string;
   passwort: string;
