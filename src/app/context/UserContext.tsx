@@ -2,13 +2,13 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type UserType = {
-  [x: string]: string;
   id: string;
   uuid: string;
   passwort: string;
   name: string;
   geschlecht: string;
   alter: string;
+  geburtstag: string;
   groesse: string;
   ausbildung: string;
   intressen: string[];
