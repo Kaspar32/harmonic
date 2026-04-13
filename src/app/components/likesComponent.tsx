@@ -9,11 +9,11 @@ import ProfileSingleView from "./profile_single_view";
 
 export default function LikesTest() {
   const [loading, setLoading] = useState(false);
-  const {user}= useUser();
+  const { user } = useUser();
   //Fetche Likes und die Daten dazu und speichere das Bild von jenem die du geliket hast
   async function fetchlikes() {
     setLoading(true);
-    
+
     const res = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
     const data = await res.json();
 
@@ -26,11 +26,11 @@ export default function LikesTest() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     const allUsers = await Promise.all(
@@ -42,17 +42,17 @@ export default function LikesTest() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     //Behalte den Index auch wenn es kein Bild gibt
 
     const validImages = allFirstImages.map((img) =>
-      Boolean(img) ? img : null
+      Boolean(img) ? img : null,
     );
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
 
@@ -62,7 +62,6 @@ export default function LikesTest() {
   }
 
   async function fetchLikesyou() {
-
     //getLikes by uuid
     const res = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
     const data = await res.json();
@@ -76,11 +75,11 @@ export default function LikesTest() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.from}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     const allUsers = await Promise.all(
@@ -92,15 +91,15 @@ export default function LikesTest() {
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.from}:`,
-            err
+            err,
           );
           return null;
         }
-      })
+      }),
     );
 
     const validImages = allFirstImages.map((img) =>
-      Boolean(img) ? img : null
+      Boolean(img) ? img : null,
     );
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
 
@@ -117,7 +116,7 @@ export default function LikesTest() {
 
   const [images_youlikes, setImages_youlikes] = useState<
     {
-     user_id: string;
+      user_id: string;
       image_path: string;
     }[]
   >([]);
@@ -135,30 +134,20 @@ export default function LikesTest() {
   const [toggleLikesYou, settoggleLikesYou] = useState(true);
   const [toggleYouLike, settoggleYouLike] = useState(false);
 
-
-  function blurred(str:string)
-  {
-  const blurred = str.replace(/\.png$/, "_blurred.png");
-  return `${blurred}?blur=1`;
-
+  function blurred(str: string) {
+    const blurred = str.replace(/\.png$/, "_blurred.png");
+    return `${blurred}?blur=1`;
   }
 
-
-   const [openProfile, setOpenProfile] = useState(false);
-   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
-
+  const [openProfile, setOpenProfile] = useState(false);
+  const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
 
   function handlePPClick(index: number): void {
-   
     setSelectedProfileIndex(index);
     setOpenProfile(true);
-    
   }
 
-  const [openDialog, setOpenDialog]= useState(false);
-
-
-
+  const [openDialog, setOpenDialog] = useState(false);
 
   return (
     <div className="relative">
@@ -199,17 +188,17 @@ export default function LikesTest() {
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover cursor-pointer"
                           onClick={() => setOpenDialog(true)}
-                          
                         />
                       </div>
 
                       <div className="text-yellow-400 mt-2 text-center">
-                        {users_youlikes[index].name}, {users_youlikes[index].alter}
+                        {users_youlikes[index].name},{" "}
+                        {users_youlikes[index].alter}
                       </div>
                     </div>
-                  ) : null
+                  ) : null,
                 )
               ) : (
                 <div className="border-4 rounded-2xl p-4 border-gray-300 bg-gray-100 text-gray-500">
@@ -219,27 +208,12 @@ export default function LikesTest() {
             </>
           )}
 
-          {openDialog &&(
-
+          {openDialog && (
             <div>
-
-              <Popup onClose={()=>setOpenDialog(false)}>
-
-                <div>
-                  Abos
-                </div>
-
-
+              <Popup onClose={() => setOpenDialog(false)}>
+                <div>Abos</div>
               </Popup>
-
-
-
-
-
             </div>
-
-
-
           )}
         </div>
       </div>
@@ -281,7 +255,7 @@ export default function LikesTest() {
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover cursor-pointer"
                           onClick={() => handlePPClick(index)}
                         />
                       </div>
@@ -290,7 +264,7 @@ export default function LikesTest() {
                         {users_likes[index].name}, {users_likes[index].alter}
                       </div>
                     </div>
-                  ) : null
+                  ) : null,
                 )
               ) : (
                 <div className="border-4 rounded-2xl p-4 border-gray-300 bg-gray-100 text-gray-500">
@@ -300,21 +274,17 @@ export default function LikesTest() {
             </>
           )}
         </div>
-
-        
       </div>
 
       {openProfile && (
-      
-              
-              <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50" >
-      
-                <ProfileSingleView selectedProfileIndex={selectedProfileIndex} fromWhere={"likesComponent"} />
-      
-                
-              </Popup>
-              
-            )}
+    
+           <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+            <ProfileSingleView
+              selectedProfileIndex={selectedProfileIndex}
+              fromWhere={"likesComponent"}
+            />
+          </Popup>
+      )}
     </div>
   );
 }

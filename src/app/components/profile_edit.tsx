@@ -128,7 +128,22 @@ export default function Profil_Edit() {
 
   }
 
+  useEffect(() => {
+  if (userData?.geburtstag) {
+    setTemp_Geburtstag(userData.geburtstag.split("T")[0]);
+  }
+}, [userData]);
 
+  // Bei jedem Rendern der Seite das Alter neu berechen, wichtig ist vor allem das Alter aktualisiert wird mit der calculateAge Funktion auch wenn das Geburtstag nicht ändert!
+
+  useEffect(() => {
+
+    if (userData?.geburtstag) {
+
+      updateUser({ alter: calculateAge(userData.geburtstag).toString() });
+    }
+
+  },[]);
   
 
 
@@ -479,7 +494,7 @@ export default function Profil_Edit() {
 
                 <input
                   type="date"
-                  value={userData.geburtstag?.split("T")[0] || ""}
+                  value={Temp_Geburtstag}
                   onChange={(e) => setTemp_Geburtstag(e.target.value)}
                   className="w-50 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
                 />
