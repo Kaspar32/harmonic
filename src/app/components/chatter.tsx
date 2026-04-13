@@ -10,16 +10,15 @@ import Superlike from "./superlike";
 import { useNotification } from "../context/NotificationContext";
 import { useUser } from "../context/UserContext";
 
-
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
   const [unlike, setUnlike] = useState(false);
   const [openSuperlikeProfile, setOpenSuperlikeProfile] = useState(false);
-  const [selectedSuperlikeUser, setSelectedSuperlikeUser] = useState<UserType | null>(null);
+  const [selectedSuperlikeUser, setSelectedSuperlikeUser] =
+    useState<UserType | null>(null);
   const { user } = useUser();
-  const [isUserOnline, setIsUserOnline] = useState<{ [key: string]: boolean }>({});
 
   const [loading, setLoading] = useState(true);
 
@@ -109,15 +108,21 @@ export default function Chatter() {
   }, []);
 
   //Beim Rendern der Page ausführen damit ein neuer Socket erstellt wird :::::::::::::::::::::::::::::::::::::
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
   useEffect(() => {
-    const socket = io("http://195.15.205.186:4001", {
+    const socket = io("http://localhost:4001", {
       transports: ["websocket", "polling"],
     });
 
+    
+
     socket.on("connect", () => {
       console.log("Verbunden mit Socket-Server:", socket.id);
-      let uuid= user?.uuid || "";
-      setIsUserOnline((prev) => ({ ...prev, [uuid]: true }));
+      const uuid = user?.uuid;
+      if (uuid) {
+        socket.emit("user-connect", { userId: uuid });
+      }
     });
 
     socketRef.current = socket;
@@ -131,6 +136,25 @@ export default function Chatter() {
         const exists = prev.some((m) => m.id === msg.id);
         if (exists) return prev;
         return [...prev, msg];
+      });
+    });
+
+    socket.on("online_users", (users: string[]) => {
+      alert("teeeest"+users);
+      setOnlineUsers(new Set(users));
+    });
+
+    socket.on("user-online", (data: { userId: string; online: boolean }) => {
+      
+      
+      setOnlineUsers((prev) => {
+        const updated = new Set(prev);
+        if (data.online) {
+          updated.add(data.userId);
+        } else {
+          updated.delete(data.userId);
+        }
+        return updated;
       });
     });
 
@@ -358,14 +382,16 @@ export default function Chatter() {
 
   // Notifications für die Messages
 
-  const {notifications} = useNotification();
+  const { notifications } = useNotification();
   const [newMessages, setNewMessages] = useState<boolean[]>([]);
 
   // Initialize newMessages array when users change
   useEffect(() => {
     const newMsgArray: boolean[] = [];
     for (let j = 0; j < notifications.length; j++) {
-      const userIndex = users.findIndex((u) => u.name === notifications[j].from);
+      const userIndex = users.findIndex(
+        (u) => u.name === notifications[j].from,
+      );
       if (userIndex !== -1) {
         newMsgArray[userIndex] = true;
       }
@@ -386,8 +412,6 @@ export default function Chatter() {
     return () => clearInterval(interval); // Cleanup
   }, []);
 
-
-
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       {loading && <Loader2 className=" animate-spin text-yellow-400" />}
@@ -399,8 +423,6 @@ export default function Chatter() {
         }}
       />
       {!loading && (
-
-        
         <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
           {images.map((item, index) => (
             <div key={index}>
@@ -428,11 +450,10 @@ export default function Chatter() {
                 </p>
 
                 <label>
-
-                  {isUserOnline[users[index]?.uuid || ""] ? (
-                    <span className="text-green-500 text-xs ml-2">Online</span> 
-                  ) : ( 
-                    <span className="text-gray-500 text-xs ml-2">Offline</span> 
+                  {onlineUsers.has(users[index]?.uuid) ? (
+                    <span className="text-green-500 text-xs ml-2">Online</span>
+                  ) : (
+                    <span className="text-gray-500 text-xs ml-2">Offline</span>
                   )}
                 </label>
 
@@ -573,7 +594,10 @@ export default function Chatter() {
       )}
 
       {openSuperlikeProfile && selectedSuperlikeUser && (
-        <Popup onClose={() => setOpenSuperlikeProfile(false)} bgColor="bg-yellow-50">
+        <Popup
+          onClose={() => setOpenSuperlikeProfile(false)}
+          bgColor="bg-yellow-50"
+        >
           <ProfileSingleView
             selectedProfileIndex={0}
             fromWhere="chatter"
@@ -581,10 +605,6 @@ export default function Chatter() {
           />
         </Popup>
       )}
-
-    
-      
-
 
       {unlike && (
         <Popup onClose={() => setUnlike(false)}>
