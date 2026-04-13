@@ -115,14 +115,8 @@ export default function Chatter() {
       transports: ["websocket", "polling"],
     });
 
-    
-
     socket.on("connect", () => {
       console.log("Verbunden mit Socket-Server:", socket.id);
-      const uuid = user?.uuid;
-      if (uuid) {
-        socket.emit("user-connect", { userId: uuid });
-      }
     });
 
     socketRef.current = socket;
@@ -140,7 +134,6 @@ export default function Chatter() {
     });
 
     socket.on("online_users", (users: string[]) => {
-      alert("teeeest"+users);
       setOnlineUsers(new Set(users));
     });
 
@@ -162,7 +155,20 @@ export default function Chatter() {
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+    
+    if (user?.uuid) {
+      console.log("Sende user-connect mit:", user.uuid);
+      socketRef.current.emit("user-connect", { userId: user.uuid });
+    } else {
+      console.log("User noch nicht geladen, warte...");
+    }
+  }, [user]);
+
+  // Beim Mounten der Komponente den User dem Raum hinzufügen
 
   // Beim Mounten der Komponente den User dem Raum hinzufügen:::::::::::::::::::::::::::::::::::::::::::::
   useEffect(() => {
@@ -451,9 +457,9 @@ export default function Chatter() {
 
                 <label>
                   {onlineUsers.has(users[index]?.uuid) ? (
-                    <span className="text-green-500 text-xs ml-2">Online</span>
+                    <span className="text-green-500 text-s  ml-2">ONLINE</span>
                   ) : (
-                    <span className="text-gray-500 text-xs ml-2">Offline</span>
+                    <span className="text-gray-500 text-s ml-2">OFFLINE</span>
                   )}
                 </label>
 

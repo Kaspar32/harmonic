@@ -38,6 +38,10 @@ io.on("connection", (socket) => {
     }
     onlineUsers.get(userId)!.add(socket.id);
     console.log(`${userId} verbunden`);
+    
+    // Sende aktuelle Online-Users an alle
+    const allOnlineUsers = Array.from(onlineUsers.keys());
+    io.emit("online_users", allOnlineUsers);
     io.emit("user-online", { userId, online: true });
   });
 
