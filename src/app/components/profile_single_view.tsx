@@ -130,6 +130,11 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+        <span className="font-semibold text-gray-400">Standort:</span>{" "}
+        {users[effectiveIndex]?.location}
+      </p>
+
+      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
         {users[effectiveIndex]?.groesse}
       </p>

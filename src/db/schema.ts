@@ -19,6 +19,7 @@ export const users = pgTable('users', {
   roles: text('roles'),
   fakeUsersEnabled: boolean().default(true),
   profile_pics: jsonb("profile_pics"),
+  location: text('location'),
 });
 
 export const profilePictures = pgTable("profile_pictures", {

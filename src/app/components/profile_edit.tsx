@@ -11,6 +11,8 @@ import Questions from "./questions";
 import Refactoring_Images from "./refactoring_images";
 
 import { useUser } from "@/app/context/UserContext";
+import { getLocation } from "@/lib/getLocation";
+import { reverseGeocode } from "@/lib/getSuburbbyLocation";
 
 interface TrackItem {
   id: string;
@@ -43,6 +45,7 @@ export default function Profil_Edit() {
     roles: "",
     fakeUsersEnabled: true,
     profile_pics: [],
+    location: null,
   });
 
   // Temporäre Variablen für die Editierfunktion
@@ -63,6 +66,7 @@ export default function Profil_Edit() {
   const [showFavoriteTune, setFavoriteTune] = useState(false);
   const [showFavoriteBand, setFavoriteBand] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [showLocation, setLocation] = useState(false);
 
   const [intressen] = useState(Interests);
   const [genres] = useState(Genres);
@@ -94,8 +98,16 @@ export default function Profil_Edit() {
         roles: user?.roles,
         fakeUsersEnabled: user?.fakeUsersEnabled,
         profile_pics: user?.profile_pics,
+        location: typeof user?.location === "string" ? user.location : null,
       }));
 
+      // Sepzialfall Location
+
+      alert("" + user?.location);
+
+      if (typeof user?.location === "string") {
+        setSuburb(user.location);
+      }
     }
     fetchUser();
   }, [user]);
@@ -119,33 +131,26 @@ export default function Profil_Edit() {
   }
 
   function calculateAge(birthday: string) {
-
     const birthDate = new Date(birthday);
     const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();  
+    let age = today.getFullYear() - birthDate.getFullYear();
 
     return age;
-
   }
 
   useEffect(() => {
-  if (userData?.geburtstag) {
-    setTemp_Geburtstag(userData.geburtstag.split("T")[0]);
-  }
-}, [userData]);
+    if (userData?.geburtstag) {
+      setTemp_Geburtstag(userData.geburtstag.split("T")[0]);
+    }
+  }, [userData]);
 
   // Bei jedem Rendern der Seite das Alter neu berechen, wichtig ist vor allem das Alter aktualisiert wird mit der calculateAge Funktion auch wenn das Geburtstag nicht ändert!
 
   useEffect(() => {
-
     if (userData?.geburtstag) {
-
       updateUser({ alter: calculateAge(userData.geburtstag).toString() });
     }
-
-  },[]);
-  
-
+  }, []);
 
   //Spotify-Daten
   /*
@@ -214,12 +219,11 @@ export default function Profil_Edit() {
   }, []);*/
 
   {
-    /* Spotify-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+    /* Deezer-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
   }
 
-  const [serachInput, setSerachInput] = useState("");
-  const [serachInput_Artist, setSerachInput_Artist] = useState("");
-  const [accessToken, setAccessToken] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchInput_Artist, setSearchInput_Artist] = useState("");
 
   type Track = {
     album: {
@@ -227,7 +231,7 @@ export default function Profil_Edit() {
     };
     name: string;
     artists: { name: string }[];
-
+    preview?: string;
     isSelected?: boolean;
     id: string;
   };
@@ -235,83 +239,61 @@ export default function Profil_Edit() {
   type Artist = {
     id: string;
     name: string;
-
     images: { url: string }[];
-
     isSelected?: boolean;
   };
 
   const [tracks, setTracks] = useState<Track[]>([]);
-
   const [artists, setArtists] = useState<Artist[]>([]);
 
-  useEffect(() => {
-    const authParameters = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body:
-        "grant_type=client_credentials&client_id=" +
-        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID +
-        "&client_secret=" +
-        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET,
-    };
-
-    fetch("https://accounts.spotify.com/api/token", authParameters)
-      .then((result) => result.json())
-      .then((data) => setAccessToken(data.access_token));
-  }, []);
-
+  // 🔍 TRACK SEARCH
   async function search() {
-    const artistParameters = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + accessToken,
-      },
-    };
+    if (!searchInput) return;
 
-    const Track = await fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        serachInput +
-        "&type=track&limit=10",
-      artistParameters,
-    ).then((response) => response.json());
+    const res = await fetch(`/api/deezer-search?q=${searchInput}`);
+    const data = await res.json();
+
+    console.log("Deezer Tracks:", data);
 
     setTracks(
-      Track.tracks.items.map((t: TrackItem) => ({
-        ...t,
+      data.data.map((t: any) => ({
+        id: t.id,
+        name: t.title,
+        album: {
+          images: [{ url: t.album.cover }],
+        },
+        artists: [{ name: t.artist.name }],
+        preview: t.preview,
         isSelected: false,
       })),
     );
   }
 
+  // 🎤 ARTIST SEARCH
   async function search_artist() {
-    const artistParameters = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + accessToken,
-      },
-    };
+    if (!searchInput_Artist) return;
 
-    const Artists = await fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        serachInput_Artist +
-        "&type=artist&limit=10",
-      artistParameters,
-    ).then((response) => response.json());
+ 
+
+    const res = await fetch(`/api/deezer-artist?q=${searchInput_Artist}`);
+   const data = await res.json();
+
+    console.log("Deezer Artists:", data);
+
+  
 
     setArtists(
-      Artists.artists.items.map((t: ArtistItem) => ({
-        ...t,
+      data.data.map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        images: [{ url: a.picture }],
         isSelected: false,
       })),
     );
   }
 
-  async function toggleTrack(track: Track) {
+  // 🎯 TRACK AUSWÄHLEN
+  function toggleTrack(track: Track) {
     setTracks(
       tracks.map((t) =>
         t.id === track.id
@@ -321,106 +303,101 @@ export default function Profil_Edit() {
     );
   }
 
-  async function toggleArtist(artist: Artist) {
+  // 🎯 ARTIST AUSWÄHLEN
+  function toggleArtist(artist: Artist) {
     setArtists(
-      artists.map((t) =>
-        t.id === artist.id
-          ? { ...t, isSelected: true }
-          : { ...t, isSelected: false },
+      artists.map((a) =>
+        a.id === artist.id
+          ? { ...a, isSelected: true }
+          : { ...a, isSelected: false },
       ),
     );
   }
 
+  // 💾 TRACK SPEICHERN
   async function saveTrack() {
     const selectedTrack = tracks.find((t) => t.isSelected);
-    if (!selectedTrack) return; // Kein Track ausgewählt
+    if (!selectedTrack) return;
 
     const trackData = {
       name: selectedTrack.name,
-      image: selectedTrack.album?.images?.[0]?.url ?? null, // erstes Album-Bild
-      artist: selectedTrack.artists?.[0]?.name ?? null, // erster Künstler
+      image: selectedTrack.album?.images?.[0]?.url ?? null,
+      artist: selectedTrack.artists?.[0]?.name ?? null,
     };
 
-    setUserData((prev) => ({ ...prev, favorite_track: trackData }));
+    setUserData((prev: any) => ({
+      ...prev,
+      favorite_track: trackData,
+    }));
 
-    fetch("/api/savefavoritetrack", {
+    await fetch("/api/savefavoritetrack", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(trackData),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Erfolgreich gespeichert:", data);
-      })
-      .catch((err) => {
-        console.error("Speicherfehler:", err);
-      });
+    });
   }
 
-  async function saveArtist(index: number) {
+  // 💾 ARTIST SPEICHERN
+  function saveArtist(index: number) {
     const selectedArtist = artists.find((a) => a.isSelected);
-    if (!selectedArtist) return; // Kein Künstler ausgewählt
+    if (!selectedArtist) return;
 
     const artistData = {
       name: selectedArtist.name,
-      image: selectedArtist.images?.[0]?.url ?? null, // erstes Bild
+      image: selectedArtist.images?.[0]?.url ?? null,
     };
 
-    if (index === 1) {
-
-      setUserData((prev) => ({
-        ...prev,
-        favorite_artist: {
-          ...prev.favorite_artist,
-          favorite_artist1: {
-            name: artistData.name,
-            image: artistData.image,
-          },
-        },
-      }));
-    }
-    if (index === 2) {
-      setUserData((prev) => ({
-        ...prev,
-        favorite_artist: {
-          ...prev.favorite_artist,
-          favorite_artist2: {
-            name: artistData.name,
-            image: artistData.image,
-          },
-        },
-      }));
-    }
+    setUserData((prev: any) => ({
+      ...prev,
+      favorite_artist: {
+        ...prev.favorite_artist,
+        [`favorite_artist${index}`]: artistData,
+      },
+    }));
   }
 
   function ArtistinDB() {
-    let payload = {
-      favorite_artist1: userData.favorite_artist?.favorite_artist1,
-      favorite_artist2: userData.favorite_artist?.favorite_artist2,
-    };
-
     fetch("/api/savefavoriteartist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Erfolgreich gespeichert:", data);
-      })
-      .catch((err) => {
-        console.error("Speicherfehler:", err);
-      });
+      body: JSON.stringify(userData.favorite_artist),
+    });
+  }
+
+  // 🎧 AUDIO PREVIEW
+  function playTrack(track: Track) {
+    if (!track.preview) return;
+
+    const audio = new Audio(track.preview);
+    audio.play();
+  }
+
+  // ---- Location:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+  const [suburb, setSuburb] = useState("");
+
+  async function initLocation() {
+    try {
+      const location = await getLocation();
+      let suburb = await reverseGeocode(location.latitude, location.longitude);
+      setSuburb(suburb.city + ", " + suburb.suburb + ", " + suburb.country);
+    } catch (error) {
+      console.error("Error getting location:", error);
+    }
+  }
+
+  async function saveLocation() {
+    await fetch("api/savelocation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ location: suburb }),
+    });
   }
 
   return (
@@ -452,11 +429,10 @@ export default function Profil_Edit() {
                 <h2 className="text-xl font-bold mb-4 text-gray-400 dark:text-gray-400">
                   Name
                 </h2>
-                <textarea 
+                <textarea
                   disabled
                   defaultValue={userData.name}
                   onChange={(e) => setTemp_Name(e.target.value)}
-
                   className="bg-yellow-200 rounded-xl w-full h-24 p-2 focus:outline-none dark:text-black"
                 />
                 <button
@@ -504,8 +480,10 @@ export default function Profil_Edit() {
                     className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
                     onClick={async () => {
                       setAlter(false);
-                      await updateUser({ geburtstag: Temp_Geburtstag, alter: calculateAge(Temp_Geburtstag).toString() });
-
+                      await updateUser({
+                        geburtstag: Temp_Geburtstag,
+                        alter: calculateAge(Temp_Geburtstag).toString(),
+                      });
                     }}
                   >
                     Speichern
@@ -761,6 +739,55 @@ export default function Profil_Edit() {
                 </div>
               </PopUp>
             )}
+
+            {/* Location */}
+            <div>
+              <h3
+                onClick={() => setLocation(true)}
+                className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              >
+                Standort
+              </h3>
+
+              {showLocation && (
+                <PopUp onClose={() => setLocation(false)}>
+                  <h2 className="text-xl text-gray-400 dark:text-gray-400 font-bold mb-4">
+                    Standort verwenden
+                  </h2>
+
+                  <div className="flex flex-col items-center gap-4 p-4">
+                    <div onClick={initLocation}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-15 w-15 h-15 text-gray-400 dark:text-gray-400 cursor-pointer hover:text-gray-600"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM6.262 6.072a8.25 8.25 0 1 0 10.562-.766 4.5 4.5 0 0 1-1.318 1.357L14.25 7.5l.165.33a.809.809 0 0 1-1.086 1.085l-.604-.302a1.125 1.125 0 0 0-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 0 1-2.288 4.04l-.723.724a1.125 1.125 0 0 1-1.298.21l-.153-.076a1.125 1.125 0 0 1-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 0 1-.21-1.298L9.75 12l-1.64-1.64a6 6 0 0 1-1.676-3.257l-.172-1.03Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    <span>{suburb}</span>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      onClick={() => {
+                        saveLocation();
+                        setLocation(false);
+                      }}
+                      className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    >
+                      Speichern
+                    </button>
+                  </div>
+                </PopUp>
+              )}
+            </div>
           </div>
         </div>
 
@@ -850,7 +877,7 @@ export default function Profil_Edit() {
                     <input
                       className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
                       placeholder="Tippen Sie hier..."
-                      onChange={(event) => setSerachInput(event.target.value)}
+                      onChange={(event) => setSearchInput(event.target.value)}
                     />
                   </div>
 
@@ -955,7 +982,7 @@ export default function Profil_Edit() {
                         className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
                         placeholder="Tippen Sie hier..."
                         onChange={(event) =>
-                          setSerachInput_Artist(event.target.value)
+                          setSearchInput_Artist(event.target.value)
                         }
                       />
                     </div>
@@ -1089,7 +1116,9 @@ export default function Profil_Edit() {
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
                 <div className="overflow-y-auto max-h-96">
-                  <Questions onClose={() => setShowQuestions(false)}></Questions>
+                  <Questions
+                    onClose={() => setShowQuestions(false)}
+                  ></Questions>
                 </div>
               </PopUp>
             )}

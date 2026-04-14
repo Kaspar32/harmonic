@@ -30,12 +30,6 @@ export async function POST(req: Request) {
 
     console.log("Eingehende Daten:", trackData);
 
-
-
-
-
- 
-
     if (!trackData) {
       return NextResponse.json(
         { error: "userId und tracks sind erforderlich" },

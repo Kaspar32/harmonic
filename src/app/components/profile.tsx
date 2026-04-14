@@ -353,6 +353,9 @@ export default function Profile() {
     calculateGenres(i);
   }
 
+
+  
+
   return (
     <div className="">
       {isMatched && buttonsDisabled && (
@@ -515,6 +518,9 @@ export default function Profile() {
 
                 <div className="absolute top-[83%]  left-1/2 -translate-x-1/2 text-2xl overflow-visible text-yellow-500 border-2 rounded-2xl px-4 py-1 bg-white">
                   {users[UserIndex]?.name}, {users[UserIndex]?.alter}
+                  <span className="text-sm block -mt-1 text-gray-400">
+                    {users[UserIndex]?.location}
+                  </span>
                 </div>
               </div>
 

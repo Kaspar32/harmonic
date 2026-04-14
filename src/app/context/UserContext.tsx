@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect } from "react";
 
 type UserType = {
+  location: string | null;
   id: string;
   uuid: string;
   passwort: string;
@@ -19,6 +20,7 @@ type UserType = {
   roles: string;
   fakeUsersEnabled: boolean;
   profile_pics: string[];
+  
 };
 
 export interface FavoriteTrack {

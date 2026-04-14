@@ -22,6 +22,7 @@ export interface UserType {
   roles: string;
   fakeUsersEnabled: boolean;
   profile_pics: string[];
+  location: string | null;
 }
 
 
