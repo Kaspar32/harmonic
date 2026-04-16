@@ -657,7 +657,7 @@ export default function Profile() {
 
                       <div className="border-3 rounded-3xl py-1 px-3 text-center  break-normal">
                         {users[UserIndex]?.favorite_track ? (
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1 min-w-0">
                             <Image
                               src={
                                 users[UserIndex]?.favorite_track?.image ||
@@ -670,11 +670,11 @@ export default function Profile() {
                               quality={100}
                             />
                             
-                            <div className="md:w-full max-w-[120px]">
-                              <p className="font-semibold">
+                            <div className="md:w-full max-w-[80px] min-w-0">
+                              <p className="font-semibold truncate">
                                 {users[UserIndex]?.favorite_track?.name}
                               </p>
-                              <p className="text-sm text-yellow-400">
+                              <p className="text-sm text-yellow-400 truncate">
                                 {users[UserIndex]?.favorite_track?.artist}
                               </p>
                             </div>
