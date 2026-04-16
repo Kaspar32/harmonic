@@ -27,6 +27,7 @@ export interface FavoriteTrack {
   name: string;
   image: string | null;
   artist: string | null;
+  preview: string | null;
 }
 
 export interface FavoriteArtist {

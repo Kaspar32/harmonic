@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Interests from "../data/Intrests";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
@@ -13,20 +13,6 @@ import Refactoring_Images from "./refactoring_images";
 import { useUser } from "@/app/context/UserContext";
 import { getLocation } from "@/lib/getLocation";
 import { reverseGeocode } from "@/lib/getSuburbbyLocation";
-
-interface TrackItem {
-  id: string;
-  name: string;
-  artist: string;
-  isSelected?: boolean;
-}
-
-interface ArtistItem {
-  id: string;
-  name: string;
-  genre?: string;
-  isSelected?: boolean;
-}
 
 export default function Profil_Edit() {
   const [userData, setUserData] = useState<UserType>({
@@ -102,8 +88,6 @@ export default function Profil_Edit() {
       }));
 
       // Sepzialfall Location
-
-      alert("" + user?.location);
 
       if (typeof user?.location === "string") {
         setSuburb(user.location);
@@ -245,6 +229,7 @@ export default function Profil_Edit() {
 
   const [tracks, setTracks] = useState<Track[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // 🔍 TRACK SEARCH
   async function search() {
@@ -273,14 +258,10 @@ export default function Profil_Edit() {
   async function search_artist() {
     if (!searchInput_Artist) return;
 
- 
-
     const res = await fetch(`/api/deezer-artist?q=${searchInput_Artist}`);
-   const data = await res.json();
+    const data = await res.json();
 
     console.log("Deezer Artists:", data);
-
-  
 
     setArtists(
       data.data.map((a: any) => ({
@@ -323,6 +304,7 @@ export default function Profil_Edit() {
       name: selectedTrack.name,
       image: selectedTrack.album?.images?.[0]?.url ?? null,
       artist: selectedTrack.artists?.[0]?.name ?? null,
+      preview: selectedTrack.preview ?? null,
     };
 
     setUserData((prev: any) => ({
@@ -372,8 +354,18 @@ export default function Profil_Edit() {
   function playTrack(track: Track) {
     if (!track.preview) return;
 
-    const audio = new Audio(track.preview);
-    audio.play();
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    audioRef.current = new Audio(track.preview);
+    audioRef.current.play();
+  }
+
+  function pauseTrack(_track: Track) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
   }
 
   // ---- Location:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -918,6 +910,34 @@ export default function Profil_Edit() {
                           <p className="text-slate-800 font-semibold text-sm">
                             {track.name}
                           </p>
+                          <button onClick={() => playTrack(track)}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-6"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                          <button onClick={() => pauseTrack(track)}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-6"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     );
@@ -1088,6 +1108,288 @@ export default function Profil_Edit() {
                         <div>
                           <p className="text-slate-800 font-semibold text-sm">
                             {userData.favorite_artist?.favorite_artist2?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(3)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 3<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist3 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist3?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist3?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist3?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(4)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 4<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist4 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist4?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist4?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist4?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(5)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 5<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist5 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist5?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist5?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist5?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(6)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 6<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist6 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist6?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist6?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist6?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(7)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 7<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist7 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist7?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist7?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist7?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(8)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 8<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist8 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist8?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist8?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist8?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(9)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 9<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist9 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist9?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist9?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist9?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(10)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 10<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist10 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist10
+                              ?.image || "/fallback.jpg"
+                          }
+                          alt={
+                            userData.favorite_artist?.favorite_artist10?.name
+                          }
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist10?.name}
                           </p>
                         </div>
                       </div>

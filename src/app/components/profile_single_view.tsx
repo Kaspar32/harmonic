@@ -139,14 +139,14 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
         {users[effectiveIndex]?.groesse}
       </p>
 
-      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
         {users[effectiveIndex]?.genres?.join(", ")}
       </p>
 
-      <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl p-2">
+      <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl p-2">
         <span className="font-semibold text-gray-400">Lieblingslied:</span>
-        <div className="border-3 rounded-3xl border-yellow-500 py-1 px-3 text-center  break-normal">
+        <div className=" py-1 px-3 text-center  break-normal">
           {users[effectiveIndex]?.favorite_track ? (
             <div className="flex items-center gap-1">
               <Image
@@ -175,30 +175,181 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
         </div>
       </div>
 
-      <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-        <span className="font-semibold text-gray-400">Lieblingsinterpret:</span>{" "}
-        <div className="border-3 border-yellow-500 rounded-3xl py-1 px-3 text-center  break-normal">
+      <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+        <span className="font-semibold text-gray-400">Lieblingsinterpreten:</span>{" "}
+        <div className=" py-1 px-3 text-center  break-normal">
           {users[effectiveIndex]?.favorite_artist ? (
-            <div className="flex items-center gap-1 ">
-              <Image
-                src={
-                  users[effectiveIndex]?.favorite_artist?.favorite_artist1
-                    ?.image || "/images/Home.png"
-                }
-                alt="Lieblingsinterpret Bild"
-                height={30}
-                width={30}
-                style={{ objectFit: "cover" }} // schneidet es sauber zu
-                quality={100}
-              />
-              <div className="md:w-full max-w-[120px]">
-                <div className="font-semibold text-yellow-500">
-                  {
-                    users[effectiveIndex]?.favorite_artist
-                      ?.favorite_artist1?.name
-                  }
+            <div className="flex flex-wrap items-center gap-2 ">
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist1 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist1?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist1?.name} 
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist2 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist2?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist2?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist3 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist3?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist3?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist4 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist4?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist4?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist5 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist5?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist5?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist6 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist6?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist6?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist7 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist7?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist7?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist8 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist8?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist8?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist9 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist9?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist9?.name} 
+                    </div>
+                  </div>
+                </div>
+              )}
+              {users[effectiveIndex]?.favorite_artist?.favorite_artist10 && (
+                <div className="flex items-center gap-1">
+                  <Image
+                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist10?.image || "/images/Home.png"}
+                    alt="Lieblingsinterpret Bild"
+                    height={30}
+                    width={30}
+                    style={{ objectFit: "cover" }}
+                    quality={100}
+                  />
+                  <div className="md:w-full max-w-[120px]">
+                    <div className="font-semibold text-yellow-500">
+                      {users[effectiveIndex]?.favorite_artist?.favorite_artist10?.name}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <p>Keine Daten</p>
