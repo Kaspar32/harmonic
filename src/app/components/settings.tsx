@@ -6,6 +6,7 @@ import * as Slider from "@radix-ui/react-slider";
 export default function Settings() {
   const [interest, setInterest] = useState("");
   const [alter, setAlter] = useState<number[]>([20, 50]);
+  const [interestLocation, setInterestLocation] = useState("");
 
   function handleInteressiertAn(event: React.ChangeEvent<HTMLSelectElement>) {
     setInterest(event.target.value);
@@ -17,11 +18,14 @@ export default function Settings() {
       const res = await fetch("/api/settings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ alter: alter, intresse: interest }),
+        body: JSON.stringify({
+          alter: alter,
+          intresse: interest,
+          interest_location: interestLocation,
+        }),
       });
 
       console.log(res);
-      
     } catch (error) {
       console.error(error);
     }
@@ -30,10 +34,7 @@ export default function Settings() {
     window.location.href = "/home";
   }
 
-  function deleteaccount()
-  {
-      
-  }
+  function deleteaccount() {}
 
   useEffect(() => {
     async function fetchSettings() {
@@ -46,6 +47,8 @@ export default function Settings() {
           settingsData[0].alter = setAlter(settingsData[0].alter);
 
           setInterest(settingsData[0].intresse);
+
+          setInterestLocation(settingsData[0].interest_location);
         }
       } catch (error) {
         console.error(error);
@@ -94,6 +97,39 @@ export default function Settings() {
             <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
           </Slider.Root>
 
+          {/* In der Nähe Toggel */}
+
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="size-6 text-yellow-500"
+          >
+            <path
+              fillRule="evenodd"
+              d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM6.262 6.072a8.25 8.25 0 1 0 10.562-.766 4.5 4.5 0 0 1-1.318 1.357L14.25 7.5l.165.33a.809.809 0 0 1-1.086 1.085l-.604-.302a1.125 1.125 0 0 0-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 0 1-2.288 4.04l-.723.724a1.125 1.125 0 0 1-1.298.21l-.153-.076a1.125 1.125 0 0 1-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 0 1-.21-1.298L9.75 12l-1.64-1.64a6 6 0 0 1-1.676-3.257l-.172-1.03Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <div className="mt-1 ml-10">
+            <label className="screen-reader-only" htmlFor="choice"></label>
+            <span className="mr-10 text-yellow-600  bold" aria-hidden="true">
+              Alle!
+            </span>
+            <input
+              onChange={(e) => setInterestLocation(e.target.value)}
+              value={interestLocation}
+              className="text-yellow-600 shadow-lg rounded-2xl border-t-2 border-slate-200 w-15"
+              type="range"
+              max="1"
+              id="choice"
+              name="choice"
+            ></input>
+            <span className="ml-6 text-yellow-600 bold" aria-hidden="true">
+              In der Nähe (gleiche Stadt)
+            </span>
+          </div>
+
           <button
             onClick={handleAlterChange}
             className="mt-4 px-4 py-2 bg-yellow-400 text-white rounded"
@@ -102,10 +138,13 @@ export default function Settings() {
           </button>
         </div>
 
-        <button onClick={deleteaccount} className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600">Konto Löschen</button>
+        <button
+          onClick={deleteaccount}
+          className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600"
+        >
+          Konto Löschen
+        </button>
       </div>
-
-      
     </div>
   );
 }

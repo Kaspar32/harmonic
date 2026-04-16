@@ -66,6 +66,7 @@ export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
   intresse: text("intresse"),
   alter: jsonb("alter").$type<number[]>(),
+  interest_location: text("interest_location"),
   uuid: uuid("uuid").references(() => users.uuid).notNull(),
 });
 

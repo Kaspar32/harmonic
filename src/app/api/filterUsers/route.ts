@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
 import { users, likes, superlikes, dislikes, settings } from "@/db/schema";
-import { eq, not, inArray, and, or } from "drizzle-orm";
+import { eq, not, inArray, and, or, like } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   let userfromAuth;
@@ -30,6 +30,17 @@ export async function GET(request: NextRequest) {
     .select({ mygender: users.geschlecht })
     .from(users)
     .where(eq(users.uuid, userfromAuth.uuid));
+
+  const [interestLocationData] = await db
+    .select({ interestLocation: settings.interest_location })
+    .from(settings)
+    .where(eq(settings.uuid, userfromAuth.uuid));
+
+  const interestLocation = interestLocationData?.interestLocation;
+
+  const [locationResult] = await db.select({ location: users.location }).from(users).where(eq(users.uuid, userfromAuth.uuid));
+  const city = locationResult?.location?.split(",")[0].trim();
+  const country = locationResult?.location?.split(",")[2].trim();
 
   const liked = await db
     .select({ to: likes.to })
@@ -111,6 +122,14 @@ export async function GET(request: NextRequest) {
             ? eq(users.geschlecht, myInterest)
             : undefined,
         ),
+
+        // Filter by interest location - match city and country, ignore suburb
+        interestLocation === "1" && city && country ? like(users.location, `${city}, %${country}`) : undefined,
+
+  
+          
+
+
       ),
     );
   //console.log('alle gefilterten userss:', allUsers);
