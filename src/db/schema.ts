@@ -1,4 +1,8 @@
-import { pgTable, serial, text, integer, jsonb, uuid, timestamp, boolean } from 'drizzle-orm/pg-core';
+import {
+  varchar,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, jsonb, uuid, timestamp, boolean, doublePrecision } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   
@@ -20,6 +24,7 @@ export const users = pgTable('users', {
   fakeUsersEnabled: boolean().default(true),
   profile_pics: jsonb("profile_pics"),
   location: text('location'),
+  locationid: integer("locationid"),
 });
 
 export const profilePictures = pgTable("profile_pictures", {
@@ -66,8 +71,8 @@ export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
   intresse: text("intresse"),
   alter: jsonb("alter").$type<number[]>(),
-  interest_location: text("interest_location"),
   uuid: uuid("uuid").references(() => users.uuid).notNull(),
+  radius: integer("radius"),
 });
 
 export const reports = pgTable("reports", {
@@ -84,5 +89,18 @@ export const questionaires = pgTable("questionaires", {
   answers: jsonb("answers").$type<Record<string, string>>().notNull(),
 }); 
 
-
-
+export const swissLoc = pgTable(
+  "swissLoc",
+  {
+    id: integer("id").primaryKey().notNull(),
+    zipCode: varchar("zip_code", { length: 6 }).default(""),
+    cityName: varchar("city_name", { length: 50 }).default(""),
+    cantonNameShort: varchar("canton_name_short", { length: 2 }).default(""),
+    cantonNameLong: varchar("canton_name_long", { length: 25 }).notNull(),
+    iLatitude: doublePrecision("iLatitude"),
+    iLongitude: doublePrecision("iLongitude"),
+  },
+  (table) => ({
+    pk: uniqueIndex("swissLoc_pkey").on(table.id),
+  })
+);

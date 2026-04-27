@@ -371,12 +371,15 @@ export default function Profil_Edit() {
   // ---- Location:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
   const [suburb, setSuburb] = useState("");
+  const [geolocation, setGeolocation] = useState({});
 
   async function initLocation() {
     try {
       const location = await getLocation();
       let suburb = await reverseGeocode(location.latitude, location.longitude);
       setSuburb(suburb.city + ", " + suburb.suburb + ", " + suburb.country);
+      setGeolocation(location);
+      console.log(location);
     } catch (error) {
       console.error("Error getting location:", error);
     }
@@ -388,7 +391,7 @@ export default function Profil_Edit() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ location: suburb }),
+      body: JSON.stringify({ location: suburb, geolocation: geolocation }),
     });
   }
 

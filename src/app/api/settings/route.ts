@@ -55,7 +55,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { intresse, alter, interest_location } = body;
+    const { intresse, alter, interest_location, radius } = body;
 
     if (!alter) {
       return new Response(
@@ -74,10 +74,10 @@ export async function POST(request: Request) {
     if (existingSettings.length > 0) {
       await db
         .update(settings)
-        .set({ intresse: intresse, alter: alter, interest_location: interest_location })
+        .set({ intresse: intresse, alter: alter, interest_location: interest_location, radius: radius })
         .where(eq(settings.uuid, userfromAuth.uuid));
     } else {
-      await db.insert(settings).values({ intresse, uuid: userfromAuth.uuid, alter, interest_location });
+      await db.insert(settings).values({ intresse, uuid: userfromAuth.uuid, alter, interest_location, radius });
     }
 
     return new Response(JSON.stringify({ message: "Settings added" }), {

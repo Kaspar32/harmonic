@@ -4,14 +4,21 @@ export async function checkIfLikedInWeek(uuid: string): Promise<boolean> {
 
   let counter = 0;
 
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  
+
   let filteredSuperlikes = superlikesData.map((superlike: any) => {
-    if (uuid && superlike.from === uuid) {
+
+    //console.log(oneWeekAgo +" "+new Date(superlike.likedAt)+"Vergleich: " + (new Date(superlike.likedAt) >= oneWeekAgo));
+    if (uuid && superlike.from === uuid && new Date(superlike.likedAt) >= oneWeekAgo) {
       counter++;
     }
   });
 
 
-  // Wenn der User mehr als 0 (also 1 oder mehr) Superlike gegeben hat, dann wird der Button deaktiviert
+  // Wenn der User mehr als 0 (also 1 oder mehr) Superlike in dieser Woche gegeben hat, dann wird der Button deaktiviert
   if (counter > 0) {
     return true;
   } else {

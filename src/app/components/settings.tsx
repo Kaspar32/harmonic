@@ -6,6 +6,7 @@ import * as Slider from "@radix-ui/react-slider";
 export default function Settings() {
   const [interest, setInterest] = useState("");
   const [alter, setAlter] = useState<number[]>([20, 50]);
+  const [radius, setRadius] = useState<number[]>([Infinity]);
   const [interestLocation, setInterestLocation] = useState("");
 
   function handleInteressiertAn(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -22,6 +23,7 @@ export default function Settings() {
           alter: alter,
           intresse: interest,
           interest_location: interestLocation,
+          radius: radius[0],
         }),
       });
 
@@ -30,7 +32,7 @@ export default function Settings() {
       console.error(error);
     }
 
-    // zururckweisugn der seite zu home
+    // zururckweisung der seite zu home
     window.location.href = "/home";
   }
 
@@ -45,6 +47,10 @@ export default function Settings() {
           const settingsData = await res.json();
 
           settingsData[0].alter = setAlter(settingsData[0].alter);
+
+          if (settingsData[0].radius) {
+            setRadius([settingsData[0].radius]);
+          }
 
           setInterest(settingsData[0].intresse);
 
@@ -112,22 +118,28 @@ export default function Settings() {
             />
           </svg>
           <div className="mt-1 ml-10">
-            <label className="screen-reader-only" htmlFor="choice"></label>
-            <span className="mr-10 text-yellow-600  bold" aria-hidden="true">
-              Alle!
-            </span>
-            <input
-              onChange={(e) => setInterestLocation(e.target.value)}
-              value={interestLocation}
-              className="text-yellow-600 shadow-lg rounded-2xl border-t-2 border-slate-200 w-15"
-              type="range"
-              max="1"
-              id="choice"
-              name="choice"
-            ></input>
-            <span className="ml-6 text-yellow-600 bold" aria-hidden="true">
-              In der Nähe (gleiche Stadt)
-            </span>
+
+            <label className="block text-lg font-semibold text-yellow-500 text-center">
+              Radius: {radius[0]} km
+            </label>
+
+            <Slider.Root
+            className="relative flex items-center select-none w-full h-5"
+            value={radius}
+            min={0}
+            max={400}
+            step={1}
+            onValueChange={setRadius}
+          >
+            {/* Track */}
+            <Slider.Track className="bg-gray-700 relative grow rounded-full h-2">
+              <Slider.Range className="absolute bg-yellow-400 rounded-full h-full" />
+            </Slider.Track>
+
+            {/* Daumen (Handles) */}
+            <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+          </Slider.Root>
+
           </div>
 
           <button

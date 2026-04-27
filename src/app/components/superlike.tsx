@@ -113,7 +113,6 @@ export default function Superlike({ onImageClick }: Props) {
   }
 
   async function unliked(index: number) {
-    alert("Test" + index);
 
     const res = await fetch("/api/getuserdata");
     const user = await res.json();

@@ -449,7 +449,9 @@ export default function Profile() {
                 className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
                 onClick={handlesuperlike}
               >
+                
                 <div>
+                   
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -462,9 +464,7 @@ export default function Profile() {
                       clipRule="evenodd"
                     />
                   </svg>
-                  <label className="text-xs sm:text-base text-blue-600 font-bold">
-                    Superlike
-                  </label>
+                 
                 </div>
               </button>
 
@@ -535,9 +535,9 @@ export default function Profile() {
                     />
                   ))}
 
-                <div className="absolute top-[83%]  left-1/2 -translate-x-1/2 text-2xl overflow-visible text-yellow-500 border-2 rounded-2xl px-4 py-1 bg-white">
+                <div className="absolute top-[80%]  left-1/2 -translate-x-1/2 text-2xl overflow-visible text-yellow-500 border-2 rounded-2xl px-4 py-1 bg-white">
                   {users[UserIndex]?.name}, {users[UserIndex]?.alter}
-                  <span className="text-sm block -mt-1 text-gray-400">
+                  <span className="text-sm block -mt-1 text-gray-500">
                     {users[UserIndex]?.location}
                   </span>
                 </div>
@@ -730,15 +730,11 @@ export default function Profile() {
                         <h3 className="">interpret:</h3>
                       </div>
                       <div
-                        className={`  border-3 rounded-3xl py-1 px-3 text-center break-normal ${
-                          sameartist
-                            ? "animate-pulse text-yellow-400 border-green-400"
-                            : ""
-                        }`}
+                        className={`flex flex-col space-y-0.5 rounded-3xl py-1 px-3 text-center break-normal`}
                       >
                         {users[UserIndex]?.favorite_artist ? (
                           <>
-                            <div className="flex items-center gap-1 py-1 px-3 mb-2">
+                            <div className="flex items-center gap-1 py-1 px-3 mb-2 border-3 rounded-3xl">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
@@ -761,12 +757,12 @@ export default function Profile() {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1  py-1 px-3">
+                            <div className="flex items-center gap-1  py-1 px-3 border-3 rounded-3xl">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
                                     ?.favorite_artist2?.image ||
-                                  "/images/file.svg"
+                                  ""
                                 }
                                 alt="Album Cover"
                                 height={30}

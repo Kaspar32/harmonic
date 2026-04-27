@@ -15,9 +15,6 @@ export default function Score({ uuid }: Props) {
   useEffect(() => {
     const loadData = async () => {
       
-
-
-
       const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",
         headers: {

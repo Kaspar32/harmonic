@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export async function POST(req: Request) {
   let userfromAuth;
@@ -23,10 +23,25 @@ export async function POST(req: Request) {
   try {
     let data = await req.json();
 
-    console.log("Request body:", data.location);
+    const nearest = await db.execute(sql`
+      SELECT id
+      FROM "swissLoc"
+      ORDER BY (
+        6371 * acos(
+          cos(radians(${data.geolocation.latitude})) *
+          cos(radians("iLatitude")) *
+          cos(radians("iLongitude") - radians(${data.geolocation.longitude})) +
+          sin(radians(${data.geolocation.latitude})) *
+          sin(radians("iLatitude"))
+        )
+      )
+      LIMIT 1
+    `);
+    const id = nearest.rows[0]?.id as number | undefined;
+
     const updated = await db
       .update(users)
-      .set({ location: data.location })
+      .set({ location: data.location, locationid: id })
       .where(eq(users.uuid, userfromAuth.uuid))
       .returning();
 

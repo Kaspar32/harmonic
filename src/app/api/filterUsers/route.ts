@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { users, likes, superlikes, dislikes, settings } from "@/db/schema";
-import { eq, not, inArray, and, or, like } from "drizzle-orm";
+import { users, likes, superlikes, dislikes, settings, swissLoc } from "@/db/schema";
+import { eq, not, inArray, and, or, like, sql } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   let userfromAuth;
@@ -32,15 +32,51 @@ export async function GET(request: NextRequest) {
     .where(eq(users.uuid, userfromAuth.uuid));
 
   const [interestLocationData] = await db
-    .select({ interestLocation: settings.interest_location })
+    .select({ radius: settings.radius })
     .from(settings)
     .where(eq(settings.uuid, userfromAuth.uuid));
 
-  const interestLocation = interestLocationData?.interestLocation;
 
   const [locationResult] = await db.select({ location: users.location }).from(users).where(eq(users.uuid, userfromAuth.uuid));
   const city = locationResult?.location?.split(",")[0].trim();
   const country = locationResult?.location?.split(",")[2].trim();
+
+  let locationFilter = undefined;
+  const interestLocationNum = (interestLocationData?.radius)||0;
+
+ 
+  if (interestLocationNum === 20 && city && country) {
+    // Alter Filter: Textbasierter Stadt/Land-Vergleich
+    locationFilter = like(users.location, `${city}, %${country}`);
+  }
+  
+  else if (interestLocationNum > 1) {
+    // Neuer Radius-Filter (Kilometer)
+    // Aktuelle Koordinaten des angemeldeten Users aus der swissLoc Tabelle holen
+    const currentUserLocation = await db
+      .select({
+        lat: swissLoc.iLatitude,
+        lon: swissLoc.iLongitude,
+      })
+      .from(users)
+      .innerJoin(swissLoc, eq(users.locationid, swissLoc.id))
+      .where(eq(users.uuid, userfromAuth.uuid))
+      .then(res => res[0]);
+    
+    if (currentUserLocation?.lat != null && currentUserLocation?.lon != null) {
+      const radiusKm = interestLocationNum;
+      const lat1 = currentUserLocation.lat;
+      const lon1 = currentUserLocation.lon;
+      // Haversine-Formel als SQL-Bedingung mit EXISTS (vermeidet zusätzlichen JOIN)
+      locationFilter = sql`EXISTS (
+        SELECT 1 FROM ${swissLoc} sl 
+        WHERE sl.id = ${users.locationid} 
+        AND (6371 * acos(cos(radians(${lat1})) * cos(radians(sl."iLatitude")) * cos(radians(sl."iLongitude") - radians(${lon1})) + sin(radians(${lat1})) * sin(radians(sl."iLatitude")))) <= ${radiusKm}
+      )`;
+    }
+
+
+  }
 
   const liked = await db
     .select({ to: likes.to })
@@ -123,8 +159,8 @@ export async function GET(request: NextRequest) {
             : undefined,
         ),
 
-        // Filter by interest location - match city and country, ignore suburb
-        interestLocation === "1" && city && country ? like(users.location, `${city}, %${country}`) : undefined,
+        // Filter by interest location
+        locationFilter,
 
   
           
