@@ -140,6 +140,7 @@ export default function LikesTest() {
   }
 
   const [openProfile, setOpenProfile] = useState(false);
+  const [openblurredProfile, setOpenblurredProfile] = useState(false);
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
 
   function handlePPClick(index: number): void {
@@ -147,7 +148,30 @@ export default function LikesTest() {
     setOpenProfile(true);
   }
 
+  function handleblurrredPPClick(index: number): void {
+    setSelectedProfileIndex(index);
+    setOpenblurredProfile(true);
+  }
+
   const [openDialog, setOpenDialog] = useState(false);
+  const [hasAbo, setHasAbo] = useState(false);
+
+  useEffect(() => {
+    // Get hasAbo from DB
+
+    async function fetchAboStatus() {
+      try {
+        const res = await fetch(`/api/getAboStatus`);
+        const data = await res.json();
+
+        setHasAbo(data);
+      } catch (err) {
+        console.error("Fehler beim Laden des Abo-Status:", err);
+      }
+    }
+
+    fetchAboStatus();
+  }, []);
 
   return (
     <div className="relative">
@@ -184,12 +208,18 @@ export default function LikesTest() {
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={blurred(`/images/${img.image_path}`)}
+                          src={
+                            hasAbo
+                              ? `/images/${img.image_path}`
+                              : blurred(`/images/${img.image_path}`)
+                          }
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
                           className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => setOpenDialog(true)}
+                          onClick={() =>
+                            hasAbo ? handleblurrredPPClick(index) : setOpenDialog(true)
+                          }
                         />
                       </div>
 
@@ -211,7 +241,16 @@ export default function LikesTest() {
           {openDialog && (
             <div>
               <Popup onClose={() => setOpenDialog(false)}>
-                <div>Abos</div>
+                <div className="text-gray-700">
+                  Schliessen Sie ein Abo ab:
+                  <ul className="list-disc list-inside mt-2">
+                    <li>Mehr Superlikes</li>
+                    <li>Schaue wer dich magt</li>
+                  </ul>
+                </div>
+                <button className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 flex items-center gap-2 mt-4">
+                  Jetzt kaufen!
+                </button>
               </Popup>
             </div>
           )}
@@ -277,13 +316,21 @@ export default function LikesTest() {
       </div>
 
       {openProfile && (
-    
-           <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
-            <ProfileSingleView
-              selectedProfileIndex={selectedProfileIndex}
-              fromWhere={"likesComponent"}
-            />
-          </Popup>
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+          <ProfileSingleView
+            selectedProfileIndex={selectedProfileIndex}
+            fromWhere={"likesComponent"}
+          />
+        </Popup>
+      )}
+
+      {openblurredProfile && (
+        <Popup onClose={() => setOpenblurredProfile(false)} bgColor="bg-yellow-50">
+          <ProfileSingleView
+            selectedProfileIndex={selectedProfileIndex}
+            fromWhere={"likesComponentblurred"}
+          />
+        </Popup>
       )}
     </div>
   );

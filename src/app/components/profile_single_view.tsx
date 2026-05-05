@@ -3,90 +3,64 @@ import { useState, useEffect } from "react";
 import { UserType } from "../types/User";
 import { useUser } from "@/app/context/UserContext";
 
-
-
-
 type Props = {
-selectedProfileIndex: number;
-fromWhere: string;
-directUser?: UserType;
+  selectedProfileIndex: number;
+  fromWhere: string;
+  directUser?: UserType;
 };
 
-export default function ProfileSingleView( {selectedProfileIndex, fromWhere, directUser}:Props) {
-  const [users, setUsers] = useState<UserType[]>([]);
-  const [Images, setImages] = useState<{ image_path: string[]; user_id: string }>();
+export default function ProfileSingleView({
+  selectedProfileIndex,
+  fromWhere,
+  directUser,
+}: Props) {
+  const [User, setUser] = useState<UserType>();
+  const [Images, setImages] = useState<{
+    image_path: string[];
+    user_id: string;
+  }>();
 
-  const {user}= useUser();
+  const { user } = useUser();
 
   async function fetchusers() {
-
     let res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
-    
-    
 
-    if(fromWhere=="likesComponent")
-    {
-       res1 = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
+    if (fromWhere == "likesComponent") {
+      res1 = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
     }
-    
+
+    if (fromWhere == "likesComponentblurred") {
+      res1 = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
+    }
+
     const data1 = await res1.json();
-    const allUsers = await Promise.all(
-      data1.map(async (like: { to: string }) => {
-        try {
-          const res3 = await fetch(`/api/getuserbyid?id=${like.to}`);
-          const users = await res3.json();
-          return users[0];
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err,
-          );
-          return null;
-        }
-      }),
+
+    const targetLike = data1[selectedProfileIndex];
+    const userIdToFetch =
+      fromWhere === "likesComponentblurred" ? targetLike.from : targetLike.to;
+    const userData = await fetch(`/api/getuserbyid?id=${userIdToFetch}`).then(
+      (res) => res.json(),
     );
-    const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
 
+    setUser(userData[0]);
 
-    console.log("fetchUsers:   ", validUsers);
-
-    setUsers(validUsers);
-
-    const res2 = await fetch(`/api/getallpicsbyuserid?id=${validUsers[selectedProfileIndex].uuid}`);
-    if (!res2.ok) return;
-    const data2 = await res2.json();
-    setImages(data2);
-    
-
-  }
-
-  async function fetchDirectUser() {
-    if (!directUser?.uuid) return;
-    setUsers([directUser]);
-    const res2 = await fetch(`/api/getallpicsbyuserid?id=${directUser.uuid}`);
+    const res2 = await fetch(`/api/getallpicsbyuserid?id=${userData[0].uuid}`);
     if (!res2.ok) return;
     const data2 = await res2.json();
     setImages(data2);
   }
-
 
   useEffect(() => {
-    if (directUser) {
-      fetchDirectUser();
-    } else {
-      fetchusers();
-    }
+    fetchusers();
   }, [user, directUser]);
 
-  const [imageIndex, setImageIndex]= useState(0);
+  const [imageIndex, setImageIndex] = useState(0);
 
-  const effectiveIndex = directUser ? 0 : selectedProfileIndex;
-
-   function handleClick() {
-    if (!users[effectiveIndex]) return;
+  function handleClick() {
+    if (!User) return;
 
     const imageLength = Images?.image_path ? Images.image_path.length : 0;
-    
+
     if (Images && Images?.image_path && Images?.image_path.length === 0) return;
     setImageIndex((prev) => (prev + 1) % imageLength);
   }
@@ -94,17 +68,15 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
   return (
     <div className="flex flex-col items-center gap-2">
       <h2 className="text-2xl font-bold mb-4 text-yellow-600">
-        <p className="text-yellow-500">{users[effectiveIndex]?.name}</p>
+        <p className="text-yellow-500">{User?.name}</p>
       </h2>
 
-    
       <Image
         onClick={handleClick}
         src={`/images/${Images?.image_path?.[imageIndex] ?? "defaultProfile.png"}`}
         width={1000}
         height={1000}
         alt=""
-
         className="border-2 border-yellow-500 rounded-2xl p-1"
       />
 
@@ -121,39 +93,36 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
-        {users[effectiveIndex]?.geschlecht}
+        {User?.geschlecht}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Alter:</span>{" "}
-        {users[effectiveIndex]?.alter}
+        {User?.alter}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Standort:</span>{" "}
-        {users[effectiveIndex]?.location}
+        {User?.location}
       </p>
 
       <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
-        {users[effectiveIndex]?.groesse}
+        {User?.groesse}
       </p>
 
       <p className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
         <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
-        {users[effectiveIndex]?.genres?.join(", ")}
+        {User?.genres?.join(", ")}
       </p>
 
       <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl p-2">
         <span className="font-semibold text-gray-400">Lieblingslied:</span>
         <div className=" py-1 px-3 text-center  break-normal">
-          {users[effectiveIndex]?.favorite_track ? (
+          {User?.favorite_track ? (
             <div className="flex items-center gap-1">
               <Image
-                src={
-                  users[effectiveIndex]?.favorite_track?.image ||
-                  "/images/Home.png"
-                }
+                src={User?.favorite_track?.image || "/images/Home.png"}
                 alt="Album Cover"
                 height={30}
                 width={30}
@@ -162,10 +131,10 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
               />
               <div className="md:w-full max-w-[120px]">
                 <div className="font-semibold text-yellow-500">
-                  {users[effectiveIndex]?.favorite_track?.name}
+                  {User?.favorite_track?.name}
                 </div>
                 <div className="text-sm text-yellow-500">
-                  {users[effectiveIndex]?.favorite_track?.artist}
+                  {User?.favorite_track?.artist}
                 </div>
               </div>
             </div>
@@ -176,14 +145,19 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
       </div>
 
       <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-        <span className="font-semibold text-gray-400">Lieblingsinterpreten:</span>{" "}
+        <span className="font-semibold text-gray-400">
+          Lieblingsinterpreten:
+        </span>{" "}
         <div className=" py-1 px-3 text-center  break-normal">
-          {users[effectiveIndex]?.favorite_artist ? (
+          {User?.favorite_artist ? (
             <div className="flex flex-wrap items-center gap-2 ">
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist1 && (
+              {User?.favorite_artist?.favorite_artist1 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist1?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist1?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -192,15 +166,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist1?.name} 
+                      {User?.favorite_artist?.favorite_artist1?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist2 && (
+              {User?.favorite_artist?.favorite_artist2 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist2?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist2?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -209,15 +186,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist2?.name} 
+                      {User?.favorite_artist?.favorite_artist2?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist3 && (
+              {User?.favorite_artist?.favorite_artist3 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist3?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist3?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -226,15 +206,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist3?.name} 
+                      {User?.favorite_artist?.favorite_artist3?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist4 && (
+              {User?.favorite_artist?.favorite_artist4 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist4?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist4?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -243,15 +226,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist4?.name} 
+                      {User?.favorite_artist?.favorite_artist4?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist5 && (
+              {User?.favorite_artist?.favorite_artist5 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist5?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist5?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -260,15 +246,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist5?.name} 
+                      {User?.favorite_artist?.favorite_artist5?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist6 && (
+              {User?.favorite_artist?.favorite_artist6 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist6?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist6?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -277,15 +266,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist6?.name} 
+                      {User?.favorite_artist?.favorite_artist6?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist7 && (
+              {User?.favorite_artist?.favorite_artist7 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist7?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist7?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -294,15 +286,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist7?.name} 
+                      {User?.favorite_artist?.favorite_artist7?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist8 && (
+              {User?.favorite_artist?.favorite_artist8 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist8?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist8?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -311,15 +306,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist8?.name} 
+                      {User?.favorite_artist?.favorite_artist8?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist9 && (
+              {User?.favorite_artist?.favorite_artist9 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist9?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist9?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -328,15 +326,18 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist9?.name} 
+                      {User?.favorite_artist?.favorite_artist9?.name}
                     </div>
                   </div>
                 </div>
               )}
-              {users[effectiveIndex]?.favorite_artist?.favorite_artist10 && (
+              {User?.favorite_artist?.favorite_artist10 && (
                 <div className="flex items-center gap-1">
                   <Image
-                    src={users[effectiveIndex]?.favorite_artist?.favorite_artist10?.image || "/images/Home.png"}
+                    src={
+                      User?.favorite_artist?.favorite_artist10?.image ||
+                      "/images/Home.png"
+                    }
                     alt="Lieblingsinterpret Bild"
                     height={30}
                     width={30}
@@ -345,7 +346,7 @@ export default function ProfileSingleView( {selectedProfileIndex, fromWhere, dir
                   />
                   <div className="md:w-full max-w-[120px]">
                     <div className="font-semibold text-yellow-500">
-                      {users[effectiveIndex]?.favorite_artist?.favorite_artist10?.name}
+                      {User?.favorite_artist?.favorite_artist10?.name}
                     </div>
                   </div>
                 </div>

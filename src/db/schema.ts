@@ -89,6 +89,14 @@ export const questionaires = pgTable("questionaires", {
   answers: jsonb("answers").$type<Record<string, string>>().notNull(),
 }); 
 
+export const Abos = pgTable("abos", {
+  id: serial("id").primaryKey(),
+  user_uuid: uuid("user_uuid").references(() => users.uuid).notNull(),
+  abo: boolean().default(false),
+  start_date: timestamp("start_date").defaultNow().notNull(),
+  end_date: timestamp("end_date").notNull(),
+});
+
 export const swissLoc = pgTable(
   "swissLoc",
   {

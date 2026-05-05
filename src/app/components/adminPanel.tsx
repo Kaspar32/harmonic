@@ -178,9 +178,6 @@ type Reports = {
                 )}
               </div>
             </div>
-
-
-
           </div>
         </div>
       )}
