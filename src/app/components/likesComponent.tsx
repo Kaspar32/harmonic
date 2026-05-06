@@ -197,6 +197,20 @@ export default function LikesTest() {
     fetchAboStatus();
   }, []);
 
+  async function opencheckout() {
+    const res = await fetch("/api/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user?.uuid, // wichtig!
+      }),
+    });
+
+    const data = await res.json();
+
+    window.location.href = data.url;
+  }
+
   return (
     <div className="relative">
       {/* Button: Likes You */}
@@ -274,7 +288,10 @@ export default function LikesTest() {
                     <li>Schaue wer dich magt</li>
                   </ul>
                 </div>
-                <button className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 flex items-center gap-2 mt-4">
+                <button
+                  onClick={opencheckout}
+                  className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 flex items-center gap-2 mt-4"
+                >
                   Jetzt kaufen!
                 </button>
               </Popup>

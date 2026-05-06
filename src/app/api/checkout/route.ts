@@ -1,6 +1,5 @@
-import Stripe from "stripe";
+import { stripe } from "@/lib/stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: Request) {
   const { userId } = await req.json();
@@ -21,16 +20,14 @@ export async function POST(req: Request) {
       },
     ],
 
-    automatic_payment_methods: {
-      enabled: true,
-    },
-
     metadata: {
       userId,
     },
 
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/likes`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cancel`,
   });
 
   return Response.json({ url: session.url });
+
+}
