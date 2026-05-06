@@ -57,8 +57,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
       });
       const data = await res.json();
 
-      console.log("Empfangene antworten:", data[0].answers.question1);
-      setAnswers(data[0].answers);
+      setAnswers(data[0]?.answers);
     };
 
     loadData();

@@ -136,72 +136,6 @@ export default function Profil_Edit() {
     }
   }, []);
 
-  //Spotify-Daten
-  /*
-  const [spotifyLoggedIn, setSpotifyLoggedIn] = useState(false);
-  const [topTracks, setTopTracks] = useState<
-    { name: string; artist: string; image: string | null }[]
-  >([]);
-
-  const [topArtist, setTopArtist] = useState<
-    { id: string; name: string; image: string | null; genres: string }[]
-  >([]);
-
-  const client_id = "f0a194a6e44b425fbdf257fb380beb48";
-  const redirect_uri = "http://127.0.0.1:3000/api/auth/callback/spotify";
-  const scope = "user-top-read";
-
-  const spotifyLoginUrl =
-    `https://accounts.spotify.com/authorize?` +
-    new URLSearchParams({
-      response_type: "code",
-      client_id,
-      scope,
-      redirect_uri,
-    }).toString();
-
-  useEffect(() => {
-    async function loadSpotifyData() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const dataParam = urlParams.get("data");
-
-      if (dataParam != null) {
-        setSpotifyLoggedIn(true);
-        const parsed = JSON.parse(dataParam);
-
-        console.log("parsed:", parsed);
-
-        if (parsed) {
-          setTopTracks(parsed.topTracks);
-          setTopArtist(parsed.topArtist);
-
-          const res = await fetch("/api/getuserdata");
-          const data = await res.json();
-
-          fetch("/api/addspotifydata", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ data: parsed, userId: data.uuid }),
-          })
-            .then((res) => {
-              if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-              return res.json();
-            })
-            .then((data) => {
-              console.log("Erfolgreich gespeichert:", data);
-            })
-            .catch((err) => {
-              console.error("Speicherfehler:", err);
-            });
-        }
-      }
-    }
-
-    loadSpotifyData();
-  }, []);*/
-
   {
     /* Deezer-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
   }
@@ -321,34 +255,37 @@ export default function Profil_Edit() {
     });
   }
 
-  // 💾 ARTIST SPEICHERN
-  function saveArtist(index: number) {
-    const selectedArtist = artists.find((a) => a.isSelected);
-    if (!selectedArtist) return;
+   // 💾 ARTIST SPEICHERN
+   async function saveArtist(index: number) {
+     const selectedArtist = artists.find((a) => a.isSelected);
+     if (!selectedArtist) return;
 
-    const artistData = {
-      name: selectedArtist.name,
-      image: selectedArtist.images?.[0]?.url ?? null,
-    };
+     const artistData = {
+       name: selectedArtist.name,
+       image: selectedArtist.images?.[0]?.url ?? null,
+     };
 
-    setUserData((prev: any) => ({
-      ...prev,
-      favorite_artist: {
-        ...prev.favorite_artist,
-        [`favorite_artist${index}`]: artistData,
-      },
-    }));
-  }
+     // Build the updated favorite_artist object based on current state
+     const updatedFavoriteArtist = {
+       ...userData.favorite_artist,
+       [`favorite_artist${index}`]: artistData,
+     };
 
-  function ArtistinDB() {
-    fetch("/api/savefavoriteartist", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(userData.favorite_artist),
-    });
-  }
+     // Update local state
+     setUserData(prev => ({
+       ...prev,
+       favorite_artist: updatedFavoriteArtist,
+     }));
+
+     // Persist to backend
+     await fetch("/api/savefavoriteartist", {
+       method: "POST",
+       headers: {
+         "Content-Type": "application/json",
+       },
+       body: JSON.stringify(updatedFavoriteArtist),
+     });
+   }
 
   // 🎧 AUDIO PREVIEW
   function playTrack(track: Track) {
@@ -1398,16 +1335,6 @@ export default function Profil_Edit() {
                       </div>
                     )}
                   </div>
-
-                  <button
-                    onClick={() => {
-                      setFavoriteBand(false);
-                      ArtistinDB();
-                    }}
-                    className="bg-yellow-400 text-white border-t-2 border-slate-200 px-3 py-2 mt-2  rounded-md hover:bg-yellow-500 transition w-full"
-                  >
-                    Speichern
-                  </button>
                 </PopUp>
               </div>
             )}

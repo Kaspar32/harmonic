@@ -373,6 +373,30 @@ export default function Profile() {
     }
   }
 
+  // 🎧 FETCH FRESH PREVIEW FROM DEEZER
+  async function fetchDeezerPreview(
+    trackName: string | null,
+    artistName: string | null,
+  ): Promise<string | null> {
+    if (!trackName || !artistName) return null;
+
+    try {
+      // Suchbegriff: "Track Artist" – du kannst das Format anpassen, falls nötig
+      const query = encodeURIComponent(`${trackName} ${artistName}`);
+      const res = await fetch(`/api/deezer-search?q=${query}`);
+
+      if (!res.ok) throw new Error("Deezer search failed");
+
+      const data = await res.json();
+      // Deezer liefert ein Array unter `data.data`; wir nehmen das erste Ergebnis
+      const firstTrack = data.data?.[0];
+      return firstTrack?.preview ?? null;
+    } catch (err) {
+      console.error("Fehler beim Abruf der Deezer‑Preview:", err);
+      return null;
+    }
+  }
+
   return (
     <div className="">
       {isMatched && buttonsDisabled && (
@@ -449,9 +473,7 @@ export default function Profile() {
                 className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
                 onClick={handlesuperlike}
               >
-                
                 <div>
-                   
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -464,7 +486,6 @@ export default function Profile() {
                       clipRule="evenodd"
                     />
                   </svg>
-                 
                 </div>
               </button>
 
@@ -669,7 +690,7 @@ export default function Profile() {
                               style={{ objectFit: "cover" }} // schneidet es sauber zu
                               quality={100}
                             />
-                            
+
                             <div className="md:w-full max-w-[80px] min-w-0">
                               <p className="font-semibold truncate">
                                 {users[UserIndex]?.favorite_track?.name}
@@ -680,11 +701,23 @@ export default function Profile() {
                             </div>
 
                             <button
-                              onClick={() =>
-                                playTrack(
-                                  users[UserIndex]?.favorite_track?.preview,
-                                )
-                              }
+                              onClick={async () => {
+                                const track = users[UserIndex]?.favorite_track;
+                                if (!track) return;
+
+                                // Optional: Lade‑Indikator zeigen (z. B. Button kurz deaktivieren)
+                                const freshPreview = await fetchDeezerPreview(
+                                  track.name,
+                                  track.artist,
+                                );
+                                if (freshPreview) {
+                                  playTrack(freshPreview); // nutzt deine bestehende Audio‑Logik
+                                } else {
+                                  alert(
+                                    "Konnte keinen aktuellen Preview‑Link von Deezer abrufen.",
+                                  );
+                                }
+                              }}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -699,13 +732,7 @@ export default function Profile() {
                                 />
                               </svg>
                             </button>
-                            <button
-                              onClick={() =>
-                                pauseTrack(
-                                  users[UserIndex]?.favorite_track?.preview,
-                                )
-                              }
-                            >
+                            <button  onClick={() => pauseTrack(null)}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -730,16 +757,16 @@ export default function Profile() {
                         <h3 className="">interpret:</h3>
                       </div>
                       <div
-                        className={`flex flex-col space-y-0.5 rounded-3xl py-1 px-3 text-center break-normal`}
+                        className={`flex flex-col space-y-0.5 border-3 rounded-3xl py-1 px-3 text-center break-normal`}
                       >
                         {users[UserIndex]?.favorite_artist ? (
                           <>
-                            <div className="flex items-center gap-1 py-1 px-3 mb-2 border-3 rounded-3xl">
+                            <div className="flex items-center gap-1 py-1 px-3 mb-2">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
                                     ?.favorite_artist1?.image ||
-                                  "/images/file.svg"
+                                   "/music2.svg"
                                 }
                                 alt="Album Cover"
                                 height={30}
@@ -757,12 +784,11 @@ export default function Profile() {
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-1  py-1 px-3 border-3 rounded-3xl">
+                            <div className="flex items-center gap-1  py-1 px-3">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
-                                    ?.favorite_artist2?.image ||
-                                  ""
+                                    ?.favorite_artist2?.image || "/music2.svg"
                                 }
                                 alt="Album Cover"
                                 height={30}
