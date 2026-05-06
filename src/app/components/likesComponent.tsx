@@ -6,12 +6,18 @@ import { Loader2 } from "lucide-react";
 import { useUser } from "@/app/context/UserContext";
 import Popup from "./popup";
 import ProfileSingleView from "./profile_single_view";
+import { likesCache } from "@/lib/likesCache";
 
 export default function LikesTest() {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   //Fetche Likes und die Daten dazu und speichere das Bild von jenem die du geliket hast
-  async function fetchlikes() {
+  async function fetchlikes(force = false) {
+    if (likesCache.likes && !force) {
+      setImages_likes(likesCache.likes.images);
+      setUsers_Likes(likesCache.likes.users);
+      return;
+    }
     setLoading(true);
 
     const res = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
@@ -56,12 +62,24 @@ export default function LikesTest() {
     );
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
 
+    // Cache speichern
+    likesCache.likes = {
+      images: validImages,
+      users: validUsers,
+    };
     // Setze den State mit nur den ersten Bildern
     setImages_likes(validImages);
     setUsers_Likes(validUsers);
   }
 
-  async function fetchLikesyou() {
+  async function fetchLikesyou(force = false) {
+    if (likesCache.likesYou && !force) {
+      setImages_youlikes(likesCache.likesYou.images);
+      setUsers_youLikes(likesCache.likesYou.users);
+      return;
+    }
+    setLoading(true);
+
     //getLikes by uuid
     const res = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
     const data = await res.json();
@@ -102,6 +120,12 @@ export default function LikesTest() {
       Boolean(img) ? img : null,
     );
     const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
+
+    //  CACHE SPEICHERN
+    likesCache.likesYou = {
+      images: validImages,
+      users: validUsers,
+    };
 
     setImages_youlikes(validImages);
     setUsers_youLikes(validUsers);
@@ -164,7 +188,7 @@ export default function LikesTest() {
         const res = await fetch(`/api/getAboStatus`);
         const data = await res.json();
 
-        setHasAbo(data);
+        setHasAbo(data || null);
       } catch (err) {
         console.error("Fehler beim Laden des Abo-Status:", err);
       }
@@ -218,7 +242,9 @@ export default function LikesTest() {
                           height={96}
                           className="w-full h-full object-cover cursor-pointer"
                           onClick={() =>
-                            hasAbo ? handleblurrredPPClick(index) : setOpenDialog(true)
+                            hasAbo
+                              ? handleblurrredPPClick(index)
+                              : setOpenDialog(true)
                           }
                         />
                       </div>
@@ -325,7 +351,10 @@ export default function LikesTest() {
       )}
 
       {openblurredProfile && (
-        <Popup onClose={() => setOpenblurredProfile(false)} bgColor="bg-yellow-50">
+        <Popup
+          onClose={() => setOpenblurredProfile(false)}
+          bgColor="bg-yellow-50"
+        >
           <ProfileSingleView
             selectedProfileIndex={selectedProfileIndex}
             fromWhere={"likesComponentblurred"}
