@@ -723,7 +723,7 @@ export default function Profile() {
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="size-6"
+                                className="size-6 hover:text-green-500 transition-colors duration-300"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -737,7 +737,7 @@ export default function Profile() {
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="size-6"
+                                className="size-6 hover:text-red-500 transition-colors duration-300"
                               >
                                 <path
                                   fillRule="evenodd"

@@ -373,7 +373,7 @@ export default function Profil_Edit() {
                     setName(false);
                     await updateUser({ name: Temp_Name });
                   }}
-                >
+                disabled>
                   Speichern
                 </button>
               </PopUp>
@@ -855,7 +855,7 @@ export default function Profil_Edit() {
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
                               fill="currentColor"
-                              className="size-6"
+                              className="size-6 hover:text-green-500 transition-colors duration-300 border-1 rounded-lg"
                             >
                               <path
                                 fillRule="evenodd"
@@ -869,7 +869,7 @@ export default function Profil_Edit() {
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
                               fill="currentColor"
-                              className="size-6"
+                              className="size-6 hover:text-red-500 transition-colors duration-300 border-1 rounded-lg"
                             >
                               <path
                                 fillRule="evenodd"

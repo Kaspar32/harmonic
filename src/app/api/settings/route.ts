@@ -74,10 +74,10 @@ export async function POST(request: Request) {
     if (existingSettings.length > 0) {
       await db
         .update(settings)
-        .set({ intresse: intresse, alter: alter, interest_location: interest_location, radius: radius })
+        .set({ intresse: intresse, alter: alter, radius: radius })
         .where(eq(settings.uuid, userfromAuth.uuid));
     } else {
-      await db.insert(settings).values({ intresse, uuid: userfromAuth.uuid, alter, interest_location, radius });
+      await db.insert(settings).values({ intresse, uuid: userfromAuth.uuid, alter, radius });
     }
 
     return new Response(JSON.stringify({ message: "Settings added" }), {

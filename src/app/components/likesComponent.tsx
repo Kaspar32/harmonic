@@ -12,145 +12,29 @@ export default function LikesTest() {
   const [loading, setLoading] = useState(false);
   const { user } = useUser();
   //Fetche Likes und die Daten dazu und speichere das Bild von jenem die du geliket hast
-  async function fetchlikes(force = false) {
-    if (likesCache.likes && !force) {
-      setImages_likes(likesCache.likes.images);
-      setUsers_Likes(likesCache.likes.users);
-      return;
-    }
-    setLoading(true);
 
-    const res = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
+  async function fetchlikes()
+  {
+    const res = await fetch(`/api/getlikesfull?id=${user?.uuid}`);
     const data = await res.json();
 
-    const allFirstImages = await Promise.all(
-      data.map(async (like: { to: string }) => {
-        try {
-          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.to}`);
-          const pics = await res2.json();
-          return pics;
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
+    setUsers_Likes(data);
 
-    const allUsers = await Promise.all(
-      data.map(async (like: { to: string }) => {
-        try {
-          const res3 = await fetch(`/api/getuserbyid?id=${like.to}`);
-          const users = await res3.json();
-          return users[0];
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
+    console.log("Neue daten:",data);
 
-    //Behalte den Index auch wenn es kein Bild gibt
-
-    const validImages = allFirstImages.map((img) =>
-      Boolean(img) ? img : null,
-    );
-    const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
-
-    // Cache speichern
-    likesCache.likes = {
-      images: validImages,
-      users: validUsers,
-    };
-    // Setze den State mit nur den ersten Bildern
-    setImages_likes(validImages);
-    setUsers_Likes(validUsers);
   }
 
-  async function fetchLikesyou(force = false) {
-    if (likesCache.likesYou && !force) {
-      setImages_youlikes(likesCache.likesYou.images);
-      setUsers_youLikes(likesCache.likesYou.users);
-      return;
-    }
-    setLoading(true);
-
-    //getLikes by uuid
-    const res = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
+  async function fetchLikesyou() {
+    const res = await fetch(`/api/getlikesyoufull?id=${user?.uuid}`);
     const data = await res.json();
+    setUsers_youLikes(data);
 
-    const allFirstImages = await Promise.all(
-      data.map(async (like: { from: string }) => {
-        try {
-          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.from}`);
-          const pics = await res2.json();
-          return pics; // nur das erste Bild zurückgeben
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.from}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
-
-    const allUsers = await Promise.all(
-      data.map(async (like: { from: string }) => {
-        try {
-          const res3 = await fetch(`/api/getuserbyid?id=${like.from}`);
-          const users = await res3.json();
-          return users[0]; // nur das erste Bild zurückgeben
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.from}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
-
-    const validImages = allFirstImages.map((img) =>
-      Boolean(img) ? img : null,
-    );
-    const validUsers = allUsers.map((user) => (Boolean(user) ? user : null));
-
-    //  CACHE SPEICHERN
-    likesCache.likesYou = {
-      images: validImages,
-      users: validUsers,
-    };
-
-    setImages_youlikes(validImages);
-    setUsers_youLikes(validUsers);
-
-    setLoading(false);
   }
 
   useEffect(() => {
     fetchlikes();
     fetchLikesyou();
   }, [user]);
-
-  const [images_youlikes, setImages_youlikes] = useState<
-    {
-      user_id: string;
-      image_path: string;
-    }[]
-  >([]);
-
-  const [images_likes, setImages_likes] = useState<
-    {
-      user_id: string;
-      image_path: string;
-    }[]
-  >([]);
 
   const [users_likes, setUsers_Likes] = useState<UserType[]>([]);
   const [users_youlikes, setUsers_youLikes] = useState<UserType[]>([]);
@@ -181,6 +65,7 @@ export default function LikesTest() {
   const [hasAbo, setHasAbo] = useState(false);
 
   useEffect(() => {
+    
     // Get hasAbo from DB
 
     async function fetchAboStatus() {
@@ -237,9 +122,9 @@ export default function LikesTest() {
 
           {!loading && (
             <>
-              {images_youlikes.length > 0 ? (
-                images_youlikes.map((img, index) =>
-                  img?.image_path ? (
+              {users_youlikes.length > 0 ? (
+                users_youlikes.map((user, index) =>
+                  user?.profile_pics ? (
                     <div
                       key={index}
                       className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
@@ -248,8 +133,8 @@ export default function LikesTest() {
                         <Image
                           src={
                             hasAbo
-                              ? `/images/${img.image_path}`
-                              : blurred(`/images/${img.image_path}`)
+                              ? `/images/${user.profile_pics[0]}`
+                              : blurred(`/images/${user.profile_pics[0]}`)
                           }
                           alt={`Bild ${index + 1}`}
                           width={96}
@@ -324,16 +209,16 @@ export default function LikesTest() {
 
           {!loading && (
             <>
-              {images_likes.length > 0 ? (
-                images_likes.map((img, index) =>
-                  img?.image_path ? (
+              {users_likes.length > 0 ? (
+                users_likes.map((users, index) =>
+                  users?.profile_pics? (
                     <div
                       key={index}
                       className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={`/images/${img.image_path}`}
+                          src={`/images/${users.profile_pics[0]}`}
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
