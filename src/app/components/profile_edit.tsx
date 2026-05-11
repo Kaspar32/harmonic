@@ -255,37 +255,37 @@ export default function Profil_Edit() {
     });
   }
 
-   // 💾 ARTIST SPEICHERN
-   async function saveArtist(index: number) {
-     const selectedArtist = artists.find((a) => a.isSelected);
-     if (!selectedArtist) return;
+  // 💾 ARTIST SPEICHERN
+  async function saveArtist(index: number) {
+    const selectedArtist = artists.find((a) => a.isSelected);
+    if (!selectedArtist) return;
 
-     const artistData = {
-       name: selectedArtist.name,
-       image: selectedArtist.images?.[0]?.url ?? null,
-     };
+    const artistData = {
+      name: selectedArtist.name,
+      image: selectedArtist.images?.[0]?.url ?? null,
+    };
 
-     // Build the updated favorite_artist object based on current state
-     const updatedFavoriteArtist = {
-       ...userData.favorite_artist,
-       [`favorite_artist${index}`]: artistData,
-     };
+    // Build the updated favorite_artist object based on current state
+    const updatedFavoriteArtist = {
+      ...userData.favorite_artist,
+      [`favorite_artist${index}`]: artistData,
+    };
 
-     // Update local state
-     setUserData(prev => ({
-       ...prev,
-       favorite_artist: updatedFavoriteArtist,
-     }));
+    // Update local state
+    setUserData((prev) => ({
+      ...prev,
+      favorite_artist: updatedFavoriteArtist,
+    }));
 
-     // Persist to backend
-     await fetch("/api/savefavoriteartist", {
-       method: "POST",
-       headers: {
-         "Content-Type": "application/json",
-       },
-       body: JSON.stringify(updatedFavoriteArtist),
-     });
-   }
+    // Persist to backend
+    await fetch("/api/savefavoriteartist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedFavoriteArtist),
+    });
+  }
 
   // 🎧 AUDIO PREVIEW
   function playTrack(track: Track) {
@@ -373,7 +373,8 @@ export default function Profil_Edit() {
                     setName(false);
                     await updateUser({ name: Temp_Name });
                   }}
-                disabled>
+                  disabled
+                >
                   Speichern
                 </button>
               </PopUp>
@@ -810,12 +811,18 @@ export default function Profil_Edit() {
                       className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
                       placeholder="Tippen Sie hier..."
                       onChange={(event) => setSearchInput(event.target.value)}
+                      onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        search;
+                      }
+                    }}
                     />
                   </div>
 
                   {/* ssearch button */}
                   <button
                     onClick={search}
+                    
                     className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
                   >
                     Suche
@@ -855,7 +862,7 @@ export default function Profil_Edit() {
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
                               fill="currentColor"
-                              className="size-6 hover:text-green-500 transition-colors duration-300 border-1 rounded-lg"
+                              className="size-6 hover:text-green-500  hover:scale-150 transition-colors duration-300 mr-3"
                             >
                               <path
                                 fillRule="evenodd"
@@ -869,7 +876,7 @@ export default function Profil_Edit() {
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 24 24"
                               fill="currentColor"
-                              className="size-6 hover:text-red-500 transition-colors duration-300 border-1 rounded-lg"
+                              className="size-6 hover:text-red-500 hover:scale-150 transition-colors duration-300 "
                             >
                               <path
                                 fillRule="evenodd"

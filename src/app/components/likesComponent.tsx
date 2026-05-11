@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { useUser } from "@/app/context/UserContext";
 import Popup from "./popup";
 import ProfileSingleView from "./profile_single_view";
-import { likesCache } from "@/lib/likesCache";
 
 export default function LikesTest() {
   const [loading, setLoading] = useState(false);
@@ -19,8 +18,6 @@ export default function LikesTest() {
     const data = await res.json();
 
     setUsers_Likes(data);
-
-    console.log("Neue daten:",data);
 
   }
 
@@ -87,7 +84,7 @@ export default function LikesTest() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: user?.uuid, // wichtig!
+        userId: user?.uuid, 
       }),
     });
 

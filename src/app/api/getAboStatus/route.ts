@@ -28,7 +28,7 @@ let userfromAuth;
 
   const aboStatus = await db.select().from(Abos).where(eq(Abos.user_uuid, userfromAuth.uuid));
 
-  let abo =  aboStatus[0]?.abo && aboStatus[0]?.end_date && new Date(aboStatus[0]?.end_date) > new Date();
+  let abo =  aboStatus[0]?.abo && aboStatus[0]?.end_date && new Date(aboStatus[0]?.end_date) > new Date() || false;
 
 return  Response.json(abo);
 
