@@ -6,11 +6,14 @@ interface NotificationContextProps{
 
   addNotification: (from:string )=> void;
   notifications: Notification[];
+  sameTasteNotifications: Notification[];
+  addSameTasteNotification: (to:string )=> void;
 } 
 
 interface Notification{
 
-  from: string;
+  from?: string;
+  to?:string;
 }
 
 
@@ -23,6 +26,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
 
   const[notifications, setNotifications]= useState<Notification[]>([]);
+  const [sameTasteNotifications, setSameTasteNotifications]= useState<Notification[]>([]);
 
 
   function addNotification(from: string )
@@ -31,15 +35,15 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({
 
   }
 
-    
+  function addSameTasteNotification(to: string)
+  {
+    setSameTasteNotifications((prev) => [...prev,{to}]);
+  }
 
-
-
-
-
+  
 
      return (
-    <NotificationContext.Provider value={{ addNotification, notifications }}>
+    <NotificationContext.Provider value={{ addNotification, notifications, sameTasteNotifications, addSameTasteNotification }}>
       {children}
     </NotificationContext.Provider>
   );

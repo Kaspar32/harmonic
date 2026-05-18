@@ -11,6 +11,7 @@ import Score from "./score";
 import { useUser } from "@/app/context/UserContext";
 import SuperLike_Animation from "./superlike_animation";
 import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -114,7 +115,9 @@ export default function Profile() {
     setCurrentIndex((prev) => (prev + 1) % imageLength);
   }
 
-  //---- spotify zeugs ----
+  //---- deezer zeugs ----
+
+  const { addSameTasteNotification } = useNotification();
   async function calculateGenres(i: number) {
     const res1 = await fetch("/api/getuserdata");
     const data1 = await res1.json();
@@ -122,7 +125,12 @@ export default function Profile() {
     const filteredUsers = await fetchUsers();
 
     if (arraysHaveCommonElement(data1.genres, filteredUsers[i].genres)) {
+
       setSamegenres(true);
+      // Anfangsnachricht schicken in chatter, wenn gleiche Genres
+
+      addSameTasteNotification(filteredUsers[i].uuid);
+
     }
 
     if (data1.favorite_artist && filteredUsers[i].favorite_artist) {

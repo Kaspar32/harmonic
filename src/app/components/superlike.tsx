@@ -106,10 +106,6 @@ export default function Superlike({ onImageClick }: Props) {
 
     showSuperlikes();
 
-
-
-
-
   }
 
   async function unliked(index: number) {

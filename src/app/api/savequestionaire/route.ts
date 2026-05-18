@@ -9,8 +9,11 @@ export async function GET(req: NextRequest) {
 
   const uuid = searchParams.get("uuid");
 
-  if (!uuid) {
-    return NextResponse.json({ message: "Missing uuid" }, { status: 400 });
+   if (!uuid || uuid === "undefined") {
+    return NextResponse.json(
+      { error: "Invalid UUID" },
+      { status: 400 }
+    );
   }
 
   try {
@@ -27,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const { uuid, question1, question2, question3, question4, question5, question6 } = body;
+  const { uuid, question1, question2, question3, question4, question5, question6, question7, question8 } = body;
 
   const existing = await db
     .select()
@@ -45,6 +48,8 @@ export async function POST(request: Request) {
           question4,
           question5,
           question6,
+          question7,
+          question8
         },
       })
       .where(eq(questionaires.uuid, uuid));
@@ -69,6 +74,8 @@ export async function POST(request: Request) {
         question4,
         question5,
         question6,
+        question7,
+        question8
       },
     });
     return NextResponse.json({ success: true });

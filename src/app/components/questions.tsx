@@ -10,6 +10,8 @@ export default function Questions({ onClose }: { onClose: () => void }) {
     question4?: string;
     question5?: string;
     question6?: string;
+    question7?: string;
+    question8?: string;
   }
 
   const [question1, setQuestion1] = useState("");
@@ -18,6 +20,8 @@ export default function Questions({ onClose }: { onClose: () => void }) {
   const [question4, setQuestion4] = useState("");
   const [question5, setQuestion5] = useState("");
   const [question6, setQuestion6] = useState("");
+  const [question7, setQuestion7] = useState("");
+  const [question8, setQuestion8] = useState("");
 
   const {user} = useUser();
 
@@ -31,6 +35,8 @@ export default function Questions({ onClose }: { onClose: () => void }) {
       question4,
       question5,
       question6,
+      question7,
+      question8,
       uuid: user?.uuid,
     };
 
@@ -47,6 +53,13 @@ export default function Questions({ onClose }: { onClose: () => void }) {
   const [answers, setAnswers] = useState<Questions>({});
 
   useEffect(() => {
+
+    if(!user?.uuid && user?.uuid === undefined)
+    {
+      alert("Sie müssen eingeloggt sein, um auf diese Seite zuzugreifen.");
+    }
+
+
     const loadData = async () => {
 
       const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
@@ -74,6 +87,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
     if (answers?.question6) {
       setQuestion6(answers.question6);
     }
+
   }, [answers]);
 
   return (
@@ -203,6 +217,39 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <option>Jazz</option>
         <option>...</option>
       </select>
+
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+        Welches Lied ist dein Guilty Pleasure?
+      </p>
+
+      <input
+        onChange={(e) => setQuestion7(e.target.value)}
+        defaultValue={answers?.question7}
+        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        placeholder="Liedtitel"
+      />
+
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+        Gibt es ein Lied, das dich immer emotional trifft?
+      </p>
+
+      <input
+        onChange={(e) => setQuestion8(e.target.value)}
+        defaultValue={answers?.question8}
+        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        placeholder="Liedtitel"
+      />
+
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+        Welchen Künstler würdest du sofort live sehen wollen?
+      </p>
+
+      <input
+        onChange={(e) => setQuestion8(e.target.value)}
+        defaultValue={answers?.question8}
+        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        placeholder="Liedtitel"
+      />
 
       <button
         onClick={() => {saveAnswers()}}

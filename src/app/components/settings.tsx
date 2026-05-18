@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
+import { useUser } from "../context/UserContext";
 
 export default function Settings() {
   const [interest, setInterest] = useState("");
   const [alter, setAlter] = useState<number[]>([20, 50]);
   const [radius, setRadius] = useState<number[]>([Infinity]);
   const [interestLocation, setInterestLocation] = useState("");
+
+  
 
   function handleInteressiertAn(event: React.ChangeEvent<HTMLSelectElement>) {
     setInterest(event.target.value);
@@ -36,7 +39,14 @@ export default function Settings() {
     window.location.href = "/home";
   }
 
-  function deleteaccount() {}
+  const {user} = useUser();
+
+  function deleteaccount() {
+
+    
+
+
+  }
 
   useEffect(() => {
     async function fetchSettings() {

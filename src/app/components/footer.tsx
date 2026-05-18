@@ -29,9 +29,6 @@ export default function Footer() {
 
     async function checkNewMatchMessages() {
       // Checken obs ein neuer Match gegeben hat::::::
-      
-
-      
 
       //alert("Test"+data1.uuid);
       const res2 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
@@ -46,9 +43,6 @@ export default function Footer() {
       if (data.length > 0 && data[data.length - 1]?.id > lastId) {
         //alert("test");
         setNewMatch(true);
-
-
-
 
         localStorage.setItem(storageKey, String(data[data.length - 1].id));
       }

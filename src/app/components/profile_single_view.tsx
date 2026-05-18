@@ -23,12 +23,16 @@ export default function ProfileSingleView({
   const { user } = useUser();
 
   async function fetchusers() {
+
+    // Handhabung wenn die Anfrage vom chatter kommt
     let res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
 
+    // Handhabung wenn die Anfrage von der likesComponent kommt
     if (fromWhere == "likesComponent") {
       res1 = await fetch(`/api/getlikesbyid?id=${user?.uuid}`);
     }
 
+    // Handhabung wenn die Anfrage von der likesComponent kommt und die Bilder freigegeben wurden, also im sonst blurred Bereich geklickt wurde
     if (fromWhere == "likesComponentblurred") {
       res1 = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
     }
@@ -44,7 +48,14 @@ export default function ProfileSingleView({
 
     setUser(userData[0]);
 
-    const res2 = await fetch(`/api/getallpicsbyuserid?id=${userData[0].uuid}`);
+    if(directUser)
+    {
+        setUser(directUser);
+    }
+
+    const userIdtoFetch= directUser ? directUser.uuid : userData[0].uuid;
+
+    const res2 = await fetch(`/api/getallpicsbyuserid?id=${userIdtoFetch}`);
     if (!res2.ok) return;
     const data2 = await res2.json();
     setImages(data2);

@@ -170,5 +170,8 @@ export async function GET(request: NextRequest) {
     );
   //console.log('alle gefilterten userss:', allUsers);
 
+  // Ranking der Nutzer
+  // has Boost: * 1.5
+
   return NextResponse.json(allUsers);
 }

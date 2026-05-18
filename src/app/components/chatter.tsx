@@ -4,7 +4,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import { UserType } from "../types/User";
 import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
-import { Loader2 } from "lucide-react";
+import { Loader2, Music } from "lucide-react";
 import ProfileSingleView from "./profile_single_view";
 import Superlike from "./superlike";
 import { useNotification } from "../context/NotificationContext";
@@ -138,8 +138,6 @@ export default function Chatter() {
     });
 
     socket.on("user-online", (data: { userId: string; online: boolean }) => {
-      
-      
       setOnlineUsers((prev) => {
         const updated = new Set(prev);
         if (data.online) {
@@ -159,7 +157,7 @@ export default function Chatter() {
 
   useEffect(() => {
     if (!socketRef.current) return;
-    
+
     if (user?.uuid) {
       console.log("Sende user-connect mit:", user.uuid);
       socketRef.current.emit("user-connect", { userId: user.uuid });
@@ -407,6 +405,23 @@ export default function Chatter() {
 
   //console.log("Neue Nachricht von:", newmessagesusers[0]);
 
+  // Anfangsnachricht schicken in chatter, wenn gleiche Genres
+  const { sameTasteNotifications } = useNotification();
+  const [sameTasteMessages, setSameTasteMessages] = useState<boolean[]>([]);
+  useEffect(() => {
+    const newMsgArray: boolean[] = [];
+    for (let j = 0; j < sameTasteNotifications.length; j++) {
+      const userIndex = users.findIndex(
+        (u) => u.uuid === sameTasteNotifications[j].to,
+      );
+
+      if (userIndex !== -1) {
+        newMsgArray[userIndex] = true;
+      }
+    }
+    setSameTasteMessages(newMsgArray);
+  }, [sameTasteNotifications, users]);
+
   // kleine animation beim laden der Page
   const [animateindex, setAnimateindex] = useState(0);
 
@@ -449,17 +464,19 @@ export default function Chatter() {
                 />
 
                 <p
-                  className="flex text-xl font-bold text-yellow-500 items-center ml-4"
+                  className="flex text-xl font-bold text-yellow-300 items-center ml-4"
                   onClick={() => handleClick(index)}
                 >
-                  Schreibe:... {users[index]?.name || ""}
+
+                    Schreibe {users[index]?.name || ""}
+                
                 </p>
 
                 <label>
                   {onlineUsers.has(users[index]?.uuid) ? (
-                    <span className="text-green-500 text-s  ml-2">ONLINE</span>
+                    <span className="text-green-500 text-s  ml-2">ON</span>
                   ) : (
-                    <span className="text-gray-500 text-s ml-2">OFFLINE</span>
+                    <span className="text-gray-500 text-s ml-2">OFF</span>
                   )}
                 </label>
 
@@ -473,6 +490,12 @@ export default function Chatter() {
                     <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
                     <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
                   </svg>
+                )}
+
+                {sameTasteMessages[index] && (
+                  <Music
+                    className={`flex w-11 h-11 mt-10 mr-10 text-yellow-400`}
+                  />
                 )}
 
                 <svg
