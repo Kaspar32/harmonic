@@ -49,6 +49,10 @@ export default function Loggin() {
     window.location.reload();
   }
 
+  function resetPW() {
+    alert("Password reset is currently not implemented. Please contact support.");
+  }
+
   return (
     <div>
       {!user ? (
@@ -112,6 +116,29 @@ export default function Loggin() {
                   </div>
                 </div>
               </Link>
+            </div>
+
+            <div>
+              <p className="text-gray-400">Passwort vergessen?</p>
+                <div className="flex gap-2 bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
+                  <button onClick={resetPW}>Passwort zurücksetzen</button>
+                  <div>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none" 
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                      className="size-6"
+                    >
+                      <path
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 .001h4.992m-5.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.183m0-4.991v4.99"
+                      />
+                    </svg>
+                  </div>
+                </div>
             </div>
           </div>
         </div>

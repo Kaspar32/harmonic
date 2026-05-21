@@ -422,6 +422,17 @@ export default function Chatter() {
     setSameTasteMessages(newMsgArray);
   }, [sameTasteNotifications, users]);
 
+  const defaultMessage =
+    "Wir hören beide die gleichen Genre, hast du ein Lieblingskünstler?";
+  useEffect(() => {
+    setInput("");
+    sameTasteMessages.forEach((hasSameTaste, index) => {
+      if (hasSameTaste && users[index].name === chatPartner) {
+        setInput(defaultMessage);
+      }
+    });
+  }, [chatPartner, currentUser, sameTasteNotifications, users]);
+
   // kleine animation beim laden der Page
   const [animateindex, setAnimateindex] = useState(0);
 
@@ -467,9 +478,7 @@ export default function Chatter() {
                   className="flex text-xl font-bold text-yellow-300 items-center ml-4"
                   onClick={() => handleClick(index)}
                 >
-
-                    Schreibe {users[index]?.name || ""}
-                
+                  Schreibe {users[index]?.name || ""}
                 </p>
 
                 <label>

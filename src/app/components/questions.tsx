@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUser } from "@/app/context/UserContext";
 
 export default function Questions({ onClose }: { onClose: () => void }) {
@@ -74,7 +74,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
     };
 
     loadData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (answers?.question1) {
@@ -231,17 +231,6 @@ export default function Questions({ onClose }: { onClose: () => void }) {
 
       <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Gibt es ein Lied, das dich immer emotional trifft?
-      </p>
-
-      <input
-        onChange={(e) => setQuestion8(e.target.value)}
-        defaultValue={answers?.question8}
-        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
-        placeholder="Liedtitel"
-      />
-
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
-        Welchen Künstler würdest du sofort live sehen wollen?
       </p>
 
       <input

@@ -43,7 +43,12 @@ export default function Settings() {
 
   function deleteaccount() {
 
+    alert("Delteing your account is irreversible. Are you sure you want to proceed?");
+
+    // Post request to delete account
+
     
+
 
 
   }
