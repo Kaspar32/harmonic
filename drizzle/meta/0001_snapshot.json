@@ -1,6 +1,6 @@
 {
-  "id": "f1cfc7c5-261a-4e41-b7db-f4cee1e1291b",
-  "prevId": "a5a5e551-9035-4858-8ec7-046853a086c5",
+  "id": "b1314efd-3288-4e54-8d15-3756ec512a9e",
+  "prevId": "63ff901b-bf02-4d85-b595-ce63e813ece7",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -46,6 +46,64 @@
         "abos_user_uuid_users_uuid_fk": {
           "name": "abos_user_uuid_users_uuid_fk",
           "tableFrom": "abos",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_uuid"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.boosts": {
+      "name": "boosts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_uuid": {
+          "name": "user_uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "multiplier": {
+          "name": "multiplier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 150
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "boosts_user_uuid_users_uuid_fk": {
+          "name": "boosts_user_uuid_users_uuid_fk",
+          "tableFrom": "boosts",
           "tableTo": "users",
           "columnsFrom": [
             "user_uuid"

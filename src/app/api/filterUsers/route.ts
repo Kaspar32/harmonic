@@ -172,7 +172,36 @@ export async function GET(request: NextRequest) {
   //console.log('alle gefilterten userss:', allUsers);
 
   // Ranking der Nutzer
-  // has Boost: * 1.5
+  const rankedUsers = allUsers.map((user) => {
+    let score = 0;
+
+    // +1 Punkt *0.5, wenn sie gemeinsame Interessen haben
+
+    const userInterests = user.users.intressen || [];
+
+    const currentUserInterests = interest?.myInterest ? [interest.myInterest] : [];
+
+    const sharedInterests = userInterests.filter((interest) =>
+      currentUserInterests.includes(interest),
+    );
+
+    if(sharedInterests.length > 0) {
+      score += sharedInterests.length *0.5 ; // Je mehr gemeinsame Interessen, desto höher der Score
+    }
+
+
+
+
+  
+  
+  
+  
+  
+  });
+
+
+
+
 
   return NextResponse.json(allUsers);
 }

@@ -34,3 +34,5 @@ export async function checkIfLikedInWeek(uuid: string): Promise<boolean> {
     return false;
   }
 }
+
+

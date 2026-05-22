@@ -1,5 +1,5 @@
 {
-  "id": "a5a5e551-9035-4858-8ec7-046853a086c5",
+  "id": "63ff901b-bf02-4d85-b595-ce63e813ece7",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -699,6 +699,13 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
+        },
+        "deleted": {
+          "name": "deleted",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},
