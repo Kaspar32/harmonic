@@ -56,9 +56,6 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(false);
 
   const fetchUser = async () => {
-
-    
-
     setLoading(true);
     try {
       const res = await fetch("/api/auth/me", {

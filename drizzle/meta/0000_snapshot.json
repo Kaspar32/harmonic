@@ -1,9 +1,68 @@
 {
-  "id": "a2f9bb99-b7c8-4872-af96-fe29f9ce3b85",
+  "id": "a5a5e551-9035-4858-8ec7-046853a086c5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.abos": {
+      "name": "abos",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_uuid": {
+          "name": "user_uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "abo": {
+          "name": "abo",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "abos_user_uuid_users_uuid_fk": {
+          "name": "abos_user_uuid_users_uuid_fk",
+          "tableFrom": "abos",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_uuid"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.dislikes": {
       "name": "dislikes",
       "schema": "",
@@ -352,6 +411,12 @@
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
+        },
+        "radius": {
+          "name": "radius",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -370,6 +435,145 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.superlikes": {
+      "name": "superlikes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "from": {
+          "name": "from",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "to": {
+          "name": "to",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "liked_at": {
+          "name": "liked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "superlikes_from_users_uuid_fk": {
+          "name": "superlikes_from_users_uuid_fk",
+          "tableFrom": "superlikes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "from"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "superlikes_to_users_uuid_fk": {
+          "name": "superlikes_to_users_uuid_fk",
+          "tableFrom": "superlikes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "to"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.swissLoc": {
+      "name": "swissLoc",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "zip_code": {
+          "name": "zip_code",
+          "type": "varchar(6)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "city_name": {
+          "name": "city_name",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "canton_name_short": {
+          "name": "canton_name_short",
+          "type": "varchar(2)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "canton_name_long": {
+          "name": "canton_name_long",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iLatitude": {
+          "name": "iLatitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "iLongitude": {
+          "name": "iLongitude",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "swissLoc_pkey": {
+          "name": "swissLoc_pkey",
+          "columns": [
+            {
+              "expression": "id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -408,6 +612,12 @@
         "alter": {
           "name": "alter",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "geburtstag": {
+          "name": "geburtstag",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
@@ -475,6 +685,18 @@
         "profile_pics": {
           "name": "profile_pics",
           "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location": {
+          "name": "location",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locationid": {
+          "name": "locationid",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         }

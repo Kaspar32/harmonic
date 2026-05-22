@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import * as Slider from "@radix-ui/react-slider";
 import { useUser } from "../context/UserContext";
+import PopUp from "./popup";
 
 export default function Settings() {
   const [interest, setInterest] = useState("");
   const [alter, setAlter] = useState<number[]>([20, 50]);
   const [radius, setRadius] = useState<number[]>([Infinity]);
   const [interestLocation, setInterestLocation] = useState("");
-
-  
 
   function handleInteressiertAn(event: React.ChangeEvent<HTMLSelectElement>) {
     setInterest(event.target.value);
@@ -39,18 +38,32 @@ export default function Settings() {
     window.location.href = "/home";
   }
 
-  const {user} = useUser();
+  const { user, setUser } = useUser();
 
-  function deleteaccount() {
+  const [showDelModal, setShowDelModal] = useState(false);
 
-    alert("Delteing your account is irreversible. Are you sure you want to proceed?");
+  async function deleteaccount() {
+    // modal zur bestätigung des löschens anzeigen
+    setShowDelModal(true);
+  }
 
+  async function deletedef() {
     // Post request to delete account
+    const res = await fetch("/api/setDelete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(user?.uuid),
+    });
 
-    
+    setUser(null);
+    const loggout = await fetch("/api/loggout", {
+      method: "POST",
+      credentials: "include",
+    });
+    console.log(res);
+    window.location.reload();
 
-
-
+    setShowDelModal(false);
   }
 
   useEffect(() => {
@@ -133,28 +146,26 @@ export default function Settings() {
             />
           </svg>
           <div className="mt-1 ml-10">
-
             <label className="block text-lg font-semibold text-yellow-500 text-center">
               Radius: {radius[0]} km
             </label>
 
             <Slider.Root
-            className="relative flex items-center select-none w-full h-5"
-            value={radius}
-            min={0}
-            max={400}
-            step={1}
-            onValueChange={setRadius}
-          >
-            {/* Track */}
-            <Slider.Track className="bg-gray-700 relative grow rounded-full h-2">
-              <Slider.Range className="absolute bg-yellow-400 rounded-full h-full" />
-            </Slider.Track>
+              className="relative flex items-center select-none w-full h-5"
+              value={radius}
+              min={0}
+              max={400}
+              step={1}
+              onValueChange={setRadius}
+            >
+              {/* Track */}
+              <Slider.Track className="bg-gray-700 relative grow rounded-full h-2">
+                <Slider.Range className="absolute bg-yellow-400 rounded-full h-full" />
+              </Slider.Track>
 
-            {/* Daumen (Handles) */}
-            <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
-          </Slider.Root>
-
+              {/* Daumen (Handles) */}
+              <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+            </Slider.Root>
           </div>
 
           <button
@@ -167,10 +178,29 @@ export default function Settings() {
 
         <button
           onClick={deleteaccount}
-          className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600"
+          className="w-full px-4 py-2 border border-yellow-300 rounded-xl hover:bg-yellow-400 hover:text-white text-yellow-600 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-200"
         >
           Konto Löschen
         </button>
+
+        {showDelModal && (
+          <PopUp onClose={() => setShowDelModal(false)}>
+            <div className="flex flex-cols-1 items-center justify-center p-6">
+              <span className="text-red-500 font-bold text-lg">Achtung!</span>
+              <a className="text-yellow-500 text-sm text-center mt-4">
+                Möchten Sie wirklich Ihr Konto löschen? Dieser Vorgang ist
+                unwiderruflich.
+              </a>
+
+              <button
+                onClick={deletedef}
+                className="mt-4 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-100 hover:text-yellow-400"
+              >
+                Löschen
+              </button>
+            </div>
+          </PopUp>
+        )}
       </div>
     </div>
   );

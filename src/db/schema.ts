@@ -25,6 +25,7 @@ export const users = pgTable('users', {
   profile_pics: jsonb("profile_pics"),
   location: text('location'),
   locationid: integer("locationid"),
+  deleted: boolean().default(false),
 });
 
 export const profilePictures = pgTable("profile_pictures", {

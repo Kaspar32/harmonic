@@ -125,12 +125,10 @@ export default function Profile() {
     const filteredUsers = await fetchUsers();
 
     if (arraysHaveCommonElement(data1.genres, filteredUsers[i].genres)) {
-
       setSamegenres(true);
       // Anfangsnachricht schicken in chatter, wenn gleiche Genres
 
       addSameTasteNotification(filteredUsers[i].uuid);
-
     }
 
     if (data1.favorite_artist && filteredUsers[i].favorite_artist) {
@@ -289,6 +287,8 @@ export default function Profile() {
     const hasLikedInWeek = await checkIfLikedInWeek(user.uuid);
 
     if (hasLikedInWeek) {
+      setGrayedOut(true);
+
       return;
     }
 
@@ -315,6 +315,27 @@ export default function Profile() {
 
     await controls.set({ x: 0, opacity: 1 });
   };
+
+  const [grayedOut, setGrayedOut] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const loadData = async () => {
+      const hasLikedInWeek = await checkIfLikedInWeek(user.uuid);
+      console.log("hasLikedInWeek:", hasLikedInWeek);
+      if (hasLikedInWeek=== true) {
+
+      setGrayedOut(true);
+
+      return;
+    }
+    };
+
+    
+
+      loadData();
+  }, [user]);
 
   async function addsuperlike() {
     if (buttonsDisabled) return;
@@ -478,7 +499,7 @@ export default function Profile() {
 
               {/*- superlike button*/}
               <button
-                className="flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 hover:rotate-[20deg] transition-transform duration-300"
+                className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 transition-transform duration-300 ${grayedOut ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}`}
                 onClick={handlesuperlike}
               >
                 <div>
@@ -653,12 +674,12 @@ export default function Profile() {
                 >
                   <Music
                     className={`flex w-6 h-6 text-yellow-400 ${
-                      samegenres ? "animate-bounce" : ""
+                      samegenres ? "animate-spin" : ""
                     }`}
                   />
 
                   <div>
-                    <div className="grid grid-cols-2 gap-y-2 items-center mx-6 break-normal">
+                    <div className={`grid grid-cols-2 gap-y-2 items-center mx-6 break-normal`}>
                       <h3>Fragen:</h3>
                       <div className="grid grid-cols gap-y-1 shrink">
                         <Score uuid={users[UserIndex]?.uuid}></Score>
@@ -740,7 +761,7 @@ export default function Profile() {
                                 />
                               </svg>
                             </button>
-                            <button  onClick={() => pauseTrack(null)}>
+                            <button onClick={() => pauseTrack(null)}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -773,8 +794,7 @@ export default function Profile() {
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
-                                    ?.favorite_artist1?.image ||
-                                   "/music2.svg"
+                                    ?.favorite_artist1?.image || "/music2.svg"
                                 }
                                 alt="Album Cover"
                                 height={30}

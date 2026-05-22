@@ -14,6 +14,10 @@ export async function POST(req: Request) {
 
   const user = foundUser[0];
 
+  const isdeleted= await db.select({ deleted: users.deleted })
+  .from(users)
+  .where(eq(users.uuid, user?.uuid));
+
   if (!user) {
     return new Response("Login fehlgeschlagen!", { status: 400 });
   }
@@ -23,7 +27,7 @@ export async function POST(req: Request) {
     user.password as string,
   );
 
-  if (!comparePasswords) {
+  if (!comparePasswords || isdeleted[0]?.deleted) {
     return new Response("Login fehlgeschlagen! ", { status: 400 });
   }
 

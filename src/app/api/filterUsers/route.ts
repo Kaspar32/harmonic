@@ -162,7 +162,8 @@ export async function GET(request: NextRequest) {
         // Filter by interest location
         locationFilter,
 
-  
+        // Nicht deleted Users
+        not(eq(users.deleted, true)),
           
 
 
