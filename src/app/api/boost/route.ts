@@ -3,12 +3,6 @@ import { db } from "@/lib/test";
 import { NextResponse } from "next/server";
 
 
-export async function GET()
-{
-
-
-    
-}
 
 export async function POST(req: Request) {
   try {
@@ -38,7 +32,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ message: "Boost added" }, { status: 200 });
   } catch (error) {
-    console.error("addlike error:", error);
+    console.error("Add boost error:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

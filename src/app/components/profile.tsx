@@ -372,13 +372,11 @@ export default function Profile() {
     if (isMatched) return;
 
     //Wenn nicht bezahlt dann kein Boost möglich
-    const haspayed = await fetch("api/boost");
+    //Hier dasselbe Prinzip wie beim Superlike
 
-    if (haspayed) {
-      setGrayedOut(true);
+    
 
-      return;
-    }
+
 
     // Einen neuen Eintrag in der Tabelle "boosts" erstellen mit user uuid und timestamp
 
@@ -398,15 +396,12 @@ export default function Profile() {
   useEffect(() => {
     if (!user) return;
 
-
       let ispayed= true;
       if (!ispayed) {
-        
+
         setGrayedOut2(true);
         return;
-
     };
-
 
   }, [user]);
 
