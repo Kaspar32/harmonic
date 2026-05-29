@@ -79,7 +79,7 @@ export default function Profile() {
       setIsEmpty(true);
       return;
     }
-    const i = getRandomUserIndex(fetchedUsers.length);
+    const i = 0;
     calculateGenres(i);
     await setUserIndex(i);
   }
@@ -374,7 +374,15 @@ export default function Profile() {
     //Wenn nicht bezahlt dann kein Boost möglich
     //Hier dasselbe Prinzip wie beim Superlike
 
-    
+    let ispayed= true;
+
+    if(!ispayed) return;
+
+
+
+
+
+
 
 
 
@@ -387,6 +395,8 @@ export default function Profile() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user.uuid),
     });
+
+    setGrayedOut2(true);
 
 
   }
@@ -416,7 +426,7 @@ export default function Profile() {
       return;
     }
 
-    const i = getRandomUserIndex(filteredUsers.length);
+    const i = 0;
     setUserIndex(i);
 
     calculateGenres(i);

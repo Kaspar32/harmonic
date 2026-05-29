@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Interests from "../data/Intrests";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
@@ -127,6 +127,13 @@ export default function Profil_Edit() {
       setTemp_Geburtstag(userData.geburtstag.split("T")[0]);
     }
   }, [userData]);
+
+  // Heutiges Datum
+  const today = new Date();
+  // 18 Jahre zurück
+  today.setFullYear(today.getFullYear() - 18);
+  // YYYY-MM-DD formatieren
+  const maxDate = today.toISOString().split("T")[0];
 
   // Bei jedem Rendern der Seite das Alter neu berechen, wichtig ist vor allem das Alter aktualisiert wird mit der calculateAge Funktion auch wenn das Geburtstag nicht ändert!
 
@@ -332,6 +339,44 @@ export default function Profil_Edit() {
     });
   }
 
+  // Get alle cities from DB
+  const [cities, setCities] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchCities() {  
+      try {
+        const res = await fetch("/api/getcities");
+        const data = await res.json();
+        setCities(data);
+      } catch (error) { 
+        console.error("Error fetching cities:", error);
+      }
+    }
+    fetchCities();
+  }, []);
+
+  const [searchLocation, setSearchLocation] = useState("");
+  const filteredCities = useMemo(() => {
+  if (searchLocation.trim().length < 2) {
+    return [];
+  }
+
+  return cities
+    .filter((city: any) =>
+      city.zipCode
+        ?.toLowerCase()
+        .includes(searchLocation.toLowerCase())
+    )
+    .slice(0, 10);
+}, [searchLocation, cities]);
+
+function handleCitySelect(city: any)
+{
+  setSuburb(`${city.cantonNameLong}, ${city.cityName}, Schweiz`);
+  setGeolocation({ latitude: city.iLatitude, longitude: city.iLongitude });
+}
+
+
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
@@ -402,6 +447,7 @@ export default function Profil_Edit() {
                 </h2>
 
                 <input
+                  max={maxDate}
                   type="date"
                   value={Temp_Geburtstag}
                   onChange={(e) => setTemp_Geburtstag(e.target.value)}
@@ -704,6 +750,21 @@ export default function Profil_Edit() {
                       </svg>
                     </div>
 
+                    <input
+                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                      type="text"
+                      placeholder="Stadt per ZIP suchen..."
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                    />
+                    <ul>
+                      {filteredCities.map((city: any) => (
+                        <li onClick={() => handleCitySelect(city)} key={city.id}>
+                          {city.cantonNameLong}, {city.cityName}, Schweiz
+                        </li>
+                      ))}
+                    </ul>
+
                     <span>{suburb}</span>
                   </div>
 
@@ -812,17 +873,16 @@ export default function Profil_Edit() {
                       placeholder="Tippen Sie hier..."
                       onChange={(event) => setSearchInput(event.target.value)}
                       onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        search;
-                      }
-                    }}
+                        if (e.key === "Enter") {
+                          search;
+                        }
+                      }}
                     />
                   </div>
 
                   {/* ssearch button */}
                   <button
                     onClick={search}
-                    
                     className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
                   >
                     Suche

@@ -15,6 +15,13 @@
       "when": 1779451493198,
       "tag": "0001_broken_slayback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780032218837,
+      "tag": "0002_worthless_scream",
+      "breakpoints": true
     }
   ]
 }

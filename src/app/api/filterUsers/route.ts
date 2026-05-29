@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/db";
-import { users, likes, superlikes, dislikes, settings, swissLoc } from "@/db/schema";
-import { eq, not, inArray, and, or, like, sql } from "drizzle-orm";
+import {
+  users,
+  likes,
+  superlikes,
+  dislikes,
+  settings,
+  swissLoc,
+  boosts,
+} from "@/db/schema";
+import { eq, not, inArray, and, or, like, sql, gt } from "drizzle-orm";
 
 export async function GET(request: NextRequest) {
   let userfromAuth;
@@ -36,21 +44,20 @@ export async function GET(request: NextRequest) {
     .from(settings)
     .where(eq(settings.uuid, userfromAuth.uuid));
 
-
-  const [locationResult] = await db.select({ location: users.location }).from(users).where(eq(users.uuid, userfromAuth.uuid));
+  const [locationResult] = await db
+    .select({ location: users.location })
+    .from(users)
+    .where(eq(users.uuid, userfromAuth.uuid));
   const city = locationResult?.location?.split(",")[0].trim();
   const country = locationResult?.location?.split(",")[2].trim();
 
   let locationFilter = undefined;
-  const interestLocationNum = (interestLocationData?.radius)||0;
+  const interestLocationNum = interestLocationData?.radius || 0;
 
- 
   if (interestLocationNum === 20 && city && country) {
     // Alter Filter: Textbasierter Stadt/Land-Vergleich
     locationFilter = like(users.location, `${city}, %${country}`);
-  }
-  
-  else if (interestLocationNum > 1) {
+  } else if (interestLocationNum > 1) {
     // Neuer Radius-Filter (Kilometer)
     // Aktuelle Koordinaten des angemeldeten Users aus der swissLoc Tabelle holen
     const currentUserLocation = await db
@@ -61,8 +68,8 @@ export async function GET(request: NextRequest) {
       .from(users)
       .innerJoin(swissLoc, eq(users.locationid, swissLoc.id))
       .where(eq(users.uuid, userfromAuth.uuid))
-      .then(res => res[0]);
-    
+      .then((res) => res[0]);
+
     if (currentUserLocation?.lat != null && currentUserLocation?.lon != null) {
       const radiusKm = interestLocationNum;
       const lat1 = currentUserLocation.lat;
@@ -74,8 +81,6 @@ export async function GET(request: NextRequest) {
         AND (6371 * acos(cos(radians(${lat1})) * cos(radians(sl."iLatitude")) * cos(radians(sl."iLongitude") - radians(${lon1})) + sin(radians(${lat1})) * sin(radians(sl."iLatitude")))) <= ${radiusKm}
       )`;
     }
-
-
   }
 
   const liked = await db
@@ -137,7 +142,7 @@ export async function GET(request: NextRequest) {
         likedUuids.length > 0
           ? not(inArray(users.uuid, likedUuids)) // nur die holen, dessen user.uuid nicht im likedUuids vorkommt
           : undefined,
-        
+
         superlikedUuids.length > 0
           ? not(inArray(users.uuid, superlikedUuids)) // nur die holen, dessen user.uuid nicht im superlikedUuids vorkommt
           : undefined,
@@ -164,44 +169,68 @@ export async function GET(request: NextRequest) {
 
         // Nicht deleted Users
         not(eq(users.deleted, true)),
-          
-
-
       ),
     );
   //console.log('alle gefilterten userss:', allUsers);
 
-  // Ranking der Nutzer
-  const rankedUsers = allUsers.map((user) => {
-    let score = 0;
+  // Hier das Ranking noch machen sehr abhängig vom Boost
 
-    // +1 Punkt *0.5, wenn sie gemeinsame Interessen haben
+  const rankedUsers = await Promise.all(
+    allUsers.map(async (user) => {
+      let score = 0;
 
-    const userInterests = user.users.intressen || [];
+      // Gemeinsame Interessen
+      const userInterests = user.users.intressen || [];
 
-    const currentUserInterests = interest?.myInterest ? [interest.myInterest] : [];
+      const currentUserInterests = interest?.myInterest
+        ? [interest.myInterest]
+        : [];
 
-    const sharedInterests = userInterests.filter((interest) =>
-      currentUserInterests.includes(interest),
-    );
+      const sharedInterests = userInterests.filter((interest) =>
+        currentUserInterests.includes(interest),
+      );
 
-    if(sharedInterests.length > 0) {
-      score += sharedInterests.length *0.5 ; // Je mehr gemeinsame Interessen, desto höher der Score
-    }
+      if (sharedInterests.length > 0) {
+        score += sharedInterests.length * 0.5;
+      }
 
+      // Gleiche Stadt
+      const userLocation = user.users.location;
+      const currentUserLocation = locationResult?.location;
 
+      if (userLocation && currentUserLocation) {
+        const userCity = userLocation.split(",")[0].trim();
+        const currentUserCity = currentUserLocation.split(",")[0].trim();
 
+        if (userCity === currentUserCity) {
+          score += 1;
+        }
+      }
+
+      // Aktiven Boost prüfen
+      const hasBoost = await db
+        .select()
+        .from(boosts)
+        .where(
+          and(eq(boosts.uuid, user.users.uuid), gt(boosts.endsAt, new Date())),
+        )
+        .then((res) => res.length > 0);
+
+      // Boost anwenden
+      if (hasBoost) {
+        score += 10;
+      }
+
+      return {
+        ...user,
+        score,
+      };
+    }),
+  );
 
   
-  
-  
-  
-  
-  });
 
+  rankedUsers.sort((a, b) => b.score - a.score);
 
-
-
-
-  return NextResponse.json(allUsers);
+  return NextResponse.json(rankedUsers);
 }

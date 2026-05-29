@@ -33,6 +33,8 @@ users = pgTable("users", {
   location: text("location"),
   locationid: integer("locationid"),
   deleted: boolean().default(false),
+  verificationEmail: varchar('verification_email', { length: 100 }),
+  verificationToken: varchar('verification_token', { length: 100 }),
 });
 
 export const profilePictures = pgTable("profile_pictures", {

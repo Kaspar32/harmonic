@@ -7,7 +7,6 @@ export default function Test() {
 
   const {user} = useUser();
 
-  const{addNotification, notifications}= useNotification();
 
 
   return (
@@ -61,18 +60,29 @@ export default function Test() {
 
         
       ) : (
-        <p className="flex justify-center font-extrabold text-lg sm:text-xl md:text-4xl text-gray-300 border-2 rounded-2xl "
-        
-        onClick={()=>{
+        <>
+        <p className="p-4 flex-row justify-center font-extrabold text-lg sm:text-xl md:text-4xl text-yellow-300 border-1 rounded-2xl shadow-lg">
+          Willkommen <a className="text-yellow-500">{user?.name}</a>!
 
-          addNotification("säödfsölädfs");
+          
 
-          //alert(notifications);
+          <div className="flex-row mt-5">
+          <a className="w-20 items-center justify-center text-sm md:text-2xl mt-30 text-gray-500  rounded-2xl ">
+            Deine nächsten Musik-Matches warten. 
+            Swipe durch Vibes, nicht durch Formulare.
+          </a>
 
-
-        }}>
-          Willkommen {user?.name}!
+          
+          
+          
+          </div>
         </p>
+
+        <button className=" border-2 border-yellow-400 rounded-2xl shadow-2xl p-4 mt-10 text-yellow-400 font-extrabold text-lg md:text-3xl hover:bg-yellow-100 transition-colors duration-300">
+
+            Zum Discover-Flow
+          </button>
+        </>
       )}
 
     </div>
