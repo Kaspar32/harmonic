@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@/app/context/UserContext";
+import PopUp from "./popup";
 
 export default function Loggin() {
   const [username, setUsername] = useState("");
@@ -49,8 +50,10 @@ export default function Loggin() {
     window.location.reload();
   }
 
+  const [showForgottPW, setShowForgottPW] = useState(false);
+
   function resetPW() {
-    alert("Password reset is currently not implemented. Please contact support.");
+    setShowForgottPW(true);
   }
 
   return (
@@ -139,6 +142,25 @@ export default function Loggin() {
                     </svg>
                   </div>
                 </div>
+
+                {showForgottPW && (
+                <PopUp onClose={() => setShowForgottPW(false)}>
+                  <div className="flex flex-col gap-4">
+                    <p className="text-gray-500">
+                      E-Mail-Adresse
+                    </p>
+                    <input
+                      className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+                      type="email"
+                      placeholder="E-Mail-Adresse eingeben"
+                    />  
+                    <button className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold">
+                      Passwort zurücksetzen
+                    </button>
+                  </div>       
+                </PopUp>
+
+                )}
             </div>
           </div>
         </div>
