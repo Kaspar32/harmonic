@@ -5,11 +5,11 @@ import bcrypt from "bcryptjs";
  
 export async function POST (req:Request){
 
-    const {username, password, confirmPassword}= await req.json();
+    const {username, email, password, confirmPassword}= await req.json();
 
     //Kontrolle 
 
-    if(!username || !password || !confirmPassword)
+    if(!username || !password || !confirmPassword || !email)
         return new Response("Fehler: Fehlende Eingaben", {status: 400});
     if(password !== confirmPassword)
         return new Response("Fehler: Passwörter stimmen nicht überein", {status: 400});
@@ -24,7 +24,7 @@ export async function POST (req:Request){
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    await db.insert(users).values({name: username , password: hashedPassword, roles: "user"})
+    await db.insert(users).values({name: username , email: email, password: hashedPassword, roles: "user"})
 
     return new Response("Account erfolgreich erstellt.", {status:200})
 

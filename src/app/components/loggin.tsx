@@ -56,6 +56,26 @@ export default function Loggin() {
     setShowForgottPW(true);
   }
 
+
+  const [loginEmail, setLoginEmail]= useState("");
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+   
+    const trimmedEmail = loginEmail.trim();
+    const res = await fetch('/api/users/password-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ emailAddress: trimmedEmail }),
+    });
+    if (res.ok) {
+     
+    } else {
+      const { message } = await res.json();
+
+    }
+  };
+
   return (
     <div>
       {!user ? (
@@ -150,14 +170,18 @@ export default function Loggin() {
                       E-Mail-Adresse
                     </p>
                     <input
+                      onChange={(event) =>
+                        setLoginEmail(event.target.value)
+                      }
+                      id="Email"
                       className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
                       type="email"
                       placeholder="E-Mail-Adresse eingeben"
                     />  
-                    <button className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold">
+                    <button onClick={handlePasswordReset} className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold">
                       Passwort zurücksetzen
                     </button>
-                  </div>       
+                  </div>     
                 </PopUp>
 
                 )}

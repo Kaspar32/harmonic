@@ -492,11 +492,11 @@ export default function Profile() {
 
       {isEmpty ? (
         <div className="h-full w-full flex justify-center">
-          <div className="border-4 rounded-2xl py-4 px-8 border-yellow-300 bg-yellow-100 shadow-lg">
+          <div className="border-2 rounded-2xl py-4 px-8 border-yellow-300 bg-yellow-50 shadow-lg">
             <p className="text-yellow-500 font-bold">
               Keine übereinstimmende User, ändere oder mache deine
               <Link href="/settings">
-                <button className="flex items-center p-2 text-yellow-500 border-2 border-yellow-400 hover:bg-white rounded-2xl">
+                <button className="flex p-2 justify-center items-center text-yellow-500 border-b-2 border-b-amber-200 border-t-2 border-t-white bg-yellow/50 shadow hover:bg-white hover:shadow-md  rounded-2xl">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -517,7 +517,7 @@ export default function Profile() {
                 width={40}
                 height={40}
                 alt="like"
-                className="position relative left-60 animate-bounce"
+                className="position relative left-100 "
               />
             </p>
           </div>
