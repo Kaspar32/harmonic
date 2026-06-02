@@ -1,5 +1,5 @@
 {
-  "id": "63ff901b-bf02-4d85-b595-ce63e813ece7",
+  "id": "2488244a-1aa3-4f25-abbd-0c61066b8ff5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -46,6 +46,64 @@
         "abos_user_uuid_users_uuid_fk": {
           "name": "abos_user_uuid_users_uuid_fk",
           "tableFrom": "abos",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_uuid"
+          ],
+          "columnsTo": [
+            "uuid"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.boosts": {
+      "name": "boosts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_uuid": {
+          "name": "user_uuid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starts_at": {
+          "name": "starts_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ends_at": {
+          "name": "ends_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "multiplier": {
+          "name": "multiplier",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 150
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "boosts_user_uuid_users_uuid_fk": {
+          "name": "boosts_user_uuid_users_uuid_fk",
+          "tableFrom": "boosts",
           "tableTo": "users",
           "columnsFrom": [
             "user_uuid"
@@ -706,6 +764,24 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "verification_email": {
+          "name": "verification_email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verification_token": {
+          "name": "verification_token",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

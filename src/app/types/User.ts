@@ -24,6 +24,8 @@ export interface UserType {
   fakeUsersEnabled: boolean;
   profile_pics: string[];
   location: string | null;
+  email: string;
+  last_match_check: string | null;
 }
 
 

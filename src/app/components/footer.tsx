@@ -31,48 +31,33 @@ export default function Footer() {
       // Checken obs ein neuer Match gegeben hat::::::
 
       //alert("Test"+data1.uuid);
-      const res2 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
+      const res2 = await fetch(`/api/getmatchbyid/getmatchedAt?id=${user?.uuid}`);
       const data = await res2.json();
 
-      const storageKey = `lastMatchId_${user?.uuid}`;
+      console.log("Matches", data);
 
-      const lastId = Number(localStorage.getItem(storageKey) || 0);
-
-      console.log("Last ID:", lastId);
-
-      if (data.length > 0 && data[data.length - 1]?.id > lastId) {
-        //alert("test");
+      if(data.length> 0 && data[data.length-1].createdAt > user?.last_match_check)
+      {
         setNewMatch(true);
-
-        localStorage.setItem(storageKey, String(data[data.length - 1].id));
       }
 
-      // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
 
+      // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
       const res3 = await fetch(`/api/messages?chatPartner=`);
       const data3 = await res3.json();
 
-      //console.log(data3);
-
-      const storageKey2 = `lastMessageId_${user?.uuid}`;
-
-      const lastId2 = Number(localStorage.getItem(storageKey2) || 0);
-
-      if (data3.length > 0 && data3[data3.length - 1]?.id > lastId2) {
-        //alert("test");
+      if (data3.length > 0 && data3[data3.length - 1]?.read === false)
+      {
         setNewMatch(true);
 
         for (let i = 0; i <= data3.length - 1; i++) {
-          if (data3.length > 0 && data3[i]?.id > lastId2) {
-            setMessages((prev) => [...prev, data3[i]?.fromUser]);
+          if (data3.length > 0 && data3[i]?.read === false) {
             addNotification(data3[i]?.fromUser);
-
-            //alert(notifications);
           }
         }
 
-        localStorage.setItem(storageKey2, String(data3[data3.length - 1].id));
-      } 
+
+      }
     }
 
     checkNewMatchMessages();

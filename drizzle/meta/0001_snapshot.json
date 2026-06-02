@@ -1,6 +1,6 @@
 {
-  "id": "b1314efd-3288-4e54-8d15-3756ec512a9e",
-  "prevId": "63ff901b-bf02-4d85-b595-ce63e813ece7",
+  "id": "3ea6caf0-f9e3-464e-bf37-bed0e0ebedc6",
+  "prevId": "2488244a-1aa3-4f25-abbd-0c61066b8ff5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -285,6 +285,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "read": {
+          "name": "read",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},
@@ -764,6 +771,24 @@
           "primaryKey": false,
           "notNull": false,
           "default": false
+        },
+        "verification_email": {
+          "name": "verification_email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "verification_token": {
+          "name": "verification_token",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},

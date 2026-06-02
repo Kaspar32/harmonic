@@ -251,6 +251,18 @@ export default function Chatter() {
     setTimeout(() => {
       setopenChat(true);
     }, 100);
+
+    // Set read auf true in DB für die Messages von diesem ChatPartner::::::::::::::::::::::::::::::::::::::::::::::::
+    await fetch(`/api/messages/setreadtrue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chatPartner: users[index].name
+      })
+    });
+
+
+
   }
 
   // Löschen oder blockieren von ChatPartner::::::::::::::::::::::::::::::::::::::::::::::
@@ -433,7 +445,7 @@ export default function Chatter() {
     });
   }, [chatPartner, currentUser, sameTasteNotifications, users]);
 
-  // kleine animation beim laden der Page
+  // kleine animation beim laden der Page::::::::::::::::::::::::::::::::::::::
   const [animateindex, setAnimateindex] = useState(0);
 
   useEffect(() => {
@@ -460,7 +472,7 @@ export default function Chatter() {
             <div key={index}>
               <div
                 className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
-              >
+                onClick={() => handleClick(index)}>
                 <Image
                   src={
                     item?.image_path
@@ -532,11 +544,18 @@ export default function Chatter() {
       )}
 
       {openChat && (
+
+        
         <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/90">
+          
+        <div className="flex justify-start text-xl font-bold text-yellow-500 absolute top-30 left-15 shadow rounded">{chatPartner}</div>
+          
+          
           <div
             id="chatmessagewindow"
             className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
           >
+            
             <div className="w-screen h-full p-4 md:p-10">
               {messages
                 .filter(

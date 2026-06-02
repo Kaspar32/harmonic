@@ -35,7 +35,8 @@ users = pgTable("users", {
   deleted: boolean().default(false),
   verificationEmail: varchar('verification_email', { length: 100 }),
   verificationToken: varchar('verification_token', { length: 100 }),
-  email:varchar("email", { length: 100 })
+  email: varchar("email", { length: 100 }),
+  last_match_check: timestamp("last_match_check"),
 });
 
 export const profilePictures = pgTable("profile_pictures", {
@@ -73,6 +74,7 @@ export const messages = pgTable("messages", {
   fromUser: text("from_user").notNull(),
   toUser: text("to_user").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  read: boolean().default(false),
 });
 
 export const settings = pgTable("settings", {

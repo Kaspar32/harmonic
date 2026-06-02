@@ -517,7 +517,7 @@ export default function Profile() {
                 width={40}
                 height={40}
                 alt="like"
-                className="position relative left-100 "
+                className="position relative left-90 "
               />
             </p>
           </div>
