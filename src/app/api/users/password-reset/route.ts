@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     if (!existing[0].email || !existing[0].name) {
       return NextResponse.json(
-        { message: 'Fehler aufgetreten' },
+        { message: 'Benutzer oder Email nicht gefunden.' },
         { status: 400 }
       );
     }

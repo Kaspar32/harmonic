@@ -32,6 +32,8 @@ export default function Profil_Edit() {
     fakeUsersEnabled: true,
     profile_pics: [],
     location: null,
+    email: "",
+    last_match_check: null,
   });
 
   // Temporäre Variablen für die Editierfunktion
@@ -53,6 +55,7 @@ export default function Profil_Edit() {
   const [showFavoriteBand, setFavoriteBand] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
   const [showLocation, setLocation] = useState(false);
+  const [showMail, setMail] = useState(false);
 
   const [intressen] = useState(Interests);
   const [genres] = useState(Genres);
@@ -85,6 +88,7 @@ export default function Profil_Edit() {
         fakeUsersEnabled: user?.fakeUsersEnabled,
         profile_pics: user?.profile_pics,
         location: typeof user?.location === "string" ? user.location : null,
+        email: user?.email,
       }));
 
       // Sepzialfall Location
@@ -343,12 +347,12 @@ export default function Profil_Edit() {
   const [cities, setCities] = useState<any[]>([]);
 
   useEffect(() => {
-    async function fetchCities() {  
+    async function fetchCities() {
       try {
         const res = await fetch("/api/getcities");
         const data = await res.json();
         setCities(data);
-      } catch (error) { 
+      } catch (error) {
         console.error("Error fetching cities:", error);
       }
     }
@@ -357,25 +361,21 @@ export default function Profil_Edit() {
 
   const [searchLocation, setSearchLocation] = useState("");
   const filteredCities = useMemo(() => {
-  if (searchLocation.trim().length < 2) {
-    return [];
+    if (searchLocation.trim().length < 2) {
+      return [];
+    }
+
+    return cities
+      .filter((city: any) =>
+        city.zipCode?.toLowerCase().includes(searchLocation.toLowerCase()),
+      )
+      .slice(0, 10);
+  }, [searchLocation, cities]);
+
+  function handleCitySelect(city: any) {
+    setSuburb(`${city.cantonNameLong}, ${city.cityName}, Schweiz`);
+    setGeolocation({ latitude: city.iLatitude, longitude: city.iLongitude });
   }
-
-  return cities
-    .filter((city: any) =>
-      city.zipCode
-        ?.toLowerCase()
-        .includes(searchLocation.toLowerCase())
-    )
-    .slice(0, 10);
-}, [searchLocation, cities]);
-
-function handleCitySelect(city: any)
-{
-  setSuburb(`${city.cantonNameLong}, ${city.cityName}, Schweiz`);
-  setGeolocation({ latitude: city.iLatitude, longitude: city.iLongitude });
-}
-
 
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
@@ -759,7 +759,10 @@ function handleCitySelect(city: any)
                     />
                     <ul>
                       {filteredCities.map((city: any) => (
-                        <li onClick={() => handleCitySelect(city)} key={city.id}>
+                        <li
+                          onClick={() => handleCitySelect(city)}
+                          key={city.id}
+                        >
                           {city.cantonNameLong}, {city.cityName}, Schweiz
                         </li>
                       ))}
@@ -782,6 +785,40 @@ function handleCitySelect(city: any)
                 </PopUp>
               )}
             </div>
+
+            <h3
+              onClick={() => setMail(true)}
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+            >
+              E-Mail-Adresse
+            </h3>
+
+            {showMail && (
+              <PopUp onClose={() => setMail(false)}>
+                <h2 className="text-xl text-gray-400 dark:text-gray-400 font-bold mb-4">
+                  E-Mail-Adresse
+                </h2>
+                <input
+                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                  type="email"
+                  placeholder="E-Mail-Adresse"
+                  value={userData.email}
+                  onChange={(e) =>
+                    setUserData((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                />
+
+                <button
+                  className="px-4 py-2 mt-4 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  onClick={() => {
+                    updateUser({ email: userData.email });
+                    setMail(false);
+                  }}
+                >
+                  Speichern
+                </button>
+              </PopUp>
+            )}
           </div>
         </div>
 
@@ -850,9 +887,13 @@ function handleCitySelect(city: any)
             {/* */}
             <h3
               onClick={() => setFavoriteTune(true)}
-              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2 text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
-              Momentanes Lieblingslied
+              Momentanes Lieblingslied:
+              <span className="block text-gray-300 text-sm mt-2">
+                {userData?.favorite_track?.name} von{" "}
+                {userData?.favorite_track?.artist}
+              </span>
             </h3>
             {showFavoriteTune && (
               <PopUp

@@ -35,7 +35,7 @@ export default function UserRegister() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username,email, password, confirmPassword }),
+      body: JSON.stringify({ username, email, password, confirmPassword }),
     });
 
     if (!res.ok) {
@@ -44,6 +44,23 @@ export default function UserRegister() {
     } else {
       const successText = await res.text();
       setSuccess(successText);
+
+      // Schicke eine Mail an den User mit Willkommensnachricht
+
+      const res2= await fetch("/api/users/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: email, fullName: username }),
+      });
+
+        if (!res2.ok) {
+          const errorText = await res2.text();
+          setError(errorText);
+        } else {
+          const successText = await res2.text();
+          setSuccess(successText);
+        }
+
     }
   }
 

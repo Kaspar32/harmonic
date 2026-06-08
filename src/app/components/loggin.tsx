@@ -69,9 +69,15 @@ export default function Loggin() {
       body: JSON.stringify({ emailAddress: trimmedEmail }),
     });
     if (res.ok) {
+      const successText = await res.text();
+      setError(successText);
+  
      
     } else {
-      const { message } = await res.json();
+      
+      const errorText = await res.text();
+      setError(errorText);
+  
 
     }
   };
@@ -181,6 +187,9 @@ export default function Loggin() {
                     <button onClick={handlePasswordReset} className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold">
                       Passwort zurücksetzen
                     </button>
+
+
+                    {error && <p className="text-gray-500 font-bold">{error}</p>}
                   </div>     
                 </PopUp>
 

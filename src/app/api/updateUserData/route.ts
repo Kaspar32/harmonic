@@ -17,7 +17,8 @@ export async function POST(req: Request) {
       ausbildung,
       ichsuche,
       intressen,
-      genres
+      genres,
+      email
     } = body;
 
     if (!uuid) {
@@ -57,6 +58,7 @@ export async function POST(req: Request) {
         ichsuche: ichsuche,
         intressen: intressen,
         genres: genres,
+        email: email
       })
       .where(eq(users.uuid, uuid))
       .returning();

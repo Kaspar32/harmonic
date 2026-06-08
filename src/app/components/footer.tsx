@@ -11,10 +11,21 @@ export default function Footer() {
   const [newMatch, setNewMatch] = useState(false);
   const { user } = useUser();
 
-
-  const {addNotification, notifications}= useNotification();
+  const { addNotification, notifications } = useNotification();
 
   function changechat() {
+
+  
+
+      fetch("/api/getmatchbyid/updateLastMatchCheck", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uuid: user?.uuid }),
+      });
+
+
     setNewMatch(false);
   }
 
@@ -23,31 +34,42 @@ export default function Footer() {
   useEffect(() => {
     if (!user) return;
 
-   
-
     const controller = new AbortController();
 
     async function checkNewMatchMessages() {
       // Checken obs ein neuer Match gegeben hat::::::
 
       //alert("Test"+data1.uuid);
-      const res2 = await fetch(`/api/getmatchbyid/getmatchedAt?id=${user?.uuid}`);
+      const res2 = await fetch(
+        `/api/getmatchbyid/getmatchedAt?id=${user?.uuid}`,
+      );
       const data = await res2.json();
 
-      console.log("Matches", data);
 
-      if(data.length> 0 && data[data.length-1].createdAt > user?.last_match_check)
-      {
+      // Fetch last_match_check von user aktualisieren
+      const response = await fetch("/api/getmatchbyid/updateLastMatchCheck");
+
+      const lastMatchCheck = await response.json();
+
+      //console.log("Last Match Check: " + lastMatchCheck.lastMatchCheck);
+
+      
+      if (lastMatchCheck &&
+        data.length > 0 &&
+        new Date(data[0].matchCreatedAt).getTime() >
+          new Date(lastMatchCheck.lastMatchCheck).getTime()
+      ) {
+        
         setNewMatch(true);
       }
-
 
       // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
       const res3 = await fetch(`/api/messages?chatPartner=`);
       const data3 = await res3.json();
 
-      if (data3.length > 0 && data3[data3.length - 1]?.read === false)
-      {
+
+      if (data3.length > 0 && data3[data3.length - 1]?.read === false) {
+
         setNewMatch(true);
 
         for (let i = 0; i <= data3.length - 1; i++) {
@@ -55,8 +77,6 @@ export default function Footer() {
             addNotification(data3[i]?.fromUser);
           }
         }
-
-
       }
     }
 
@@ -67,8 +87,6 @@ export default function Footer() {
       controller.abort();
       clearInterval(interval);
     };
-
-   
   }, [user]);
 
   return (

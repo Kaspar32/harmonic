@@ -472,7 +472,7 @@ export default function Chatter() {
             <div key={index}>
               <div
                 className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
-                onClick={() => handleClick(index)}>
+                >
                 <Image
                   src={
                     item?.image_path
@@ -486,9 +486,8 @@ export default function Chatter() {
                   onClick={() => handlePPClick(index)}
                 />
 
-                <p
+                <p  onClick={() => handleClick(index)}
                   className="flex text-xl font-bold text-yellow-300 items-center ml-4"
-                  onClick={() => handleClick(index)}
                 >
                   Schreibe {users[index]?.name || ""}
                 </p>

@@ -20,6 +20,8 @@ type UserType = {
   roles: string;
   fakeUsersEnabled: boolean;
   profile_pics: string[];
+  email: string;
+  last_match_check: string | null;
   
 };
 
