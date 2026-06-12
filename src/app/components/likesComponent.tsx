@@ -73,7 +73,8 @@ export default function LikesTest() {
         const res = await fetch(`/api/getAboStatus`);
         const data = await res.json();
 
-        setHasAbo(data || null);
+        setHasAbo(data || false);
+
       } catch (err) {
         console.error("Fehler beim Laden des Abo-Status:", err);
       }

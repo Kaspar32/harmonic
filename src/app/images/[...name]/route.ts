@@ -1,9 +1,6 @@
 // app/images/[...name]/route.ts
 import { join } from "path";
 import { promises as fs } from "fs";
-import { getAboStatus } from "@/lib/getAboStatus";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 
 export async function GET(
   request: Request,

@@ -1,12 +1,9 @@
-
 import { db } from "@/db";
 import { Abos } from "@/db/schema";
-import { getAboStatus } from "@/lib/getAboStatus";
 import { eq } from "drizzle-orm";
 
-export async function GET(request: Request){
-
-let userfromAuth;
+export async function GET(request: Request) {
+  let userfromAuth;
   try {
     const res = await fetch("http://localhost:3000/api/auth/me", {
       method: "GET",
@@ -27,16 +24,22 @@ let userfromAuth;
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const abo = getAboStatus(userfromAuth.uuid);
+  const aboStatus = await db
+    .select()
+    .from(Abos)
+    .where(eq(Abos.user_uuid, userfromAuth.uuid));
 
-return  Response.json(abo);
+  let abo =
+    (aboStatus[0]?.abo &&
+      aboStatus[0]?.end_date &&
+      new Date(aboStatus[0]?.end_date) > new Date()) ||
+    false;
 
+  return Response.json(abo);
 }
 
-
-export async function POST(req:Request)
-{
-   let userfromAuth;
+export async function POST(req: Request) {
+  let userfromAuth;
   try {
     const res = await fetch("http://localhost:3000/api/auth/me", {
       method: "GET",
@@ -57,15 +60,33 @@ export async function POST(req:Request)
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const existingAbo = await db.select().from(Abos).where(eq(Abos.user_uuid, userfromAuth.uuid));
+  const existingAbo = await db
+    .select()
+    .from(Abos)
+    .where(eq(Abos.user_uuid, userfromAuth.uuid));
 
-  if (existingAbo.length > 0 && existingAbo[0].abo && existingAbo[0].end_date && new Date(existingAbo[0].end_date) > new Date()) {
-    return Response.json({ error: "Subscription already active" }, { status: 400 });
+  if (
+    existingAbo.length > 0 &&
+    existingAbo[0].abo &&
+    existingAbo[0].end_date &&
+    new Date(existingAbo[0].end_date) > new Date()
+  ) {
+    return Response.json(
+      { error: "Subscription already active" },
+      { status: 400 },
+    );
   }
 
   const endDate = new Date();
   endDate.setMonth(endDate.getMonth() + 1);
-  await db.insert(Abos).values({ user_uuid: userfromAuth.uuid, abo: true, start_date: new Date(), end_date: endDate});
+  await db
+    .insert(Abos)
+    .values({
+      user_uuid: userfromAuth.uuid,
+      abo: true,
+      start_date: new Date(),
+      end_date: endDate,
+    });
 
   return Response.json({ success: true });
 }
