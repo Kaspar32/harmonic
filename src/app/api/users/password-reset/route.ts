@@ -27,6 +27,13 @@ export async function POST(req: NextRequest) {
     const existing = await db.select().from(users).where(eq(users.email, emailAddress));
 
 
+    // Problem wenn mehrere user haben die gleiche Email!!
+
+    
+
+
+
+
     if (!existing[0].email || !existing[0].name) {
       return NextResponse.json(
         { message: 'Benutzer oder Email nicht gefunden.' },

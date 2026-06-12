@@ -20,7 +20,12 @@ export async function POST (req:Request){
     const existing = await db.select().from(users).where(eq(users.name, username));
 
     if(existing.length > 0) 
-        return new Response ("Fehler: Benutzername bereits vergeben.", {status:400})
+        return new Response ("Fehler: Benutzername bereits vergeben.", {status:400});
+
+    const existingEmail = await db.select().from(users).where(eq(users.email, email));
+
+    if(existingEmail.length > 0) 
+        return new Response ("Fehler: Mail-Adresse bereits vergeben.", {status:400});
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
