@@ -38,8 +38,8 @@ export default function SalesPage() {
                   <p className="text-sm text-gray-400">Kostenlos</p>
                   <ul className="text-xs text-gray-500">
                     <li>• Unbegrenzte Swipes</li>
-                    <li>• 1 Super Like pro Monat</li>
-                    <li>• 1 Boost pro Monat</li>
+                    <li>• 1 Super Like pro Woche</li>
+                    <li>• 1 Boost pro Woche</li>
                   </ul>
                 </div>
                 <div>
