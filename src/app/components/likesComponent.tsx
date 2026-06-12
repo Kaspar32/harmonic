@@ -29,6 +29,9 @@ export default function LikesTest() {
   }
 
   useEffect(() => {
+
+    if (!user) return;
+    
     fetchlikes();
     fetchLikesyou();
   }, [user]);
@@ -167,6 +170,7 @@ export default function LikesTest() {
                   Schliessen Sie ein Abo ab:
                   <ul className="list-disc list-inside mt-2">
                     <li>Mehr Superlikes</li>
+                    <li>Mehr Boosts</li>
                     <li>Schaue wer dich magt</li>
                   </ul>
                 </div>

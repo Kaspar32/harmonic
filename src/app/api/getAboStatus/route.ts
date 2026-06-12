@@ -1,6 +1,7 @@
 
 import { db } from "@/db";
 import { Abos } from "@/db/schema";
+import { getAboStatus } from "@/lib/getAboStatus";
 import { eq } from "drizzle-orm";
 
 export async function GET(request: Request){
@@ -26,9 +27,7 @@ let userfromAuth;
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const aboStatus = await db.select().from(Abos).where(eq(Abos.user_uuid, userfromAuth.uuid));
-
-  let abo =  aboStatus[0]?.abo && aboStatus[0]?.end_date && new Date(aboStatus[0]?.end_date) > new Date() || false;
+  const abo = getAboStatus(userfromAuth.uuid);
 
 return  Response.json(abo);
 

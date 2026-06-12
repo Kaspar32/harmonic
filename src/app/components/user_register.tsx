@@ -82,11 +82,8 @@ export default function UserRegister() {
         <div className="flex flex-wrap items-center justify-center gap-1 border-2 border-yellow-300 bg-yellow-100 rounded-2xl p-6 shadow-2xl text-gray-500">
         <div className="ml-20 text-2xl md:text-4xl font-extrabold text-yellow-400 bg-yellow-50 mr-30 mb-10 border-2 border-yellow-400 rounded-2xl p-4 shadow-2xl hover:mb-10 transition-all duration-300">
           Starte dein <a className="text-yellow-700">Music-first</a> Dating
-          <p className="text-gray-400 text-sm">Erstelle dein Profil und finde Matches, die zu deinem Vibe passen — nicht nur zum Foto.</p>
         </div>
         
-
-
 
         <div className="flex flex-col gap-4 border-2 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-500">
           

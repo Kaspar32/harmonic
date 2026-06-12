@@ -363,34 +363,36 @@ export default function Profile() {
     setIsSuperlike(false);
     setButtonsDisabled(false);
   }
-  
+
   // ---- Boost Logik ----
 
-  async function handleboost()
-  {
+  const [boosttime, setBoosttime] = useState("00:00");
+
+  const [boostexpires, setBoostexpires] = useState<Date | null>(null);
+
+  async function handleboost() {
+    const expiresAtResponse = await fetch("/api/boost");
+    const expiresAtData = await expiresAtResponse.json();
+
+    if (expiresAtData.expiresAt && new Date(expiresAtData.expiresAt) > new Date()) {
+      return;
+    }
+
     if (buttonsDisabled) return;
     if (isMatched) return;
 
     //Wenn nicht bezahlt dann kein Boost möglich
     //Hier dasselbe Prinzip wie beim Superlike
 
-    let ispayed= true;
+    let ispayed = true;
 
-    if(!ispayed) return;
-
-
-
-
-
-
-
-
+    if (!ispayed) return;
 
     // Einen neuen Eintrag in der Tabelle "boosts" erstellen mit user uuid und timestamp
 
     if (!user) return;
-    
-    await fetch("/api/boost",{
+
+    await fetch("/api/boost", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(user.uuid),
@@ -398,24 +400,70 @@ export default function Profile() {
 
     setGrayedOut2(true);
 
+    const loadBoost = async () => {
+      const response = await fetch("/api/boost");
+      const data = await response.json();
 
+      setBoostexpires(data.expiresAt);
+    };
+
+    loadBoost();
+
+    setRocket(true);
   }
 
+  useEffect(() => {
+    const loadBoost = async () => {
+      const response = await fetch("/api/boost");
+      const data = await response.json();
+
+      setBoostexpires(data.expiresAt);
+    };
+
+    loadBoost();
+  }, []);
+
+  useEffect(() => {
+    if (!boostexpires) return;
+
+    const updateCountdown = () => {
+      const remaining = new Date(boostexpires).getTime() - Date.now();
+
+      if (remaining <= 0) {
+        setBoosttime("00:00:00");
+        return;
+      }
+
+      const hours = Math.floor(remaining / 3600000);
+      const minutes = Math.floor((remaining % 3600000) / 60000);
+      const seconds = Math.floor((remaining % 60000) / 1000);
+
+      setBoosttime(
+        `${hours}:${String(minutes).padStart(2, "0")}:${String(
+          seconds,
+        ).padStart(2, "0")}`,
+      );
+    };
+
+    updateCountdown(); // sofort ausführen
+
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [boostexpires]);
+
   const [grayedOut2, setGrayedOut2] = useState(false);
+  const [rocket, setRocket] = useState(false);
 
   useEffect(() => {
     if (!user) return;
 
-      let ispayed= true;
-      if (!ispayed) {
-
-        setGrayedOut2(true);
-        return;
-    };
-
+    let ispayed = true;
+    if (!ispayed) {
+      setGrayedOut2(true);
+      return;
+    }
   }, [user]);
-
-
 
   // ---- neue users holen nach swipe ----
   async function getNewFilteredUsers() {
@@ -578,7 +626,7 @@ export default function Profile() {
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="size-15 md:size-20 justify-center items-center text-gray-300"
+                    className={`size-15 md:size-20 justify-center items-center text-gray-300 ${rocket ? "animate-fly" : ""}`}
                   >
                     <path
                       fillRule="evenodd"
@@ -587,7 +635,12 @@ export default function Profile() {
                     />
                     <path d="M5.26 17.242a.75.75 0 1 0-.897-1.203 5.243 5.243 0 0 0-2.05 5.022.75.75 0 0 0 .625.627 5.243 5.243 0 0 0 5.022-2.051.75.75 0 1 0-1.202-.897 3.744 3.744 0 0 1-3.008 1.51c0-1.23.592-2.323 1.51-3.008Z" />
                   </svg>
+                  <span className="text-lg font-bold text-gray-700">
+                  {boosttime}
+                </span>
                 </div>
+
+                
               </button>
 
               {/*- like button*/}

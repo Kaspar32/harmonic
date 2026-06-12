@@ -39,27 +39,22 @@ export default function Footer() {
     async function checkNewMatchMessages() {
       // Checken obs ein neuer Match gegeben hat::::::
 
-      //alert("Test"+data1.uuid);
       const res2 = await fetch(
         `/api/getmatchbyid/getmatchedAt?id=${user?.uuid}`,
       );
       const data = await res2.json();
 
-
       // Fetch last_match_check von user aktualisieren
       const response = await fetch("/api/getmatchbyid/updateLastMatchCheck");
 
       const lastMatchCheck = await response.json();
-
-      //console.log("Last Match Check: " + lastMatchCheck.lastMatchCheck);
-
       
       if (lastMatchCheck &&
         data.length > 0 &&
         new Date(data[0].matchCreatedAt).getTime() >
           new Date(lastMatchCheck.lastMatchCheck).getTime()
       ) {
-        
+
         setNewMatch(true);
       }
 
