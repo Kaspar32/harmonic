@@ -2,9 +2,8 @@
 import { join } from "path";
 import { promises as fs } from "fs";
 import { db } from "@/db";
-import { users, likes } from "@/db/schema";
+import { likes } from "@/db/schema";
 import { eq, or, and } from "drizzle-orm";
-import { sql } from "drizzle-orm";
 
 export async function GET(
   request: Request,
@@ -12,13 +11,11 @@ export async function GET(
 ) {
   try {
     const url = new URL(request.url);
-    const blurFlag = url.searchParams.get("blur");
 
-    // Warte auf das gesamte params-Objekt
+    const targetUuid = url.searchParams.get("targetuuid");
 
     const awaitedParams = await Promise.resolve(params || {});
     const fileSegments = awaitedParams.name || [];
-
     const filePath = join(process.cwd(), "uploads", "images", ...fileSegments);
 
     const isBlurred = filePath.endsWith("_blurred.png");
@@ -40,53 +37,44 @@ export async function GET(
       console.error("Error fetching user:", err);
     }
 
-    // User Uuid from Auth
-    let currentUserId = userfromAuth.uuid;
+    // User Uuid from Auth (optional — nicht eingeloggte User sehen Bilder ohne Blur-Logik)
+    const currentUserId = userfromAuth?.uuid ?? null;
 
-    // TargetUser Uuid herausfinden anhand des Target
-    const filename = fileSegments[fileSegments.length - 1];
-
-    const targetUserResult = await db
-      .select()
-      .from(users)
-      .where(
-        sql`${users.profile_pics} @> ${JSON.stringify([filename])}::jsonb`,
-      );
-
-    console.log("filename raw:", JSON.stringify(filename));
-
-
-    if (currentUserId == null) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
+    if (!targetUuid) {
+      return new Response(JSON.stringify({ error: "Missing targetuuid" }), {
+        status: 400,
         headers: {
           "Content-Type": "application/json",
         },
       });
     }
 
-    if (targetUserResult.length === 0) {
-      return new Response(JSON.stringify({ error: "Target user not found" }), {
-        status: 404,
+    const targetUserId = targetUuid;
+
+    // Eigene Bilder oder nicht eingeloggt → immer unverblurrt
+    if (!currentUserId || currentUserId === targetUserId) {
+      let fileBuffer = await fs.readFile(filePath);
+      const ext = (filePath.split(".").pop() ?? "").toLowerCase();
+      const contentType =
+        {
+          png: "image/png",
+          gif: "image/gif",
+          jpg: "image/jpeg",
+          jpeg: "image/jpeg",
+          webp: "image/webp",
+          svg: "image/svg+xml",
+        }[ext] || "application/octet-stream";
+
+      return new Response(new Uint8Array(fileBuffer), {
+        status: 200,
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": contentType,
+          "Cache-Control": "public, max-age=31536000, immutable",
         },
       });
     }
 
-    console.log("filename", filename);
-    console.log("targetUserResult", targetUserResult);
-
-    const targetUserId = targetUserResult[0].uuid;
-
-    // Wächter: folgendes Regelwerk wird überprüft:
-    /*Hat currentUser targetUser geliked?
-    JA  -> unblurred
- 
-    NEIN ->
-        Hat targetUser currentUser geliked?
-            JA  -> blurred
-            NEIN -> unblurred (oder kommt gar nicht in Likes-Liste vor)*/
+    // Eingeloggter User schaut fremdes Bild → Blur-Logik prüfen
 
     const relations = await db
       .select()
@@ -148,7 +136,7 @@ export async function GET(
         "Content-Type": contentType,
         "Cache-Control": "public, max-age=31536000, immutable", // 1 Jahr Caching
       },
-    });
+    })
   } catch (error) {
     console.error("Error serving image:", error);
     return new Response(JSON.stringify({ error: "File not found" }), {

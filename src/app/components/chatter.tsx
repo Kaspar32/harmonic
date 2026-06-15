@@ -476,7 +476,7 @@ export default function Chatter() {
                 <Image
                   src={
                     item?.image_path
-                      ? `/images/${item.image_path}`
+                      ? `/images/${item.image_path}?targetuuid=${users[index]?.uuid}`
                       : "/images/defaultProfile.png"
                   }
                   height={70}

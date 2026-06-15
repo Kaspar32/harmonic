@@ -44,7 +44,7 @@ export default function LikesTest() {
 
   function blurred(str: string) {
     const blurred = str.replace(/\.png$/, "_blurred.png");
-    return `${blurred}?blur=1`;
+    return `${blurred}${blurred.includes('?') ? '&' : '?'}blur=1`;
   }
 
   const [openProfile, setOpenProfile] = useState(false);
@@ -134,8 +134,8 @@ export default function LikesTest() {
                         <Image
                           src={
                             hasAbo
-                              ? `/images/${user.profile_pics[0]}`
-                              : blurred(`/images/${user.profile_pics[0]}`)
+                              ? `/images/${user.profile_pics[0]}?targetuuid=${user.uuid}`
+                              : blurred(`/images/${user.profile_pics[0]}?targetuuid=${user.uuid}`)
                           }
                           alt={`Bild ${index + 1}`}
                           width={96}
@@ -202,9 +202,9 @@ export default function LikesTest() {
 
       {/* Panel: You Like */}
       <div
-        className={`absolute md:h-[500px] w-full overflow-y-auto h-[450px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
-          toggleYouLike ? "opacity-100 block" : "opacity-0 hidden"
-        }`}
+className={`absolute md:h-[500px] w-full overflow-y-auto h-[450px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
+           toggleYouLike ? "opacity-100 block" : "opacity-0 hidden"
+         }`}
       >
         <div className="flex flex-wrap gap-4 m-4 md:m-20 justify-center">
           {loading && <Loader2 className="animate-spin text-yellow-400" />}
@@ -220,12 +220,20 @@ export default function LikesTest() {
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={`/images/${users.profile_pics[0]}`}
+                          src={
+                            hasAbo
+                              ? `/images/${users.profile_pics[0]}?targetuuid=${users.uuid}`
+                              : blurred(`/images/${users.profile_pics[0]}?targetuuid=${users.uuid}`)
+                          }
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
                           className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => handlePPClick(index)}
+                          onClick={() =>
+                            hasAbo
+                              ? handlePPClick(index)
+                              : setOpenDialog(true)
+                          }
                         />
                       </div>
 

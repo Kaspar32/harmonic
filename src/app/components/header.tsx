@@ -29,7 +29,7 @@ export default function Header() {
               <Image
                 src={
                   user?.profile_pics?.[0]
-                    ? `/images/${user?.profile_pics?.[0]}`
+                    ? `/images/${user?.profile_pics?.[0]}?targetuuid=${user?.uuid}`
                     : "/images/149071.png"
                 }
                 alt="Profilbild"

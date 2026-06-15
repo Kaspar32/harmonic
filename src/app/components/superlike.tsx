@@ -145,7 +145,7 @@ export default function Superlike({ onImageClick }: Props) {
               <Image
                 src={
                   superlike?.image_path
-                    ? `/images/${superlike.image_path}`
+                    ? `/images/${superlike.image_path}?targetuuid=${users[index]?.uuid}`
                     : "/images/defaultProfile.png"
                 }
                 height={100}
