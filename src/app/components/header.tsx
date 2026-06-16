@@ -27,6 +27,7 @@ export default function Header() {
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-full focus:ring-3 ring-blue-500 ">
             <div className="relative md:h-12 md:w-12 h-8 w-8  overflow-hidden rounded-full focus:ring-2 focus:ring-blue-400">
               <Image
+                unoptimized
                 src={
                   user?.profile_pics?.[0]
                     ? `/images/${user?.profile_pics?.[0]}`

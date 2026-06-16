@@ -699,6 +699,7 @@ export default function Profile() {
                   Images?.image_path &&
                   Images.image_path.map((img, index) => (
                     <Image
+                      unoptimized
                       key={`${img} ${index}`}
                       src={`/images/${img}`}
                       alt={`Bild ${img}`}

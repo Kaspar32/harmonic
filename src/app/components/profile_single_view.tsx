@@ -83,6 +83,7 @@ export default function ProfileSingleView({
       </h2>
 
       <Image
+        unoptimized
         onClick={handleClick}
         src={`/images/${Images?.image_path?.[imageIndex] ?? "defaultProfile.png"}`}
         width={1000}

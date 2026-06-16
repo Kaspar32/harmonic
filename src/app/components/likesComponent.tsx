@@ -132,11 +132,8 @@ export default function LikesTest() {
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
-                          src={
-                            hasAbo
-                              ? `/images/${user.profile_pics[0]}`
-                              : blurred(`/images/${user.profile_pics[0]}`)
-                          }
+                          unoptimized
+                          src={ `/images/${user.profile_pics[0]}`}
                           alt={`Bild ${index + 1}`}
                           width={96}
                           height={96}
@@ -220,6 +217,7 @@ export default function LikesTest() {
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
+                          unoptimized
                           src={`/images/${users.profile_pics[0]}`}
                           alt={`Bild ${index + 1}`}
                           width={96}
