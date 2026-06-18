@@ -143,6 +143,7 @@ export default function Superlike({ onImageClick }: Props) {
           >
             <div className="flex">
               <Image
+                unoptimized
                 src={
                   superlike?.image_path
                     ? `/images/${superlike.image_path}`

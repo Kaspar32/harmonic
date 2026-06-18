@@ -85,7 +85,8 @@ export default function ProfileSingleView({
       <Image
         unoptimized
         onClick={handleClick}
-        src={`/images/${Images?.image_path?.[imageIndex] ?? "defaultProfile.png"}`}
+        key={`${Images?.image_path?.[imageIndex]}-${User?.uuid}`}
+        src={`/images/${Images?.image_path?.[imageIndex] ?? "defaultProfile.png"}?t=${Date.now()}`}
         width={1000}
         height={1000}
         alt=""

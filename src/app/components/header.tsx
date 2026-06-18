@@ -30,7 +30,7 @@ export default function Header() {
                 unoptimized
                 src={
                   user?.profile_pics?.[0]
-                    ? `/images/${user?.profile_pics?.[0]}`
+                    ? `/images/${user?.profile_pics?.[0]}?t=${Date.now()}`
                     : "/images/149071.png"
                 }
                 alt="Profilbild"

@@ -477,7 +477,7 @@ export default function Chatter() {
                   unoptimized
                   src={
                     item?.image_path
-                      ? `/images/${item.image_path}`
+                      ? `/images/${item.image_path}?t=${Date.now()}`
                       : "/images/defaultProfile.png"
                   }
                   height={70}

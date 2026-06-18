@@ -700,8 +700,8 @@ export default function Profile() {
                   Images.image_path.map((img, index) => (
                     <Image
                       unoptimized
-                      key={`${img} ${index}`}
-                      src={`/images/${img}`}
+                      key={`${img}-${users[UserIndex]?.uuid}-${index}`}
+                      src={`/images/${img}?t=${Date.now()}`}
                       alt={`Bild ${img}`}
                       height={650}
                       width={650}
