@@ -175,11 +175,23 @@ export async function GET(request: NextRequest) {
 
   // Hier das Ranking noch machen sehr abhängig vom Boost
 
+  // Alle aktiven Boosts für gefundene User auf einmal abrufen (vermeidet N+1)
+  const userUuids = allUsers.map((u) => u.users.uuid);
+  const activeBoosts = await db
+    .select({ uuid: boosts.uuid })
+    .from(boosts)
+    .where(
+      and(
+        inArray(boosts.uuid, userUuids),
+        gt(boosts.endsAt, new Date())
+      ),
+    );
+  const boostedUuids = new Set(activeBoosts.map((b) => b.uuid));
+
   const rankedUsers = await Promise.all(
     allUsers.map(async (user) => {
       let score = 0;
 
-      // Gemeinsame Interessen
       const userInterests = user.users.intressen || [];
 
       const currentUserInterests = interest?.myInterest
@@ -194,7 +206,6 @@ export async function GET(request: NextRequest) {
         score += sharedInterests.length * 0.5;
       }
 
-      // Gleiche Stadt
       const userLocation = user.users.location;
       const currentUserLocation = locationResult?.location;
 
@@ -207,18 +218,11 @@ export async function GET(request: NextRequest) {
         }
       }
 
-      // Aktiven Boost prüfen
-      const hasBoost = await db
-        .select()
-        .from(boosts)
-        .where(
-          and(eq(boosts.uuid, user.users.uuid), gt(boosts.endsAt, new Date())),
-        )
-        .then((res) => res.length > 0);
+      // Boost im Memory prüfen statt DB-Abfrage
 
-      // Boost anwenden
-      if (hasBoost) {
-        score += 10;
+      const boostMultiplier = 5;
+      if (boostedUuids.has(user.users.uuid)) {
+        score = score * boostMultiplier;
       }
 
       return {

@@ -449,12 +449,15 @@ export default function Chatter() {
   const [animateindex, setAnimateindex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setAnimateindex((prev) => prev + 1);
-    }, 200); // 1000 ms = 1 Sekunde
+  // Nur animieren während initialen Laden
+  if (!loading && images.length > 0) return;
+  
+  const interval = setInterval(() => {
+    setAnimateindex((prev) => (prev + 1) % images.length);
+  }, 200);
 
-    return () => clearInterval(interval); // Cleanup
-  }, []);
+  return () => clearInterval(interval);
+}, [loading, images.length]);
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">

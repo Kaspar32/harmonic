@@ -63,6 +63,11 @@ export default function Profile() {
   }
 
   // Hole Bilder für den aktuellen User
+  const [imageTs, setImageTs] = useState(() => Date.now());
+  useEffect(() => {
+    setImageTs(Date.now());
+  }, [Images]);
+
   async function fetchPics() {
     const res = await fetch(
       `/api/getallpicsbyuserid?id=${users[UserIndex].uuid}`,
@@ -374,7 +379,10 @@ export default function Profile() {
     const expiresAtResponse = await fetch("/api/boost");
     const expiresAtData = await expiresAtResponse.json();
 
-    if (expiresAtData.expiresAt && new Date(expiresAtData.expiresAt) > new Date()) {
+    if (
+      expiresAtData.expiresAt &&
+      new Date(expiresAtData.expiresAt) > new Date()
+    ) {
       return;
     }
 
@@ -636,11 +644,9 @@ export default function Profile() {
                     <path d="M5.26 17.242a.75.75 0 1 0-.897-1.203 5.243 5.243 0 0 0-2.05 5.022.75.75 0 0 0 .625.627 5.243 5.243 0 0 0 5.022-2.051.75.75 0 1 0-1.202-.897 3.744 3.744 0 0 1-3.008 1.51c0-1.23.592-2.323 1.51-3.008Z" />
                   </svg>
                   <span className="text-lg font-bold text-gray-700">
-                  {boosttime}
-                </span>
+                    {boosttime}
+                  </span>
                 </div>
-
-                
               </button>
 
               {/*- like button*/}
@@ -701,7 +707,7 @@ export default function Profile() {
                     <Image
                       unoptimized
                       key={`${img}-${users[UserIndex]?.uuid}-${index}`}
-                      src={`/images/${img}?t=${Date.now()}`}
+                      src={`/images/${img}?t=${imageTs}`}
                       alt={`Bild ${img}`}
                       height={650}
                       width={650}
