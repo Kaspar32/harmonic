@@ -14,20 +14,25 @@ export async function POST(req: Request) {
 
   const user = foundUser[0];
 
+  const isdeleted= await db.select({ deleted: users.deleted })
+  .from(users)
+  .where(eq(users.uuid, user?.uuid));
+
   if (!user) {
-    return new Response("User doesn't exist.", { status: 400 });
+    return new Response("Login fehlgeschlagen!", { status: 400 });
   }
 
   const comparePasswords = await bcrypt.compare(
     password,
-    user.password as string
+    user.password as string,
   );
 
-  if (!comparePasswords) {
-    return new Response("Falsches Passwort.", { status: 400 });
+  if (!comparePasswords || isdeleted[0]?.deleted) {
+    return new Response("Login fehlgeschlagen! ", { status: 400 });
   }
 
   const res = NextResponse.json({ message: "Loggin erfolgreich" });
+
 
   res.cookies.set("userId", user.uuid, {
     httpOnly: true,
@@ -35,6 +40,23 @@ export async function POST(req: Request) {
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
+
+
+  //neuer Token setzten mit JWT
+  const jwt = require("jsonwebtoken");
+
+  const token = jwt.sign({ userId: user.uuid }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+
+  // Cookie setzten 
+  res.cookies.set("authtoken", token, {
+  httpOnly: true,
+  secure: false,       
+  sameSite: "lax",
+  path: "/",
+  maxAge: 60*60*24*7
+});
 
   return res;
 }

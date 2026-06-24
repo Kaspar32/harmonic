@@ -1,44 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Interests from "../data/Intrests";
-import ImageUploader from "./ImageUploader";
-import { Pics } from "../types/Pics";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  useSortable,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { convertImagesToBase64 } from "@/lib/convertToImageBase64";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
-import { User } from "lucide-react";
+
 import Questions from "./questions";
 
-interface TrackItem {
-  id: string;
-  name: string;
-  artist: string;
-  isSelected?: boolean;
-}
+import Refactoring_Images from "./refactoring_images";
 
-interface ArtistItem {
-  id: string;
-  name: string;
-  genre?: string;
-  isSelected?: boolean;
-}
+import { useUser } from "@/app/context/UserContext";
+import { getLocation } from "@/lib/getLocation";
+import { reverseGeocode } from "@/lib/getSuburbbyLocation";
 
 export default function Profil_Edit() {
   const [userData, setUserData] = useState<UserType>({
@@ -46,6 +20,7 @@ export default function Profil_Edit() {
     name: "",
     geschlecht: "",
     alter: "Auswählen",
+    geburtstag: "Auswählen",
     groesse: "Auswählen",
     ausbildung: "Auswählen",
     intressen: [],
@@ -55,12 +30,16 @@ export default function Profil_Edit() {
     favorite_artist: null,
     roles: "",
     fakeUsersEnabled: true,
+    profile_pics: [],
+    location: null,
+    email: "",
+    last_match_check: null,
   });
 
   // Temporäre Variablen für die Editierfunktion
   const [Temp_Name, setTemp_Name] = useState("");
   const [Temp_Geschlecht, setTemp_Geschlecht] = useState("");
-  const [Temp_Alter, setTemp_Alter] = useState("");
+  const [Temp_Geburtstag, setTemp_Geburtstag] = useState("");
   const [Temp_Groesse, setTemp_Groesse] = useState("");
   const [Temp_Ausbildung, setTemp_Ausbildung] = useState("");
 
@@ -75,56 +54,58 @@ export default function Profil_Edit() {
   const [showFavoriteTune, setFavoriteTune] = useState(false);
   const [showFavoriteBand, setFavoriteBand] = useState(false);
   const [showQuestions, setShowQuestions] = useState(false);
+  const [showLocation, setLocation] = useState(false);
+  const [showMail, setMail] = useState(false);
 
   const [intressen] = useState(Interests);
   const [genres] = useState(Genres);
   const [ichSucheState] = useState(IchSucheData);
 
-  const [uuid] = useState("");
+  const { user } = useUser();
 
   // User Daten und Bilder direkt laden
   useEffect(() => {
     async function fetchUser() {
-      const res = await fetch("/api/auth");
-      if (!res.ok) return;
-
-      const data = await res.json();
+      if (!user) {
+        return;
+      }
 
       setUserData((prev) => ({
         ...prev,
-        uuid: data.uuid,
-        name: data.name,
-        geschlecht: data.geschlecht,
-        alter: data.alter,
-        groesse: data.groesse,
-        ausbildung: data.ausbildung,
-        intressen: data.intressen,
-        ichsuche: data.ichsuche,
-        genres: data.genres,
-        spotify_data: data.spotify_data,
-        favorite_track: data.favorite_track,
-        favorite_artist: data.favorite_artist,
+        uuid: user?.uuid,
+        name: user?.name,
+        geschlecht: user?.geschlecht,
+        alter: user?.alter,
+        geburtstag: user?.geburtstag,
+        groesse: user?.groesse,
+        ausbildung: user?.ausbildung,
+        intressen: user?.intressen,
+        ichsuche: user?.ichsuche,
+        genres: user?.genres,
+        favorite_track: user?.favorite_track,
+        favorite_artist: user?.favorite_artist,
+        roles: user?.roles,
+        fakeUsersEnabled: user?.fakeUsersEnabled,
+        profile_pics: user?.profile_pics,
+        location: typeof user?.location === "string" ? user.location : null,
+        email: user?.email,
       }));
 
-      //alert(data.favorite_artist)
+      // Sepzialfall Location
 
-      const res2 = await fetch(`/api/getpicsbyid?id=${data.uuid}`);
-      if (!res2.ok) return;
-      const imagesData = await res2.json();
-      setImages((prev) =>
-        prev.map((img, i) =>
-          imagesData[i] ? { ...img, ...imagesData[i] } : img,
-        ),
-      );
+      if (typeof user?.location === "string") {
+        setSuburb(user.location);
+      }
     }
     fetchUser();
-  }, []);
+  }, [user]);
 
   //User updaten
   async function updateUser(updates: Partial<typeof userData>) {
     if (!userData.uuid) return;
 
     const newUserData = { uuid: userData.uuid, ...updates };
+    console.log("newUserData:", newUserData);
     const res = await fetch("/api/updateUserData", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -137,176 +118,41 @@ export default function Profil_Edit() {
     setUserData((prev) => ({ ...prev, ...updatedData }));
   }
 
-  //Profilbilder logik
-  // Constants für das Handle der Reihenfolge der Profilbilder
-  const [images, setImages] = useState<
-    {
-      id: string;
-      image?: File | null;
-      imageBase64?: string;
-      user_id?: string;
-      position?: number;
-    }[]
-  >([{ id: "1" }, { id: "2" }, { id: "3" }, { id: "4" }, { id: "5" }]);
+  function calculateAge(birthday: string) {
+    const birthDate = new Date(birthday);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
 
-  const handleImageChange = (id: string, image: File | null) => {
-    setImages((prev) =>
-      prev.map((img) => (img.id === id ? { ...img, image } : img)),
-    );
-  };
-
-  // Konstante und Funktionen für die Reihenfolge der Bilder
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-  );
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (!over || active.id === over.id) return;
-
-    if (active.id !== over?.id) {
-      const oldIndex = images.findIndex((item) => item.id === active.id);
-      const newIndex = images.findIndex((item) => item.id === over.id);
-
-      const newImages = arrayMove(images, oldIndex, newIndex);
-
-      if (oldIndex === -1 || newIndex === -1) {
-        return;
-      }
-
-      const updatedImages = newImages.map((img, index) => ({
-        ...img,
-        position: index, // wichtig für spätere Speicherung
-      }));
-
-      setImages(updatedImages);
-
-      const res = await fetch("/api/reorder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ images: updatedImages, uuid: uuid }),
-      });
-
-      console.log(res);
-    }
-  };
-
-  // Nach dem Klicken des Hinzufügen-Button werden die Bilder in der DB gespeichert
-
-  async function addPpics() {
-    //Konvertieren zu ImageBase64
-    const res0 = await fetch("/api/auth");
-    if (!res0.ok) return;
-
-    const data = await res0.json();
-
-    const base64Array = await convertImagesToBase64(images);
-
-    const payload = images.map((img, index) => ({
-      id: `${data.uuid}-img-${img.id}`,
-      image_base64: base64Array[index],
-      position: index,
-      user_id: uuid,
-    }));
-
-    const res = await fetch("/api/addprofilepics", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const result = await res.json();
-    console.log(result);
-
-    window.location.reload();
+    return age;
   }
-
-  async function deleteImage(id: string) {
-    await fetch("/api/deletepicbyid", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ id: id }),
-    });
-  }
-
-  //Spotify-Daten
-  /*
-  const [spotifyLoggedIn, setSpotifyLoggedIn] = useState(false);
-  const [topTracks, setTopTracks] = useState<
-    { name: string; artist: string; image: string | null }[]
-  >([]);
-
-  const [topArtist, setTopArtist] = useState<
-    { id: string; name: string; image: string | null; genres: string }[]
-  >([]);
-
-  const client_id = "f0a194a6e44b425fbdf257fb380beb48";
-  const redirect_uri = "http://127.0.0.1:3000/api/auth/callback/spotify";
-  const scope = "user-top-read";
-
-  const spotifyLoginUrl =
-    `https://accounts.spotify.com/authorize?` +
-    new URLSearchParams({
-      response_type: "code",
-      client_id,
-      scope,
-      redirect_uri,
-    }).toString();
 
   useEffect(() => {
-    async function loadSpotifyData() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const dataParam = urlParams.get("data");
-
-      if (dataParam != null) {
-        setSpotifyLoggedIn(true);
-        const parsed = JSON.parse(dataParam);
-
-        console.log("parsed:", parsed);
-
-        if (parsed) {
-          setTopTracks(parsed.topTracks);
-          setTopArtist(parsed.topArtist);
-
-          const res = await fetch("/api/getuserdata");
-          const data = await res.json();
-
-          fetch("/api/addspotifydata", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ data: parsed, userId: data.uuid }),
-          })
-            .then((res) => {
-              if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-              return res.json();
-            })
-            .then((data) => {
-              console.log("Erfolgreich gespeichert:", data);
-            })
-            .catch((err) => {
-              console.error("Speicherfehler:", err);
-            });
-        }
-      }
+    if (userData?.geburtstag) {
+      setTemp_Geburtstag(userData.geburtstag.split("T")[0]);
     }
+  }, [userData]);
 
-    loadSpotifyData();
-  }, []);*/
+  // Heutiges Datum
+  const today = new Date();
+  // 18 Jahre zurück
+  today.setFullYear(today.getFullYear() - 18);
+  // YYYY-MM-DD formatieren
+  const maxDate = today.toISOString().split("T")[0];
+
+  // Bei jedem Rendern der Seite das Alter neu berechen, wichtig ist vor allem das Alter aktualisiert wird mit der calculateAge Funktion auch wenn das Geburtstag nicht ändert!
+
+  useEffect(() => {
+    if (userData?.geburtstag) {
+      updateUser({ alter: calculateAge(userData.geburtstag).toString() });
+    }
+  }, []);
 
   {
-    /* Spotify-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
+    /* Deezer-Daten::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: */
   }
 
-  const [serachInput, setSerachInput] = useState("");
-  const [serachInput_Artist, setSerachInput_Artist] = useState("");
-  const [accessToken, setAccessToken] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchInput_Artist, setSearchInput_Artist] = useState("");
 
   type Track = {
     album: {
@@ -314,7 +160,7 @@ export default function Profil_Edit() {
     };
     name: string;
     artists: { name: string }[];
-
+    preview?: string;
     isSelected?: boolean;
     id: string;
   };
@@ -322,83 +168,58 @@ export default function Profil_Edit() {
   type Artist = {
     id: string;
     name: string;
-
     images: { url: string }[];
-
     isSelected?: boolean;
   };
 
   const [tracks, setTracks] = useState<Track[]>([]);
-
   const [artists, setArtists] = useState<Artist[]>([]);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    const authParameters = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body:
-        "grant_type=client_credentials&client_id=" +
-        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID +
-        "&client_secret=" +
-        process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET,
-    };
-
-    fetch("https://accounts.spotify.com/api/token", authParameters)
-      .then((result) => result.json())
-      .then((data) => setAccessToken(data.access_token));
-  }, []);
-
+  // 🔍 TRACK SEARCH
   async function search() {
-    const artistParameters = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + accessToken,
-      },
-    };
+    if (!searchInput) return;
 
-    const Track = await fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        serachInput +
-        "&type=track&limit=10",
-      artistParameters,
-    ).then((response) => response.json());
+    const res = await fetch(`/api/deezer-search?q=${searchInput}`);
+    const data = await res.json();
+
+    console.log("Deezer Tracks:", data);
 
     setTracks(
-      Track.tracks.items.map((t: TrackItem) => ({
-        ...t,
+      data.data.map((t: any) => ({
+        id: t.id,
+        name: t.title,
+        album: {
+          images: [{ url: t.album.cover }],
+        },
+        artists: [{ name: t.artist.name }],
+        preview: t.preview,
         isSelected: false,
       })),
     );
   }
 
+  // 🎤 ARTIST SEARCH
   async function search_artist() {
-    const artistParameters = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: "Bearer " + accessToken,
-      },
-    };
+    if (!searchInput_Artist) return;
 
-    const Artists = await fetch(
-      "https://api.spotify.com/v1/search?q=" +
-        serachInput_Artist +
-        "&type=artist&limit=10",
-      artistParameters,
-    ).then((response) => response.json());
+    const res = await fetch(`/api/deezer-artist?q=${searchInput_Artist}`);
+    const data = await res.json();
+
+    console.log("Deezer Artists:", data);
 
     setArtists(
-      Artists.artists.items.map((t: ArtistItem) => ({
-        ...t,
+      data.data.map((a: any) => ({
+        id: a.id,
+        name: a.name,
+        images: [{ url: a.picture }],
         isSelected: false,
       })),
     );
   }
 
-  async function toggleTrack(track: Track) {
+  // 🎯 TRACK AUSWÄHLEN
+  function toggleTrack(track: Track) {
     setTracks(
       tracks.map((t) =>
         t.id === track.id
@@ -408,163 +229,169 @@ export default function Profil_Edit() {
     );
   }
 
-  async function toggleArtist(artist: Artist) {
+  // 🎯 ARTIST AUSWÄHLEN
+  function toggleArtist(artist: Artist) {
     setArtists(
-      artists.map((t) =>
-        t.id === artist.id
-          ? { ...t, isSelected: true }
-          : { ...t, isSelected: false },
+      artists.map((a) =>
+        a.id === artist.id
+          ? { ...a, isSelected: true }
+          : { ...a, isSelected: false },
       ),
     );
   }
 
+  // 💾 TRACK SPEICHERN
   async function saveTrack() {
     const selectedTrack = tracks.find((t) => t.isSelected);
-    if (!selectedTrack) return; // Kein Track ausgewählt
+    if (!selectedTrack) return;
 
     const trackData = {
       name: selectedTrack.name,
-      image: selectedTrack.album?.images?.[0]?.url ?? null, // erstes Album-Bild
-      artist: selectedTrack.artists?.[0]?.name ?? null, // erster Künstler
+      image: selectedTrack.album?.images?.[0]?.url ?? null,
+      artist: selectedTrack.artists?.[0]?.name ?? null,
+      preview: selectedTrack.preview ?? null,
     };
 
-    setUserData((prev) => ({ ...prev, favorite_track: trackData }));
+    setUserData((prev: any) => ({
+      ...prev,
+      favorite_track: trackData,
+    }));
 
-    fetch("/api/savefavoritetrack", {
+    await fetch("/api/savefavoritetrack", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(trackData),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Erfolgreich gespeichert:", data);
-      })
-      .catch((err) => {
-        console.error("Speicherfehler:", err);
-      });
+    });
   }
 
+  // 💾 ARTIST SPEICHERN
   async function saveArtist(index: number) {
     const selectedArtist = artists.find((a) => a.isSelected);
-    if (!selectedArtist) return; // Kein Künstler ausgewählt
+    if (!selectedArtist) return;
 
     const artistData = {
       name: selectedArtist.name,
-      image: selectedArtist.images?.[0]?.url ?? null, // erstes Bild
+      image: selectedArtist.images?.[0]?.url ?? null,
     };
 
-    if (index === 1) {
-      alert("Teeest");
-
-      setUserData((prev) => ({
-        ...prev,
-        favorite_artist: {
-          ...prev.favorite_artist,
-          favorite_artist1: {
-            name: artistData.name,
-            image: artistData.image,
-          },
-        },
-      }));
-    }
-    if (index === 2) {
-      setUserData((prev) => ({
-        ...prev,
-        favorite_artist: {
-          ...prev.favorite_artist,
-          favorite_artist2: {
-            name: artistData.name,
-            image: artistData.image,
-          },
-        },
-      }));
-    }
-  }
-
-  function ArtistinDB() {
-    let payload = {
-      favorite_artist1: userData.favorite_artist?.favorite_artist1,
-      favorite_artist2: userData.favorite_artist?.favorite_artist2,
+    // Build the updated favorite_artist object based on current state
+    const updatedFavoriteArtist = {
+      ...userData.favorite_artist,
+      [`favorite_artist${index}`]: artistData,
     };
 
-    fetch("/api/savefavoriteartist", {
+    // Update local state
+    setUserData((prev) => ({
+      ...prev,
+      favorite_artist: updatedFavoriteArtist,
+    }));
+
+    // Persist to backend
+    await fetch("/api/savefavoriteartist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Speichern in der DB");
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Erfolgreich gespeichert:", data);
-      })
-      .catch((err) => {
-        console.error("Speicherfehler:", err);
-      });
+      body: JSON.stringify(updatedFavoriteArtist),
+    });
+  }
+
+  // 🎧 AUDIO PREVIEW
+  function playTrack(track: Track) {
+    if (!track.preview) return;
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    audioRef.current = new Audio(track.preview);
+    audioRef.current.play();
+  }
+
+  function pauseTrack(_track: Track) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+  }
+
+  // ---- Location:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+  const [suburb, setSuburb] = useState("");
+  const [geolocation, setGeolocation] = useState({});
+
+  async function initLocation() {
+    try {
+      const location = await getLocation();
+      let suburb = await reverseGeocode(location.latitude, location.longitude);
+      setSuburb(suburb.city + ", " + suburb.suburb + ", " + suburb.country);
+      setGeolocation(location);
+      console.log(location);
+    } catch (error) {
+      console.error("Error getting location:", error);
+    }
+  }
+
+  async function saveLocation() {
+    await fetch("api/savelocation", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ location: suburb, geolocation: geolocation }),
+    });
+  }
+
+  // Get alle cities from DB
+  const [cities, setCities] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function fetchCities() {
+      try {
+        const res = await fetch("/api/getcities");
+        const data = await res.json();
+        setCities(data);
+      } catch (error) {
+        console.error("Error fetching cities:", error);
+      }
+    }
+    fetchCities();
+  }, []);
+
+  const [searchLocation, setSearchLocation] = useState("");
+  const filteredCities = useMemo(() => {
+    if (searchLocation.trim().length < 2) {
+      return [];
+    }
+
+    return cities
+      .filter((city: any) =>
+        city.zipCode?.toLowerCase().includes(searchLocation.toLowerCase()),
+      )
+      .slice(0, 10);
+  }, [searchLocation, cities]);
+
+  function handleCitySelect(city: any) {
+    setSuburb(`${city.cantonNameLong}, ${city.cityName}, Schweiz`);
+    setGeolocation({ latitude: city.iLatitude, longitude: city.iLongitude });
   }
 
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
-      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">Bilder</h2>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={images.map((item) => item.id)}
-          strategy={rectSortingStrategy}
-        >
-          <div className="flex flex-wrap">
-            {images.map((img, i) => (
-              <SortableItem key={img.id} id={img.id}>
-                <div className="border-2 w-48 h-48 rounded-2xl mt-2 ml-2 p-2 border-yellow-200 relative">
-                  <ImageUploader
-                    onImageChange={(image) => {
-                      if (image === null) {
-                        deleteImage(img.id); // Deine Funktion zum Löschen des Bildes
-                      } else {
-                        handleImageChange(img.id, image); // Normale Bildbehandlung
-                      }
-                    }}
-                    initialImageUrl={
-                      images.find((image) => i === image.position)
-                        ?.imageBase64 ?? undefined
-                    }
-                  />
-                </div>
-              </SortableItem>
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
+      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
+        Bilder
+      </h2>
 
-      {images.some((img) => img.image) && (
-        <div className=" text-yellow-500 font-bold border-2 p-2 h-30 rounded-2xl mt-2 animate-pulse">
-          Speichere die Bilder nach dem (+) Hinzufügen
-        </div>
-      )}
-      {images.some((img) => img.image) && (
-        <button
-          onClick={addPpics}
-          className="border-2  h-30 m-2 border-gray-300 text-2xl font-bold text-gray-300 hover:bg-white rounded-2xl"
-        >
-          <div>Bilder speichern (jpg/png)</div>
-        </button>
-      )}
+      {/*---------- Images und die Container --------*/}
+      <Refactoring_Images />
 
       <div className="flex flex-wrap md:flex-nowrap gap-2">
         {/*---------- über mich --------*/}
         <div className="flex-1">
-          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Über Mich</h2>
+          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
+            Über Mich
+          </h2>
 
           <div className="mb-4">
             {/* Name */}
@@ -580,6 +407,7 @@ export default function Profil_Edit() {
                   Name
                 </h2>
                 <textarea
+                  disabled
                   defaultValue={userData.name}
                   onChange={(e) => setTemp_Name(e.target.value)}
                   className="bg-yellow-200 rounded-xl w-full h-24 p-2 focus:outline-none dark:text-black"
@@ -590,6 +418,7 @@ export default function Profil_Edit() {
                     setName(false);
                     await updateUser({ name: Temp_Name });
                   }}
+                  disabled
                 >
                   Speichern
                 </button>
@@ -598,7 +427,9 @@ export default function Profil_Edit() {
 
             {/* Alter */}
             <h3
-              onClick={() => setAlter(true)}
+              onClick={() => {
+                setAlter(true);
+              }}
               className="ml-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
               Alter: {userData.alter}
@@ -606,22 +437,21 @@ export default function Profil_Edit() {
 
             {!userData.alter && (
               <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
-                Du musst dein Alter angegeben, um angezeigt zu werden!
+                Du musst dein Geburtstag angegeben, um angezeigt zu werden!
               </div>
             )}
             {showAlter && (
               <PopUp onClose={() => setAlter(false)}>
                 <h2 className="text-xl font-bold mb-4  text-gray-400 dark:text-gray-400 ">
-                  Alter
+                  Geburtstag
                 </h2>
 
                 <input
-                  type="number"
-                  min={18}
-                  max={99}
-                  defaultValue={userData.alter}
-                  onChange={(e) => setTemp_Alter(e.target.value)}
-                  className="w-24 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
+                  max={maxDate}
+                  type="date"
+                  value={Temp_Geburtstag}
+                  onChange={(e) => setTemp_Geburtstag(e.target.value)}
+                  className="w-50 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
                 />
 
                 <div className="flex gap-4 mt-4">
@@ -629,7 +459,10 @@ export default function Profil_Edit() {
                     className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
                     onClick={async () => {
                       setAlter(false);
-                      await updateUser({ alter: Temp_Alter });
+                      await updateUser({
+                        geburtstag: Temp_Geburtstag,
+                        alter: calculateAge(Temp_Geburtstag).toString(),
+                      });
                     }}
                   >
                     Speichern
@@ -885,12 +718,115 @@ export default function Profil_Edit() {
                 </div>
               </PopUp>
             )}
+
+            {/* Location */}
+            <div>
+              <h3
+                onClick={() => setLocation(true)}
+                className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              >
+                Standort
+              </h3>
+
+              {showLocation && (
+                <PopUp onClose={() => setLocation(false)}>
+                  <h2 className="text-xl text-gray-400 dark:text-gray-400 font-bold mb-4">
+                    Standort verwenden
+                  </h2>
+
+                  <div className="flex flex-col items-center gap-4 p-4">
+                    <div onClick={initLocation}>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-15 w-15 h-15 text-gray-400 dark:text-gray-400 cursor-pointer hover:text-gray-600"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM6.262 6.072a8.25 8.25 0 1 0 10.562-.766 4.5 4.5 0 0 1-1.318 1.357L14.25 7.5l.165.33a.809.809 0 0 1-1.086 1.085l-.604-.302a1.125 1.125 0 0 0-1.298.21l-.132.131c-.439.44-.439 1.152 0 1.591l.296.296c.256.257.622.374.98.314l1.17-.195c.323-.054.654.036.905.245l1.33 1.108c.32.267.46.694.358 1.1a8.7 8.7 0 0 1-2.288 4.04l-.723.724a1.125 1.125 0 0 1-1.298.21l-.153-.076a1.125 1.125 0 0 1-.622-1.006v-1.089c0-.298-.119-.585-.33-.796l-1.347-1.347a1.125 1.125 0 0 1-.21-1.298L9.75 12l-1.64-1.64a6 6 0 0 1-1.676-3.257l-.172-1.03Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    <input
+                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                      type="text"
+                      placeholder="Stadt per ZIP suchen..."
+                      value={searchLocation}
+                      onChange={(e) => setSearchLocation(e.target.value)}
+                    />
+                    <ul>
+                      {filteredCities.map((city: any) => (
+                        <li
+                          onClick={() => handleCitySelect(city)}
+                          key={city.id}
+                        >
+                          {city.cantonNameLong}, {city.cityName}, Schweiz
+                        </li>
+                      ))}
+                    </ul>
+
+                    <span>{suburb}</span>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      onClick={() => {
+                        saveLocation();
+                        setLocation(false);
+                      }}
+                      className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    >
+                      Speichern
+                    </button>
+                  </div>
+                </PopUp>
+              )}
+            </div>
+
+            <h3
+              onClick={() => setMail(true)}
+              className="ml-4  mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+            >
+              E-Mail-Adresse
+            </h3>
+
+            {showMail && (
+              <PopUp onClose={() => setMail(false)}>
+                <h2 className="text-xl text-gray-400 dark:text-gray-400 font-bold mb-4">
+                  E-Mail-Adresse
+                </h2>
+                <input
+                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                  type="email"
+                  placeholder="E-Mail-Adresse"
+                  value={userData.email}
+                  onChange={(e) =>
+                    setUserData((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                />
+
+                <button
+                  className="px-4 py-2 mt-4 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  onClick={() => {
+                    updateUser({ email: userData.email });
+                    setMail(false);
+                  }}
+                >
+                  Speichern
+                </button>
+              </PopUp>
+            )}
           </div>
         </div>
 
         {/*--------------- Genre -------------*/}
         <div className="flex-1">
-          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">Musik</h2>
+          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
+            Musik
+          </h2>
 
           <div className="flex-1">
             <h3
@@ -951,9 +887,13 @@ export default function Profil_Edit() {
             {/* */}
             <h3
               onClick={() => setFavoriteTune(true)}
-              className=" ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2  text-2xl hover:bg-white rounded-2xl shadow-lg "
+              className="ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2 text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
-              Momentanes Lieblingslied
+              Momentanes Lieblingslied:
+              <span className="block text-gray-300 text-sm mt-2">
+                {userData?.favorite_track?.name} von{" "}
+                {userData?.favorite_track?.artist}
+              </span>
             </h3>
             {showFavoriteTune && (
               <PopUp
@@ -971,8 +911,13 @@ export default function Profil_Edit() {
                   <div className="w-full max-w-sm">
                     <input
                       className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
-                      placeholder="Type here..."
-                      onChange={(event) => setSerachInput(event.target.value)}
+                      placeholder="Tippen Sie hier..."
+                      onChange={(event) => setSearchInput(event.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          search;
+                        }
+                      }}
                     />
                   </div>
 
@@ -1013,6 +958,34 @@ export default function Profil_Edit() {
                           <p className="text-slate-800 font-semibold text-sm">
                             {track.name}
                           </p>
+                          <button onClick={() => playTrack(track)}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-6 hover:text-green-500  hover:scale-150 transition-colors duration-300 mr-3"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
+                          <button onClick={() => pauseTrack(track)}>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="currentColor"
+                              className="size-6 hover:text-red-500 hover:scale-150 transition-colors duration-300 "
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </button>
                         </div>
                       </div>
                     );
@@ -1060,144 +1033,418 @@ export default function Profil_Edit() {
               Lieblingsinterpret
             </h3>
             {showFavoriteBand && (
-              <PopUp
-                onClose={() => {
-                  setFavoriteBand(false);
-                }}
-              >
-                <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
-                  Suche nache einem Künstler
-                </p>
+              <div className=" position absolute top-[-20px]">
+                <PopUp
+                  onClose={() => {
+                    setFavoriteBand(false);
+                  }}
+                >
+                  <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
+                    Suche nache einem Künstler
+                  </p>
 
-                <div className="flex items-center gap-3">
-                  {/* input */}
-                  <div className="w-full max-w-sm">
-                    <input
-                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
-                      placeholder="Type here..."
-                      onChange={(event) =>
-                        setSerachInput_Artist(event.target.value)
-                      }
-                    />
+                  <div className="flex items-center gap-3">
+                    {/* input */}
+                    <div className="w-full max-w-sm">
+                      <input
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                        placeholder="Tippen Sie hier..."
+                        onChange={(event) =>
+                          setSearchInput_Artist(event.target.value)
+                        }
+                      />
+                    </div>
+
+                    {/* ssearch button */}
+                    <button
+                      onClick={search_artist}
+                      className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
+                    >
+                      Suche
+                    </button>
                   </div>
 
-                  {/* ssearch button */}
-                  <button
-                    onClick={search_artist}
-                    className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
-                  >
-                    Suche
-                  </button>
-                </div>
-
-                <div className="space-y-2 mt-4 overflow-y-auto max-h-48">
-                  {artists.map((artist, i) => {
-                    return (
-                      <div
-                        key={i}
-                        className={`rounded-md px-3 py-1 flex gap-2 items-center
+                  <div className="space-y-2 mt-4 overflow-y-auto max-h-48">
+                    {artists.map((artist, i) => {
+                      return (
+                        <div
+                          key={i}
+                          className={`rounded-md px-3 py-1 flex gap-2 items-center
                                 border ${
                                   artist.isSelected
                                     ? "border-yellow-400 bg-yellow-100"
                                     : "border-slate-200"
                                 }`}
-                        onClick={() => toggleArtist(artist)}
+                          onClick={() => toggleArtist(artist)}
+                        >
+                          <img
+                            src={artist.images[0]?.url || "/fallback.jpg"}
+                            alt={artist.name}
+                            className="w-15 h-15"
+                          />
+                          <div>
+                            <p className="text-slate-800 font-semibold text-sm">
+                              {artist.name}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(1)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
                       >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 1<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
                         <img
-                          src={artist.images[0]?.url || "/fallback.jpg"}
-                          alt={artist.name}
+                          src={
+                            userData.favorite_artist.favorite_artist1?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist.favorite_artist1?.name}
                           className="w-15 h-15"
                         />
                         <div>
                           <p className="text-slate-800 font-semibold text-sm">
-                            {artist.name}
+                            {userData.favorite_artist.favorite_artist1?.name}
                           </p>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    )}
+                  </div>
 
-                <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p
-                    onClick={() => saveArtist(1)}
-                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-6 text-yellow-600 position-relative"
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(2)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
-                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                    Ausgewählter Interpret Nr. 1<br></br>
-                    (bitte der gesuchte Artist hier per Klick einfügen)
-                  </p>
-                  {userData.favorite_artist && (
-                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
-                      <img
-                        src={
-                          userData.favorite_artist.favorite_artist1?.image ||
-                          "/fallback.jpg"
-                        }
-                        alt={userData.favorite_artist.favorite_artist1?.name}
-                        className="w-15 h-15"
-                      />
-                      <div>
-                        <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist.favorite_artist1?.name}
-                        </p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 2<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist2 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist2?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist2?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist2?.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p
-                    onClick={() => saveArtist(2)}
-                    className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="size-6 text-yellow-600 position-relative"
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(3)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
-                      <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
-                    </svg>
-                    Ausgewählter Interpret Nr. 2<br></br>
-                    (bitte der gesuchte Artist hier per Klick einfügen)
-                  </p>
-                  {userData.favorite_artist?.favorite_artist2 && (
-                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
-                      <img
-                        src={
-                          userData.favorite_artist?.favorite_artist2?.image ||
-                          "/fallback.jpg"
-                        }
-                        alt={userData.favorite_artist?.favorite_artist2?.name}
-                        className="w-15 h-15"
-                      />
-                      <div>
-                        <p className="text-slate-800 font-semibold text-sm">
-                          {userData.favorite_artist?.favorite_artist2?.name}
-                        </p>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 3<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist3 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist3?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist3?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist3?.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                <button
-                  onClick={() => {
-                    setFavoriteBand(false);
-                    ArtistinDB();
-                  }}
-                  className="bg-yellow-400 text-white border-t-2 border-slate-200 px-3 py-2 mt-2  rounded-md hover:bg-yellow-500 transition w-full"
-                >
-                  Speichern
-                </button>
-              </PopUp>
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(4)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 4<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist4 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist4?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist4?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist4?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(5)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 5<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist5 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist5?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist5?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist5?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(6)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 6<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist6 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist6?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist6?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist6?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(7)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 7<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist7 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist7?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist7?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist7?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(8)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 8<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist8 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist8?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist8?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist8?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(9)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 9<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist9 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist9?.image ||
+                            "/fallback.jpg"
+                          }
+                          alt={userData.favorite_artist?.favorite_artist9?.name}
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist9?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border-t-2 border-slate-200 mt-4 pt-4">
+                    <p
+                      onClick={() => saveArtist(10)}
+                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="size-6 text-yellow-600 position-relative"
+                      >
+                        <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+                      </svg>
+                      Ausgewählter Interpret Nr. 10<br></br>
+                      (bitte der gesuchte Artist hier per Klick einfügen)
+                    </p>
+                    {userData.favorite_artist?.favorite_artist10 && (
+                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                        <img
+                          src={
+                            userData.favorite_artist?.favorite_artist10
+                              ?.image || "/fallback.jpg"
+                          }
+                          alt={
+                            userData.favorite_artist?.favorite_artist10?.name
+                          }
+                          className="w-15 h-15"
+                        />
+                        <div>
+                          <p className="text-slate-800 font-semibold text-sm">
+                            {userData.favorite_artist?.favorite_artist10?.name}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </PopUp>
+              </div>
             )}
 
             <h3
@@ -1208,37 +1455,16 @@ export default function Profil_Edit() {
             </h3>
             {showQuestions && (
               <PopUp onClose={() => setShowQuestions(false)}>
-                <div className="position relative top-10">
-                <Questions></Questions>
+                <div className="overflow-y-auto max-h-96">
+                  <Questions
+                    onClose={() => setShowQuestions(false)}
+                  ></Questions>
                 </div>
               </PopUp>
             )}
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-function SortableItem({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    touchAction: "none", // wichtig für Mobile!
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
     </div>
   );
 }

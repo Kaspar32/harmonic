@@ -51,23 +51,16 @@ button {
     transform: translate(0, 0);
     opacity: 1;
   }
-  25% {
-    transform: translate(20px, -40px);
-  }
-  50% {
-    transform: translate(-20px, -80px);
-  }
-  75% {
-    transform: translate(10px, -120px);
-  }
   100% {
-    transform: translate(0, -150px);
+    transform: translate(150px, -150px);
     opacity: 0;
   }
 }
 
+
+
 .animate-fly {
-  animation: fly 2s ease-in-out forwards;
+  animation: fly 5s ease-in-out forwards;
 }
 
 @keyframes genreColors {
@@ -93,14 +86,27 @@ button {
   transform: translate(-50%, -50%);
 }
 
+@keyframes star-rise {
+  0% {
+    transform: translateY(0) scale(0.3) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-40vh) scale(1) rotate(180deg);
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-100vh) scale(0.6) rotate(360deg);
+    opacity: 0;
+  }
+}
 
-.glass {
-  background: rgba(255, 255, 255, 0.15); /* halbtransparentes Weiß */
-  backdrop-filter: blur(50px);           /* der Frost-Effekt */
-  -webkit-backdrop-filter: blur(12px);   /* Safari ist… speziell */
-  
-  border-radius: 10px;
-  border: 4px solid rgba(247, 160, 0, 0.479);
-  box-shadow: inset 0 8px 20px rgba(0, 0, 0, 0.2);
-  padding: 20px;
+.animate-star-rise {
+  animation: star-rise 3s ease-out infinite;
 }

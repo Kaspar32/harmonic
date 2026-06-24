@@ -4,73 +4,75 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
 import { messagesAtom } from "@/lib/overgivenotifications";
+import { useUser } from "@/app/context/UserContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function Footer() {
   const [newMatch, setNewMatch] = useState(false);
-  const [useruuid, setUseruuid] = useState();
+  const { user } = useUser();
+
+  const { addNotification, notifications } = useNotification();
 
   function changechat() {
+
+  
+
+      fetch("/api/getmatchbyid/updateLastMatchCheck", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ uuid: user?.uuid }),
+      });
+
+
     setNewMatch(false);
   }
 
   const setMessages = useSetAtom(messagesAtom);
 
   useEffect(() => {
+    if (!user) return;
+
     const controller = new AbortController();
 
     async function checkNewMatchMessages() {
-      // Checken obs ein neuer Match gegeben hat:::::::
-      const res1 = await fetch("/api/auth");
-      const data1 = await res1.json();
+      // Checken obs ein neuer Match gegeben hat::::::
 
-      setUseruuid(data1.uuid);
-
-      const res2 = await fetch(`/api/getmatchbyid?id=${data1.uuid}`);
+      const res2 = await fetch(
+        `/api/getmatchbyid/getmatchedAt?id=${user?.uuid}`,
+      );
       const data = await res2.json();
 
-      const storageKey = `lastMatchId_${data1.uuid}`;
+      // Fetch last_match_check von user aktualisieren
+      const response = await fetch("/api/getmatchbyid/updateLastMatchCheck");
 
-      const lastId = Number(localStorage.getItem(storageKey) || 0);
+      const lastMatchCheck = await response.json();
+      
+      if (lastMatchCheck &&
+        data.length > 0 &&
+        new Date(data[0].matchCreatedAt).getTime() >
+          new Date(lastMatchCheck.lastMatchCheck).getTime()
+      ) {
 
-      console.log("Last ID:", lastId);
-
-      if (data.length > 0 && data[data.length - 1]?.id > lastId) {
-        //alert("test");
         setNewMatch(true);
-        localStorage.setItem(storageKey, String(data[data.length - 1].id));
       }
 
       // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
-
       const res3 = await fetch(`/api/messages?chatPartner=`);
       const data3 = await res3.json();
 
-      //console.log(data3);
 
-      const storageKey2 = `lastMessageId_${data1.uuid}`;
+      if (data3.length > 0 && data3[data3.length - 1]?.read === false) {
 
-      const lastId2 = Number(localStorage.getItem(storageKey2) || 0);
-
-      if (data3.length > 0 && data3[data3.length - 1]?.id > lastId2) {
-        //alert("test");
         setNewMatch(true);
 
-        
-
         for (let i = 0; i <= data3.length - 1; i++) {
-
-        if (data3.length > 0 && data3[i]?.id > lastId2) {
-
-          setMessages((prev) => [...prev, data3[i]?.fromUser]);
-
+          if (data3.length > 0 && data3[i]?.read === false) {
+            addNotification(data3[i]?.fromUser);
+          }
         }
       }
-      
-      localStorage.setItem(storageKey2, String(data3[data3.length - 1].id));
-      }
-
-      
-      
     }
 
     checkNewMatchMessages();
@@ -80,7 +82,7 @@ export default function Footer() {
       controller.abort();
       clearInterval(interval);
     };
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex justify-between bg-blue-200 p-10  h-6  border-t-2 border-blue-400">
@@ -91,7 +93,7 @@ export default function Footer() {
       </div>
 
       <div className="flex md:gap-20 md:w-[550px] w-52 gap-4 items-center">
-        <Link href={useruuid ? "/home" : "/User_register"}>
+        <Link href={user ? "/home" : "/User_register"}>
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -112,7 +114,7 @@ export default function Footer() {
             </svg>
           </button>
         </Link>
-        <Link href={useruuid ? "/likes" : "/User_register"}>
+        <Link href={user ? "/likes" : "/User_register"}>
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 ">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +131,7 @@ export default function Footer() {
           </button>
         </Link>
 
-        <Link href={useruuid ? "/chat" : "/User_register"}>
+        <Link href={user ? "/chat" : "/User_register"}>
           <button
             onClick={changechat}
             className="group relative cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 "
@@ -164,7 +166,7 @@ export default function Footer() {
           </button>
         </Link>
 
-        <Link href={useruuid ? "/profile_edit" : "/User_register"}>
+        <Link href={user ? "/profile_edit" : "/User_register"}>
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 ">
             <svg
               xmlns="http://www.w3.org/2000/svg"

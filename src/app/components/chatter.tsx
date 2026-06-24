@@ -4,22 +4,23 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import { UserType } from "../types/User";
 import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
-import { getImageSrc } from "@/lib/getImageSrc";
-import ImageStack from "./shuffler";
-import dotenv from "dotenv";
-import { Loader2 } from "lucide-react";
-import { messagesAtom } from "@/lib/overgivenotifications";
-import { useAtom } from "jotai";
-import { boolean } from "drizzle-orm/gel-core";
+import { Loader2, Music } from "lucide-react";
+import ProfileSingleView from "./profile_single_view";
+import Superlike from "./superlike";
+import { useNotification } from "../context/NotificationContext";
+import { useUser } from "../context/UserContext";
 
 export default function Chatter() {
   const [openChat, setopenChat] = useState(false);
   const [openProfile, setOpenProfile] = useState(false);
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
   const [unlike, setUnlike] = useState(false);
+  const [openSuperlikeProfile, setOpenSuperlikeProfile] = useState(false);
+  const [selectedSuperlikeUser, setSelectedSuperlikeUser] =
+    useState<UserType | null>(null);
+  const { user } = useUser();
 
   const [loading, setLoading] = useState(true);
-  
 
   type Message = {
     id: number;
@@ -38,23 +39,9 @@ export default function Chatter() {
 
   const [images, setImages] = useState<
     {
-      id: string;
-      imageBase64?: string;
-      user_id?: string;
-      position?: number;
+      user_id: string;
+      image_path: string;
     }[]
-  >([]);
-
-  const [Allimages, setAllImages] = useState<
-    (
-      | {
-          id: string;
-          imageBase64?: string;
-          user_id?: string;
-          position?: number;
-        }[]
-      | null
-    )[]
   >([]);
 
   const [users, setUsers] = useState<UserType[]>([]);
@@ -71,9 +58,9 @@ export default function Chatter() {
     const allFirstImages = await Promise.all(
       data1.map(async (like: { to: string }) => {
         try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
+          const res2 = await fetch(`/api/getfirstpicbyuserid?id=${like.to}`);
           const pics = await res2.json();
-          return pics[0]; // nur das erste Bild zurückgeben
+          return pics;
         } catch (err) {
           console.error(
             `Fehler beim Laden von Bildern für ID ${like.to}:`,
@@ -83,25 +70,6 @@ export default function Chatter() {
         }
       }),
     );
-
-    //Alle Bilder für ImageStack für die Profileansicht laden
-    const allImages = await Promise.all(
-      data1.map(async (like: { to: string }) => {
-        try {
-          const res2 = await fetch(`/api/getpicsbyid?id=${like.to}`);
-          const pics = await res2.json();
-          return pics; // nur das erste Bild zurückgeben
-        } catch (err) {
-          console.error(
-            `Fehler beim Laden von Bildern für ID ${like.to}:`,
-            err,
-          );
-          return null;
-        }
-      }),
-    );
-
-    setAllImages(allImages);
 
     //alert(allFirstImages[0].imageBase64);
 
@@ -140,8 +108,10 @@ export default function Chatter() {
   }, []);
 
   //Beim Rendern der Page ausführen damit ein neuer Socket erstellt wird :::::::::::::::::::::::::::::::::::::
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+
   useEffect(() => {
-    const socket = io("http://195.15.205.186:4001", {
+    const socket = io("http://localhost:4001", {
       transports: ["websocket", "polling"],
     });
 
@@ -163,11 +133,40 @@ export default function Chatter() {
       });
     });
 
+    socket.on("online_users", (users: string[]) => {
+      setOnlineUsers(new Set(users));
+    });
+
+    socket.on("user-online", (data: { userId: string; online: boolean }) => {
+      setOnlineUsers((prev) => {
+        const updated = new Set(prev);
+        if (data.online) {
+          updated.add(data.userId);
+        } else {
+          updated.delete(data.userId);
+        }
+        return updated;
+      });
+    });
+
     // Beim Unmouten der Funktion wird der socket disconected
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [user]);
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    if (user?.uuid) {
+      console.log("Sende user-connect mit:", user.uuid);
+      socketRef.current.emit("user-connect", { userId: user.uuid });
+    } else {
+      console.log("User noch nicht geladen, warte...");
+    }
+  }, [user]);
+
+  // Beim Mounten der Komponente den User dem Raum hinzufügen
 
   // Beim Mounten der Komponente den User dem Raum hinzufügen:::::::::::::::::::::::::::::::::::::::::::::
   useEffect(() => {
@@ -226,9 +225,11 @@ export default function Chatter() {
 
   // Auswählen der User für den Chat::::::::::::::::::::::::::::::::::::::::::::::::
   async function handleClick(index: number) {
-
-    newMessages[index]=false;
-
+    setNewMessages((prev) => {
+      const updated = [...prev];
+      updated[index] = false;
+      return updated;
+    });
 
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
@@ -250,6 +251,18 @@ export default function Chatter() {
     setTimeout(() => {
       setopenChat(true);
     }, 100);
+
+    // Set read auf true in DB für die Messages von diesem ChatPartner::::::::::::::::::::::::::::::::::::::::::::::::
+    await fetch(`/api/messages/setreadtrue`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chatPartner: users[index].name
+      })
+    });
+
+
+
   }
 
   // Löschen oder blockieren von ChatPartner::::::::::::::::::::::::::::::::::::::::::::::
@@ -257,9 +270,6 @@ export default function Chatter() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   async function handleunmatch() {
-    //alert("test"+selectedIndex);
-    // alert("test"+users[selectedIndex].name);
-
     const res = await fetch("/api/getuserdata");
     if (!res.ok) {
       console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
@@ -275,6 +285,13 @@ export default function Chatter() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+    });
+
+    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
+    await fetch("/api/deletelikebyid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload2),
     });
 
     calculateMatch();
@@ -297,6 +314,14 @@ export default function Chatter() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+    });
+
+    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
+
+    await fetch("/api/deletelikebyid", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload2),
     });
 
     await fetch("/api/adddislike", {
@@ -372,35 +397,90 @@ export default function Chatter() {
   }, [messages, openChat]);
 
   // Notifications für die Messages
-  const newMessages: boolean[] = [];
-  const [newmessagesusers] = useAtom(messagesAtom);
 
-  for (let j = 0; j <= newmessagesusers.length - 1; j++) {
-    const userIndex = users.findIndex((u) => u.name === newmessagesusers[j]);
-    newMessages[userIndex]= true;
-  }
+  const { notifications } = useNotification();
+  const [newMessages, setNewMessages] = useState<boolean[]>([]);
+
+  // Initialize newMessages array when users change
+  useEffect(() => {
+    const newMsgArray: boolean[] = [];
+    for (let j = 0; j < notifications.length; j++) {
+      const userIndex = users.findIndex(
+        (u) => u.name === notifications[j].from,
+      );
+      if (userIndex !== -1) {
+        newMsgArray[userIndex] = true;
+      }
+    }
+    setNewMessages(newMsgArray);
+  }, [notifications, users]);
+
+  //console.log("Neue Nachricht von:", newmessagesusers[0]);
+
+  // Anfangsnachricht schicken in chatter, wenn gleiche Genres
+  const { sameTasteNotifications } = useNotification();
+  const [sameTasteMessages, setSameTasteMessages] = useState<boolean[]>([]);
+  useEffect(() => {
+    const newMsgArray: boolean[] = [];
+    for (let j = 0; j < sameTasteNotifications.length; j++) {
+      const userIndex = users.findIndex(
+        (u) => u.uuid === sameTasteNotifications[j].to,
+      );
+
+      if (userIndex !== -1) {
+        newMsgArray[userIndex] = true;
+      }
+    }
+    setSameTasteMessages(newMsgArray);
+  }, [sameTasteNotifications, users]);
+
+  const defaultMessage =
+    "Wir hören beide die gleichen Genre, hast du ein Lieblingskünstler?";
+  useEffect(() => {
+    setInput("");
+    sameTasteMessages.forEach((hasSameTaste, index) => {
+      if (hasSameTaste && users[index].name === chatPartner) {
+        setInput(defaultMessage);
+      }
+    });
+  }, [chatPartner, currentUser, sameTasteNotifications, users]);
+
+  // kleine animation beim laden der Page::::::::::::::::::::::::::::::::::::::
+  const [animateindex, setAnimateindex] = useState(0);
+
+  useEffect(() => {
+  // Nur animieren während initialen Laden
+  if (!loading && images.length > 0) return;
   
+  const interval = setInterval(() => {
+    setAnimateindex((prev) => (prev + 1) % images.length);
+  }, 200);
 
-  console.log("Neue Nachricht von:", newmessagesusers[0]);
-  
-
+  return () => clearInterval(interval);
+}, [loading, images.length]);
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
       {loading && <Loader2 className=" animate-spin text-yellow-400" />}
+
+      <Superlike
+        onImageClick={(user) => {
+          setSelectedSuperlikeUser(user);
+          setOpenSuperlikeProfile(true);
+        }}
+      />
       {!loading && (
-        <div className="sm:flex sm:flex-wrap sm:gap-4 m-2 w-screen">
+        <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
           {images.map((item, index) => (
             <div key={index}>
               <div
-                className={
-                  "relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2 bg-yellow-50 hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black"
-                }
-              >
+                className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
+                >
                 <Image
+                  unoptimized
                   src={
-                    item?.imageBase64
-                      ? getImageSrc(item.imageBase64)
+                    item?.image_path
+                      ? `/images/${item.image_path}?t=${Date.now()}`
                       : "/images/defaultProfile.png"
                   }
                   height={70}
@@ -410,21 +490,37 @@ export default function Chatter() {
                   onClick={() => handlePPClick(index)}
                 />
 
-                <p
-                  className="flex text-xl font-bold text-yellow-500 items-center ml-4"
-                  onClick={() => handleClick(index)}
+                <p  onClick={() => handleClick(index)}
+                  className="flex text-xl font-bold text-yellow-300 items-center ml-4"
                 >
-                  Schreibe:... {users[index]?.name || ""}
+                  Schreibe {users[index]?.name || ""}
                 </p>
 
-                {newMessages[index] && (
-      
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 text-red-700 mt-15 ml-10 animate-bounce">
-  <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
-  <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
-</svg>
-)}
+                <label>
+                  {onlineUsers.has(users[index]?.uuid) ? (
+                    <span className="text-green-500 text-s  ml-2">ON</span>
+                  ) : (
+                    <span className="text-gray-500 text-s ml-2">OFF</span>
+                  )}
+                </label>
 
+                {newMessages[index] && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-6 text-red-700 mt-15 ml-10 animate-bounce"
+                  >
+                    <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
+                    <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
+                  </svg>
+                )}
+
+                {sameTasteMessages[index] && (
+                  <Music
+                    className={`flex w-11 h-11 mt-10 mr-10 text-yellow-400`}
+                  />
+                )}
 
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -451,11 +547,18 @@ export default function Chatter() {
       )}
 
       {openChat && (
+
+        
         <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/90">
+          
+        <div className="flex justify-start text-xl font-bold text-yellow-500 absolute top-30 left-15 shadow rounded">{chatPartner}</div>
+          
+          
           <div
             id="chatmessagewindow"
             className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
           >
+            
             <div className="w-screen h-full p-4 md:p-10">
               {messages
                 .filter(
@@ -543,114 +646,23 @@ export default function Chatter() {
 
       {openProfile && (
         <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
-          <div className="flex flex-col items-center">
-            <h2 className="text-2xl font-bold mb-4 text-yellow-600">
-              <p className="text-yellow-500">
-                {users[selectedProfileIndex]?.name}
-              </p>
-            </h2>
+          <ProfileSingleView
+            selectedProfileIndex={selectedProfileIndex}
+            fromWhere="chatter"
+          />
+        </Popup>
+      )}
 
-            <div className="flex gap-4 mb-4">
-              {selectedProfileIndex >= 0 && (
-                <ImageStack images={Allimages[selectedProfileIndex] || []} />
-              )}
-
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-6 text-yellow-600"
-              >
-                <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
-              </svg>
-            </div>
-
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-              <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
-              {users[selectedProfileIndex]?.geschlecht}
-            </p>
-
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-              <span className="font-semibold text-gray-400">Alter:</span>{" "}
-              {users[selectedProfileIndex]?.alter}
-            </p>
-
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-              <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
-              {users[selectedProfileIndex]?.groesse}
-            </p>
-
-            <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-              <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
-              {users[selectedProfileIndex]?.genres?.join(", ")}
-            </p>
-
-            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl p-2">
-              <span className="font-semibold text-gray-400">
-                Lieblingslied:
-              </span>
-              <div className="border-3 rounded-3xl border-yellow-500 py-1 px-3 text-center  break-normal">
-                {users[selectedProfileIndex]?.favorite_track ? (
-                  <div className="flex items-center gap-1">
-                    <Image
-                      src={
-                        users[selectedProfileIndex]?.favorite_track?.image ||
-                        "/images/Home.png"
-                      }
-                      alt="Album Cover"
-                      height={30}
-                      width={30}
-                      style={{ objectFit: "cover" }} // schneidet es sauber zu
-                      quality={100}
-                    />
-                    <div className="md:w-full max-w-[120px]">
-                      <div className="font-semibold text-yellow-500">
-                        {users[selectedProfileIndex]?.favorite_track?.name}
-                      </div>
-                      <div className="text-sm text-yellow-500">
-                        {users[selectedProfileIndex]?.favorite_track?.artist}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p>Keine daten</p>
-                )}
-              </div>
-            </div>
-
-            <div className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
-              <span className="font-semibold text-gray-400">
-                Lieblingsinterpret:
-              </span>{" "}
-              <div className="border-3 border-yellow-500 rounded-3xl py-1 px-3 text-center  break-normal">
-                {users[selectedProfileIndex]?.favorite_artist ? (
-                  <div className="flex items-center gap-1 ">
-                    <Image
-                      src={
-                        users[selectedProfileIndex]?.favorite_artist
-                          ?.favorite_artist1?.image || "/images/Home.png"
-                      }
-                      alt="Lieblingsinterpret Bild"
-                      height={30}
-                      width={30}
-                      style={{ objectFit: "cover" }} // schneidet es sauber zu
-                      quality={100}
-                    />
-                    <div className="md:w-full max-w-[120px]">
-                      <div className="font-semibold text-yellow-500">
-                        {
-                          users[selectedProfileIndex]?.favorite_artist
-                            ?.favorite_artist1?.name
-                        }
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <p>Keine daten</p>
-                )}
-              </div>
-            </div>
-          </div>
+      {openSuperlikeProfile && selectedSuperlikeUser && (
+        <Popup
+          onClose={() => setOpenSuperlikeProfile(false)}
+          bgColor="bg-yellow-50"
+        >
+          <ProfileSingleView
+            selectedProfileIndex={0}
+            fromWhere="chatter"
+            directUser={selectedSuperlikeUser}
+          />
         </Popup>
       )}
 

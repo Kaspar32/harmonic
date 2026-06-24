@@ -1,6 +1,7 @@
 "use client";
 import { evaluateQuestions } from "@/lib/evaluatequestions";
 import { useEffect, useState } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 type Props = {
   uuid: string;
@@ -9,13 +10,12 @@ type Props = {
 export default function Score({ uuid }: Props) {
   let [score, setScore] = useState(0);
 
+  const {user}= useUser();
+
   useEffect(() => {
     const loadData = async () => {
-      const userRes = await fetch("/api/auth", { credentials: "include" });
-      const userData = await userRes.json();
-      const userUuid = userData.uuid;
-
-      const res = await fetch("api/savequestionaire" + `?uuid=${userUuid}`, {
+      
+      const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -31,7 +31,7 @@ export default function Score({ uuid }: Props) {
       });
       const data2 = await res2.json();
 
-      setScore(evaluateQuestions(data2[0]?.answers, data[0].answers));
+      setScore(evaluateQuestions(data2[0]?.answers, data[0]?.answers) ?? 0);
     };
     loadData();
   }, []);
@@ -39,7 +39,7 @@ export default function Score({ uuid }: Props) {
   return (
    <div className="flex flex-rows gap-x-20 mb-2">
     
-      <div className=" w-40 bg-gray-200 rounded-lg h-9 overflow-hidden border-yellow-400 border-3">
+      <div className=" w-40 bg-gray-200 rounded-2xl h-9 overflow-hidden border-yellow-400 border-3">
         <div
           className="bg-yellow-600 h-9 transition-all duration-300"
           style={{ width: `${score}%` }}

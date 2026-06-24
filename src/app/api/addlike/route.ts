@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { likes } from "@/db/schema";
+import { eq, and } from "drizzle-orm";
 
 export async function GET() {
   try {
@@ -12,9 +13,6 @@ export async function GET() {
   }
 }
 
-
-
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -23,22 +21,27 @@ export async function POST(req: Request) {
     if (!from || !to) {
       return NextResponse.json(
         { error: "From and To required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const isFake = isFakeUser === true || isFakeUser === "true";
 
-   // console.log("is user fake?", isFake);
+    const existingLike = await db
+      .select()
+      .from(likes)
+      .where(and(eq(likes.from, from), eq(likes.to, to)));
 
-    if (isFake) {
-      await db.insert(likes).values({ from, to });
-      
-      await db.insert(likes).values({ from: to, to: from });
-    } else {
-      await db.insert(likes).values({ from, to });
+    if (existingLike.length === 0) {
+
+      if (isFake) {
+        await db.insert(likes).values({ from, to });
+
+        await db.insert(likes).values({ from: to, to: from });
+      } else {
+        await db.insert(likes).values({ from, to });
+      }
     }
-
     return NextResponse.json({ message: "Like added" }, { status: 200 });
   } catch (error) {
     console.error("addlike error:", error);

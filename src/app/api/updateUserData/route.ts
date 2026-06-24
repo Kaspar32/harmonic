@@ -2,31 +2,34 @@ import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
-
   try {
     const body = await req.json();
+    console.log("body:", body);
     const {
+      uuid,
       name,
       geschlecht,
       alter,
+      geburtstag,
       groesse,
       ausbildung,
       ichsuche,
       intressen,
-      genres
+      genres,
+      email
     } = body;
 
-    if (!userId) {
+    if (!uuid) {
       return NextResponse.json(
-        { error: "userID fehlt fehlt" },
+        { error: "UUID fehlt" },
         { status: 400 }
       );
     }
+
+
+    console.log("Teeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeest"+geburtstag);
 
     let geschlechtKontrolle = geschlecht;
     let ausbildungKontrolle = ausbildung;
@@ -39,19 +42,25 @@ export async function POST(req: Request) {
       ausbildungKontrolle = null;
     }
 
+    const geburtstagDate = geburtstag ? new Date(geburtstag) : null;
+
+    console.log(""+geburtstagDate);
+
     const result = await db
       .update(users)
       .set({
         name: name,
         geschlecht: geschlechtKontrolle,
         alter: alter,
+        geburtstag: geburtstagDate,
         groesse: groesse,
         ausbildung: ausbildungKontrolle,
         ichsuche: ichsuche,
         intressen: intressen,
         genres: genres,
+        email: email
       })
-      .where(eq(users.uuid, userId))
+      .where(eq(users.uuid, uuid))
       .returning();
 
     return NextResponse.json(result[0]);
