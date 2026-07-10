@@ -15,7 +15,9 @@ export async function GET(
     const awaitedParams = await Promise.resolve(params || {});
     const fileSegments = awaitedParams.name || [];
 
-    let userfromAuth;
+    // Auskommentiert: Regelwerk :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+    /*let userfromAuth;
     try {
       const res = await fetch("http://localhost:3000/api/auth/me", {
         method: "GET",
@@ -36,11 +38,11 @@ export async function GET(
       return new Response("Unauthorized", {
         status: 401,
       });
-    }
+    }*/
 
-    const currentUser = userfromAuth.uuid;
+    //const currentUser = userfromAuth.uuid;
 
-    const targetUser = await db
+    /*const targetUser = await db
       .select()
       .from(users)
       .where(sql`${users.profile_pics}::text LIKE ${"%" + fileSegments + "%"}`);
@@ -61,14 +63,14 @@ export async function GET(
         and(eq(likes.from, targetUser[0].uuid), eq(likes.to, currentUser)),
       );
 
-    const targetLiked = targetLikedRes.length > 0;
+    const targetLiked = targetLikedRes.length > 0;*/
 
     let filePath = join(process.cwd(), "uploads", "images", ...fileSegments);
 
     const ext = (filePath.split(".").pop() ?? "").toLowerCase();
 
-     // Check abo-status
-    const aboRes = await fetch("http://localhost:3000/api/getAboStatus", {
+    // Check abo-status
+    /*const aboRes = await fetch("http://localhost:3000/api/getAboStatus", {
       method: "GET",
       headers: {
         cookie: request.headers.get("cookie") ?? "",
@@ -83,22 +85,18 @@ export async function GET(
 
     const aboData = await aboRes.json();
 
+    const { searchParams } = new URL(request.url)
+
+    const context = searchParams.get("context");*/
 
     // Wenn der User ein Abo hat, dann greift das Regelwerk nicht, sonst schon
-    if(!aboData)
-    {
+    /*if (!aboData && context!="profile") {
       if (targetLiked && !iliked) {
-      filePath = filePath.replace("." + ext, "_blurred." + ext);
+        filePath = filePath.replace("." + ext, "_blurred." + ext);
       }
-
-    }
-
-    else{
-
-      console.log("Hat abo!"+aboData);
-    }
-
-    
+    } else {
+      console.log("Hat abo oder Anfrage kommt von Profile!" + aboData);
+    }*/
 
     const contentType =
       {

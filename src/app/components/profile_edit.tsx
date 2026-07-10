@@ -889,11 +889,12 @@ export default function Profil_Edit() {
               onClick={() => setFavoriteTune(true)}
               className="ml-4 mr-4 mb-4 mt-4 text-gray-300 text-center font-semibold border-t-2 text-2xl hover:bg-white rounded-2xl shadow-lg"
             >
-              Momentanes Lieblingslied:
+              Momentanes Lieblingslied
+              {userData.favorite_track && (
               <span className="block text-gray-300 text-sm mt-2">
-                {userData?.favorite_track?.name} von{" "}
+                { userData?.favorite_track?.name} von{" "}
                 {userData?.favorite_track?.artist}
-              </span>
+              </span>)}
             </h3>
             {showFavoriteTune && (
               <PopUp

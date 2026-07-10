@@ -37,6 +37,8 @@ export default function Profile() {
 
     const usersArray = data.map((item: { users: any }) => item.users);
 
+    
+
     // Setzte Einstellungen für den User
 
     const res2 = await fetch("/api/settings?id=" + user?.uuid);
@@ -146,6 +148,9 @@ export default function Profile() {
   }
 
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
+  
+
+
 
   //---- match überprüfen ----
   async function calculateMatch(uuid: string) {
@@ -376,6 +381,8 @@ export default function Profile() {
   const [boostexpires, setBoostexpires] = useState<Date | null>(null);
 
   async function handleboost() {
+
+    alert("Bist du sicher das du ein Boost ausführen willst?");
     const expiresAtResponse = await fetch("/api/boost");
     const expiresAtData = await expiresAtResponse.json();
 
@@ -582,7 +589,7 @@ export default function Profile() {
         <div>
           <div>
             {/* button container */}
-            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto -translate-y-1/2">
+            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-65">
               {/*--dislike burron- */}
               <button
                 className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-yellow-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
@@ -707,7 +714,7 @@ export default function Profile() {
                     <Image
                       unoptimized
                       key={`${img}-${users[UserIndex]?.uuid}-${index}`}
-                      src={`/images/${img}?t=${imageTs}`}
+                      src={`/images/${img}?t=${imageTs}&context=profile`}
                       alt={`Bild ${img}`}
                       height={650}
                       width={650}
@@ -725,7 +732,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* kastne */}
+              {/* kasten */}
               <div className="text-sm sm:text-base">
                 {/* kasten 1 */}
                 <div className="px-6 py-4 mt-4 w-full sm:w-sm lg:w-md bg-yellow-200/50 rounded-2xl text-yellow-400 font-semibold shadow-lg ">
@@ -855,10 +862,10 @@ export default function Profile() {
                             />
 
                             <div className="md:w-full max-w-[80px] min-w-0">
-                              <p className="font-semibold truncate">
+                              <p className="font-semibold ">
                                 {users[UserIndex]?.favorite_track?.name}
                               </p>
-                              <p className="text-sm text-yellow-400 truncate">
+                              <p className="text-sm text-yellow-400">
                                 {users[UserIndex]?.favorite_track?.artist}
                               </p>
                             </div>

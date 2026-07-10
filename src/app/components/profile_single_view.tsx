@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { UserType } from "../types/User";
 import { useUser } from "@/app/context/UserContext";
 
@@ -23,7 +23,6 @@ export default function ProfileSingleView({
   const { user } = useUser();
 
   async function fetchusers() {
-
     // Handhabung wenn die Anfrage vom chatter kommt
     let res1 = await fetch(`/api/getmatchbyid?id=${user?.uuid}`);
 
@@ -48,12 +47,11 @@ export default function ProfileSingleView({
 
     setUser(userData[0]);
 
-    if(directUser)
-    {
-        setUser(directUser);
+    if (directUser) {
+      setUser(directUser);
     }
 
-    const userIdtoFetch= directUser ? directUser.uuid : userData[0].uuid;
+    const userIdtoFetch = directUser ? directUser.uuid : userData[0].uuid;
 
     const res2 = await fetch(`/api/getallpicsbyuserid?id=${userIdtoFetch}`);
     if (!res2.ok) return;
@@ -76,6 +74,49 @@ export default function ProfileSingleView({
     setImageIndex((prev) => (prev + 1) % imageLength);
   }
 
+  // 🎧 FETCH FRESH PREVIEW FROM DEEZER
+  async function fetchDeezerPreview(
+    trackName: string | null,
+    artistName: string | null,
+  ): Promise<string | null> {
+    if (!trackName || !artistName) return null;
+
+    try {
+      // Suchbegriff: "Track Artist" – du kannst das Format anpassen, falls nötig
+      const query = encodeURIComponent(`${trackName} ${artistName}`);
+      const res = await fetch(`/api/deezer-search?q=${query}`);
+
+      if (!res.ok) throw new Error("Deezer search failed");
+
+      const data = await res.json();
+      // Deezer liefert ein Array unter `data.data`; wir nehmen das erste Ergebnis
+      const firstTrack = data.data?.[0];
+      return firstTrack?.preview ?? null;
+    } catch (err) {
+      console.error("Fehler beim Abruf der Deezer‑Preview:", err);
+      return null;
+    }
+  }
+  // Preview-Player
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // 🎧 AUDIO PREVIEW
+  function playTrack(previewUrl: string | null | undefined) {
+    if (!previewUrl) return;
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    audioRef.current = new Audio(previewUrl);
+    audioRef.current.play();
+  }
+
+  function pauseTrack(_previewUrl: string | null | undefined) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+  }
+
   return (
     <div className="flex flex-col items-center gap-2">
       <h2 className="text-2xl font-bold mb-4 text-yellow-600">
@@ -93,14 +134,18 @@ export default function ProfileSingleView({
         className="border-2 border-yellow-500 rounded-2xl p-1"
       />
 
-      <div className="flex gap-4 mb-4">
+      <div onClick={handleClick}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="size-6 text-yellow-600"
+          className="size-8 text-yellow-700 cursor-pointer border-2 rounded"
         >
-          <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
+          <path
+            fillRule="evenodd"
+            d="M16.28 11.47a.75.75 0 0 1 0 1.06l-7.5 7.5a.75.75 0 0 1-1.06-1.06L14.69 12 7.72 5.03a.75.75 0 0 1 1.06-1.06l7.5 7.5Z"
+            clipRule="evenodd"
+          />
         </svg>
       </div>
 
@@ -150,6 +195,53 @@ export default function ProfileSingleView({
                   {User?.favorite_track?.artist}
                 </div>
               </div>
+
+              <button
+                onClick={async () => {
+                  const track = User?.favorite_track;
+                  if (!track) return;
+
+                  // Optional: Lade‑Indikator zeigen (z. B. Button kurz deaktivieren)
+                  const freshPreview = await fetchDeezerPreview(
+                    track.name,
+                    track.artist,
+                  );
+                  if (freshPreview) {
+                    playTrack(freshPreview); // nutzt deine bestehende Audio‑Logik
+                  } else {
+                    alert(
+                      "Konnte keinen aktuellen Preview‑Link von Deezer abrufen.",
+                    );
+                  }
+                }}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="size-6 hover:text-green-500 hover:scale-150 transition-colors duration-300"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+              <button onClick={() => pauseTrack(null)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="size-6 hover:text-red-500 hover:scale-150 transition-colors duration-300"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6.75 5.25a.75.75 0 0 1 .75-.75H9a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H7.5a.75.75 0 0 1-.75-.75V5.25Zm7.5 0A.75.75 0 0 1 15 4.5h1.5a.75.75 0 0 1 .75.75v13.5a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75V5.25Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
             </div>
           ) : (
             <p>Keine Daten</p>

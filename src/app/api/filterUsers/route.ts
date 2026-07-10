@@ -190,7 +190,7 @@ export async function GET(request: NextRequest) {
 
   const rankedUsers = await Promise.all(
     allUsers.map(async (user) => {
-      let score = 0;
+      let score = 1;
 
       const userInterests = user.users.intressen || [];
 
