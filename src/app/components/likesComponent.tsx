@@ -84,7 +84,7 @@ export default function LikesTest() {
   }, []);
 
   async function opencheckout() {
-    const res = await fetch("/api/checkout", {
+    const res = await fetch("/api/checkout/abo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

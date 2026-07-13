@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import { stripe } from "@/lib/stripe";
 
 import { db } from "@/db";
-import { Abos } from "@/db/schema";
+import { Abos, boosts } from "@/db/schema";
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
@@ -40,6 +40,37 @@ export async function POST(req: Request) {
       });
     }
 
+    //Welches Produkt wurde gewählt
+
+    const productType = session.metadata?.type || "abo";
+    
+    //Boost
+    if (productType === "boost") {
+
+      const boostDurationMs = 60 * 60 * 1000;
+
+      const existingBoost = await db.select().from(boosts).where(eq(boosts.uuid, userId)).limit(1);
+
+      if (existingBoost.length > 0) {
+        await db.update(boosts).set({
+          startsAt: new Date(),
+          endsAt: new Date(Date.now() + boostDurationMs),
+          multiplier: 150,
+        }).where(eq(boosts.uuid, userId));
+      } else {
+        await db.insert(boosts).values({
+          uuid: userId,
+          startsAt: new Date(),
+          endsAt: new Date(Date.now() + boostDurationMs),
+          multiplier: 150,
+        });
+      }
+
+      console.log("Boost aktiviert");
+    }
+
+    else{
+
     // User updaten
     const existingAbo = await db.select().from(Abos).where(eq(Abos.user_uuid, userId)).limit(1);
 
@@ -64,7 +95,8 @@ export async function POST(req: Request) {
     }
 
     console.log("Premium aktiviert");
-  }
+  }}
+
 
   return new Response("OK", {
     status: 200,

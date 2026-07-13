@@ -6,6 +6,7 @@ import { useSetAtom } from "jotai";
 import { messagesAtom } from "@/lib/overgivenotifications";
 import { useUser } from "@/app/context/UserContext";
 import { useNotification } from "../context/NotificationContext";
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function Footer() {
   const [newMatch, setNewMatch] = useState(false);
@@ -56,6 +57,7 @@ export default function Footer() {
       ) {
 
         setNewMatch(true);
+        toast("Du hast ein neuer Match!");
       }
 
       // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
@@ -70,6 +72,7 @@ export default function Footer() {
         for (let i = 0; i <= data3.length - 1; i++) {
           if (data3.length > 0 && data3[i]?.read === false) {
             addNotification(data3[i]?.fromUser);
+            toast("Du hast ein neue Nachricht von "+data3[i]?.fromUser+"!");
           }
         }
       }
@@ -83,6 +86,7 @@ export default function Footer() {
       clearInterval(interval);
     };
   }, [user]);
+
 
   return (
     <div className="flex justify-between bg-blue-200 p-10  h-6  border-t-2 border-blue-400">
@@ -164,6 +168,8 @@ export default function Footer() {
               />
             </svg>
           </button>
+
+          <Toaster position="bottom-center"/>
         </Link>
 
         <Link href={user ? "/profile_edit" : "/User_register"}>

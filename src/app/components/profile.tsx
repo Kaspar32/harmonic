@@ -12,6 +12,8 @@ import { useUser } from "@/app/context/UserContext";
 import SuperLike_Animation from "./superlike_animation";
 import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
 import { useNotification } from "../context/NotificationContext";
+import PopUp from "./popup";
+import Questions from "./questions";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -36,8 +38,6 @@ export default function Profile() {
     const data = await res.json();
 
     const usersArray = data.map((item: { users: any }) => item.users);
-
-    
 
     // Setzte Einstellungen für den User
 
@@ -102,16 +102,6 @@ export default function Profile() {
     fetchPics();
   }, [users]);
 
-  //---- randomizer ----
-  const getRandomUserIndex = (length: number) => {
-    if (length <= 1) return 0;
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * length);
-    } while (newIndex === UserIndex);
-    return newIndex;
-  };
-
   //---- bilder durchklicken ----
   function handleClick() {
     if (!users[UserIndex]) return;
@@ -148,9 +138,6 @@ export default function Profile() {
   }
 
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
-  
-
-
 
   //---- match überprüfen ----
   async function calculateMatch(uuid: string) {
@@ -376,55 +363,18 @@ export default function Profile() {
 
   // ---- Boost Logik ----
 
-  const [boosttime, setBoosttime] = useState("00:00");
+  const [boosttime, setBoosttime] = useState("00:00:00");
 
   const [boostexpires, setBoostexpires] = useState<Date | null>(null);
 
-  async function handleboost() {
+  const [showModalBoost, setShowModalBoost] = useState(false);
 
-    alert("Bist du sicher das du ein Boost ausführen willst?");
-    const expiresAtResponse = await fetch("/api/boost");
-    const expiresAtData = await expiresAtResponse.json();
 
-    if (
-      expiresAtData.expiresAt &&
-      new Date(expiresAtData.expiresAt) > new Date()
-    ) {
-      return;
-    }
-
-    if (buttonsDisabled) return;
-    if (isMatched) return;
-
-    //Wenn nicht bezahlt dann kein Boost möglich
-    //Hier dasselbe Prinzip wie beim Superlike
-
-    let ispayed = true;
-
-    if (!ispayed) return;
-
-    // Einen neuen Eintrag in der Tabelle "boosts" erstellen mit user uuid und timestamp
-
-    if (!user) return;
-
-    await fetch("/api/boost", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(user.uuid),
-    });
-
+  function confirmBoost()
+  {
+    opencheckout();
     setGrayedOut2(true);
 
-    const loadBoost = async () => {
-      const response = await fetch("/api/boost");
-      const data = await response.json();
-
-      setBoostexpires(data.expiresAt);
-    };
-
-    loadBoost();
-
-    setRocket(true);
   }
 
   useEffect(() => {
@@ -466,6 +416,23 @@ export default function Profile() {
 
     return () => clearInterval(interval);
   }, [boostexpires]);
+
+
+  async function opencheckout() {
+    const res = await fetch("/api/checkout/boost", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: user?.uuid
+      }),
+    });
+
+    const data = await res.json();
+
+    window.location.href = data.url;
+    setRocket(true);
+  }
+
 
   const [grayedOut2, setGrayedOut2] = useState(false);
   const [rocket, setRocket] = useState(false);
@@ -553,6 +520,28 @@ export default function Profile() {
         </div>
       )}
 
+      {showModalBoost && (
+        <PopUp onClose={() => setShowModalBoost(false)}>
+          <div className="overflow-y-auto max-h-96">
+            <div className="felx flex-wrap">
+              <span className="text-gray-500 font-bold">
+                Möchten Sie wirklich boosten?
+              </span>
+              <button
+                onClick={() => {
+                  setShowModalBoost(false);
+                  confirmBoost();
+
+                }}
+                className="ml-6 px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+              >
+                BOOST IT!
+              </button>
+            </div>
+          </div>
+        </PopUp>
+      )}
+
       {isEmpty ? (
         <div className="h-full w-full flex justify-center">
           <div className="border-2 rounded-2xl py-4 px-8 border-yellow-300 bg-yellow-50 shadow-lg">
@@ -589,7 +578,7 @@ export default function Profile() {
         <div>
           <div>
             {/* button container */}
-            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-65">
+            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto -translate-y-65">
               {/*--dislike burron- */}
               <button
                 className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-yellow-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
@@ -634,7 +623,13 @@ export default function Profile() {
               {/*- boost button*/}
               <button
                 className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-gray-100 hover:scale-120 transition-transform duration-300 ${grayedOut2 ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}  `}
-                onClick={handleboost}
+                onClick={() => {
+
+                  if(boosttime!=="00:00:00") return;
+                  if (buttonsDisabled) return;
+                  if (isMatched) return;
+                  setShowModalBoost(true);
+                }}
               >
                 <div>
                   <svg
@@ -685,7 +680,7 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
-                <div className="absolute sm:top-72 sm:right-5/12 top-41 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
+                <div className="absolute  sm:right-5/12 top-80 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
                   FAKE USER
                 </div>
               )}
