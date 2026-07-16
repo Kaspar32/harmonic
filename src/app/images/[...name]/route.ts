@@ -115,7 +115,7 @@ export async function GET(
       status: 200,
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "no-store, no-cache, must-revalidate",
+        "Cache-Control": "public, max-age=31536000, immutable",
       },
     });
   } catch (error) {

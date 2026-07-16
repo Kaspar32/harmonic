@@ -13,7 +13,6 @@ import SuperLike_Animation from "./superlike_animation";
 import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
 import { useNotification } from "../context/NotificationContext";
 import PopUp from "./popup";
-import Questions from "./questions";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -578,7 +577,7 @@ export default function Profile() {
         <div>
           <div>
             {/* button container */}
-            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto -translate-y-65">
+            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-25">
               {/*--dislike burron- */}
               <button
                 className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-yellow-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
@@ -709,7 +708,7 @@ export default function Profile() {
                     <Image
                       unoptimized
                       key={`${img}-${users[UserIndex]?.uuid}-${index}`}
-                      src={`/images/${img}?t=${imageTs}&context=profile`}
+                      src={`/images/${img}`}
                       alt={`Bild ${img}`}
                       height={650}
                       width={650}

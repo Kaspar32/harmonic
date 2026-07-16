@@ -55,7 +55,7 @@ export default function Refactoring_Images() {
           ...item,
           position: index,
           previewUrl: user.profile_pics?.[index]
-            ? `/images/${user.profile_pics[index]}?t=${Date.now()}`
+            ? `/images/${user.profile_pics[index]}`
             : item.previewUrl,
         })),
       );
