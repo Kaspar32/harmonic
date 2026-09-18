@@ -5,14 +5,12 @@ import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
 import Genres from "../data/Genres";
 import { UserType } from "../types/User";
-
 import Questions from "./questions";
-
 import Refactoring_Images from "./refactoring_images";
-
 import { useUser } from "@/app/context/UserContext";
 import { getLocation } from "@/lib/getLocation";
 import { reverseGeocode } from "@/lib/getSuburbbyLocation";
+import {yearsBetween} from "@/lib/agesbetween";
 
 export default function Profil_Edit() {
   const [userData, setUserData] = useState<UserType>({
@@ -121,9 +119,7 @@ export default function Profil_Edit() {
   function calculateAge(birthday: string) {
     const birthDate = new Date(birthday);
     const today = new Date();
-    let age = today.getFullYear() - birthDate.getFullYear();
-
-    return age;
+   return yearsBetween(birthDate, today);
   }
 
   useEffect(() => {
@@ -802,7 +798,7 @@ export default function Profil_Edit() {
                   className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
                   type="email"
                   placeholder="E-Mail-Adresse"
-                  value={userData.email}
+                  value={userData.email ?? ""}
                   onChange={(e) =>
                     setUserData((prev) => ({ ...prev, email: e.target.value }))
                   }

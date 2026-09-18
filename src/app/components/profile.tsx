@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { UserType } from "../types/User";
 import { arraysHaveCommonElement } from "@/lib/arraysHaveCommonElement";
@@ -13,6 +13,7 @@ import SuperLike_Animation from "./superlike_animation";
 import { checkIfLikedInWeek } from "@/lib/checkIfLikedInWeek";
 import { useNotification } from "../context/NotificationContext";
 import PopUp from "./popup";
+import { useAudioPreview } from "@/hooks/useAudioPreview";
 
 export default function Profile() {
   const [users, setUsers] = useState<UserType[]>([]);
@@ -57,6 +58,10 @@ export default function Profile() {
         return true;
       },
     );
+
+    // Hier noch die Funktion über das Ranking mit dem Boost machen!!
+    
+    
 
     setUsers(filteredUsers);
 
@@ -348,11 +353,12 @@ export default function Profile() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-
+    
+    setIsSuperlike(true);
     await calculateMatch(user.uuid);
 
     setButtonsDisabled(true);
-    setIsSuperlike(true);
+    
 
     await delay(8000);
 
@@ -461,49 +467,8 @@ export default function Profile() {
     calculateGenres(i);
   }
 
-  // Preview-Player
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  // 🎧 AUDIO PREVIEW
-  function playTrack(previewUrl: string | null | undefined) {
-    if (!previewUrl) return;
+  const { playTrack, pauseTrack, playDeezerTrack } = useAudioPreview();
 
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    audioRef.current = new Audio(previewUrl);
-    audioRef.current.play();
-  }
-
-  function pauseTrack(_previewUrl: string | null | undefined) {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  }
-
-  // 🎧 FETCH FRESH PREVIEW FROM DEEZER
-  async function fetchDeezerPreview(
-    trackName: string | null,
-    artistName: string | null,
-  ): Promise<string | null> {
-    if (!trackName || !artistName) return null;
-
-    try {
-      // Suchbegriff: "Track Artist" – du kannst das Format anpassen, falls nötig
-      const query = encodeURIComponent(`${trackName} ${artistName}`);
-      const res = await fetch(`/api/deezer-search?q=${query}`);
-
-      if (!res.ok) throw new Error("Deezer search failed");
-
-      const data = await res.json();
-      // Deezer liefert ein Array unter `data.data`; wir nehmen das erste Ergebnis
-      const firstTrack = data.data?.[0];
-      return firstTrack?.preview ?? null;
-    } catch (err) {
-      console.error("Fehler beim Abruf der Deezer‑Preview:", err);
-      return null;
-    }
-  }
 
   return (
     <div className="">
@@ -723,6 +688,8 @@ export default function Profile() {
                   <span className="text-sm block -mt-1 text-gray-500">
                     {users[UserIndex]?.location}
                   </span>
+
+                  <span></span>
                 </div>
               </div>
 
@@ -865,22 +832,10 @@ export default function Profile() {
                             </div>
 
                             <button
-                              onClick={async () => {
+                              onClick={() => {
                                 const track = users[UserIndex]?.favorite_track;
                                 if (!track) return;
-
-                                // Optional: Lade‑Indikator zeigen (z. B. Button kurz deaktivieren)
-                                const freshPreview = await fetchDeezerPreview(
-                                  track.name,
-                                  track.artist,
-                                );
-                                if (freshPreview) {
-                                  playTrack(freshPreview); // nutzt deine bestehende Audio‑Logik
-                                } else {
-                                  alert(
-                                    "Konnte keinen aktuellen Preview‑Link von Deezer abrufen.",
-                                  );
-                                }
+                                playDeezerTrack(track.name, track.artist);
                               }}
                             >
                               <svg
@@ -896,7 +851,7 @@ export default function Profile() {
                                 />
                               </svg>
                             </button>
-                            <button onClick={() => pauseTrack(null)}>
+                            <button onClick={() => pauseTrack()}>
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
@@ -923,13 +878,14 @@ export default function Profile() {
                       <div
                         className={`flex flex-col space-y-0.5 border-3 rounded-3xl py-1 px-3 text-center break-normal`}
                       >
+
                         {users[UserIndex]?.favorite_artist ? (
                           <>
                             <div className="flex items-center gap-1 py-1 px-3 mb-2">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
-                                    ?.favorite_artist1?.image || "/music2.svg"
+                                    ?.favorite_artist1?.image || "/images/music2.svg"
                                 }
                                 alt="Album Cover"
                                 height={30}
@@ -946,12 +902,11 @@ export default function Profile() {
                                 </p>
                               </div>
                             </div>
-
                             <div className="flex items-center gap-1  py-1 px-3">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
-                                    ?.favorite_artist2?.image || "/music2.svg"
+                                    ?.favorite_artist2?.image ||  "/images/music2.svg"
                                 }
                                 alt="Album Cover"
                                 height={30}
@@ -983,4 +938,6 @@ export default function Profile() {
       )}
     </div>
   );
+
+  
 }

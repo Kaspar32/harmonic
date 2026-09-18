@@ -1,4 +1,3 @@
-
 export async function checkIfLikedInWeek(uuid: string): Promise<boolean> {
 
   const superlikes = await fetch("api/addsuperlike");
@@ -34,5 +33,3 @@ export async function checkIfLikedInWeek(uuid: string): Promise<boolean> {
     return false;
   }
 }
-
-

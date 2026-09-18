@@ -10,6 +10,7 @@ import {
   boosts,
 } from "@/db/schema";
 import { eq, not, inArray, and, or, like, sql, gt } from "drizzle-orm";
+import { rankUsers } from "@/lib/rankUsers";
 
 export async function GET(request: NextRequest) {
   let userfromAuth;
@@ -29,51 +30,41 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching user:", err);
   }
 
-  const [interest] = await db
-    .select({ myInterest: settings.intresse })
-    .from(settings)
-    .where(eq(settings.uuid, userfromAuth.uuid));
+  if (!userfromAuth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const [result] = await db
-    .select({ mygender: users.geschlecht })
+  
+  const [profile] = await db
+    .select({
+      myInterest: settings.intresse,
+      myActivities: users.intressen,
+      mygender: users.geschlecht,
+      radius: settings.radius,
+      location: users.location,
+      fakeUsersEnabled: users.fakeUsersEnabled,
+      iLatitude: swissLoc.iLatitude,
+      iLongitude: swissLoc.iLongitude,
+    })
     .from(users)
-    .where(eq(users.uuid, userfromAuth.uuid));
+    .innerJoin(settings, eq(settings.uuid, users.uuid))
+    .leftJoin(swissLoc, eq(users.locationid, swissLoc.id));
+    
 
-  const [interestLocationData] = await db
-    .select({ radius: settings.radius })
-    .from(settings)
-    .where(eq(settings.uuid, userfromAuth.uuid));
 
-  const [locationResult] = await db
-    .select({ location: users.location })
-    .from(users)
-    .where(eq(users.uuid, userfromAuth.uuid));
-  const city = locationResult?.location?.split(",")[0].trim();
-  const country = locationResult?.location?.split(",")[2].trim();
+  const city = profile?.location?.split(",")?.[0]?.trim();
+  const country = profile?.location?.split(",")?.[2]?.trim();
 
   let locationFilter = undefined;
-  const interestLocationNum = interestLocationData?.radius || 0;
+  const interestLocationNum = profile?.radius || 0;
 
   if (interestLocationNum === 20 && city && country) {
     // Alter Filter: Textbasierter Stadt/Land-Vergleich
     locationFilter = like(users.location, `${city}, %${country}`);
   } else if (interestLocationNum > 1) {
     // Neuer Radius-Filter (Kilometer)
-    // Aktuelle Koordinaten des angemeldeten Users aus der swissLoc Tabelle holen
-    const currentUserLocation = await db
-      .select({
-        lat: swissLoc.iLatitude,
-        lon: swissLoc.iLongitude,
-      })
-      .from(users)
-      .innerJoin(swissLoc, eq(users.locationid, swissLoc.id))
-      .where(eq(users.uuid, userfromAuth.uuid))
-      .then((res) => res[0]);
-
-    if (currentUserLocation?.lat != null && currentUserLocation?.lon != null) {
+    const lat1 = profile?.iLatitude;
+    const lon1 = profile?.iLongitude;
+    if (lat1 != null && lon1 != null) {
       const radiusKm = interestLocationNum;
-      const lat1 = currentUserLocation.lat;
-      const lon1 = currentUserLocation.lon;
       // Haversine-Formel als SQL-Bedingung mit EXISTS (vermeidet zusätzlichen JOIN)
       locationFilter = sql`EXISTS (
         SELECT 1 FROM ${swissLoc} sl 
@@ -110,16 +101,10 @@ export async function GET(request: NextRequest) {
     .map((d) => d.to)
     .filter((id): id is string => id != null);
 
-  const areFakeUsersEnabled = await db //true oder false
-    .select({ fakeUsersEnabled: users.fakeUsersEnabled })
-    .from(users)
-    .where(eq(users.uuid, userfromAuth.uuid))
-    .then((res) => res[0]?.fakeUsersEnabled ?? false);
-
   //In settings werden die interessen mit 'mann', 'frau', 'divers', 'alle' gespeichert
   //In users werden die Geschlechter mit 'Weiblich', 'Männlich', 'Divers' gespeichert
-  let myInterest = interest?.myInterest; //z.B mann
-  let myGender = result?.mygender;
+  let myInterest = profile?.myInterest; //z.B mann
+  let myGender = profile?.mygender;
 
   if (myGender === "Weiblich") myGender = "frau";
   else if (myGender === "Männlich") myGender = "mann";
@@ -151,7 +136,7 @@ export async function GET(request: NextRequest) {
           ? not(inArray(users.uuid, dislikedUuids)) // nur die holen, dessen user.uuid nicht im dislikedUuids vorkommt
           : undefined,
 
-        !areFakeUsersEnabled ? not(eq(users.roles, "fakeUser")) : undefined,
+        !profile?.fakeUsersEnabled ? not(eq(users.roles, "fakeUser")) : undefined,
 
         and(
           or(
@@ -188,53 +173,7 @@ export async function GET(request: NextRequest) {
     );
   const boostedUuids = new Set(activeBoosts.map((b) => b.uuid));
 
-  const rankedUsers = await Promise.all(
-    allUsers.map(async (user) => {
-      let score = 1;
-
-      const userInterests = user.users.intressen || [];
-
-      const currentUserInterests = interest?.myInterest
-        ? [interest.myInterest]
-        : [];
-
-      const sharedInterests = userInterests.filter((interest) =>
-        currentUserInterests.includes(interest),
-      );
-
-      if (sharedInterests.length > 0) {
-        score += sharedInterests.length * 0.5;
-      }
-
-      const userLocation = user.users.location;
-      const currentUserLocation = locationResult?.location;
-
-      if (userLocation && currentUserLocation) {
-        const userCity = userLocation.split(",")[0].trim();
-        const currentUserCity = currentUserLocation.split(",")[0].trim();
-
-        if (userCity === currentUserCity) {
-          score += 1;
-        }
-      }
-
-      // Boost im Memory prüfen statt DB-Abfrage
-
-      const boostMultiplier = 5;
-      if (boostedUuids.has(user.users.uuid)) {
-        score = score * boostMultiplier;
-      }
-
-      return {
-        ...user,
-        score,
-      };
-    }),
-  );
-
-  
-
-  rankedUsers.sort((a, b) => b.score - a.score);
+  const rankedUsers = rankUsers(allUsers, profile, boostedUuids);
 
   return NextResponse.json(rankedUsers);
 }
