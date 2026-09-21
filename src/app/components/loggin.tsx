@@ -116,7 +116,7 @@ export default function Loggin() {
               onClick={login}
               className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold"
             >
-              Loggin
+              Login
             </button>
             <div className="mt-4 text-rose-500 font-bold">
               {error && <p>{error}</p>}

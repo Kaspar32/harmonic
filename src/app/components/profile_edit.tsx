@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useRef, useMemo, SetStateAction } from "react";
 import Interests from "../data/Intrests";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
@@ -10,7 +10,7 @@ import Refactoring_Images from "./refactoring_images";
 import { useUser } from "@/app/context/UserContext";
 import { getLocation } from "@/lib/getLocation";
 import { reverseGeocode } from "@/lib/getSuburbbyLocation";
-import {yearsBetween} from "@/lib/agesbetween";
+import { yearsBetween } from "@/lib/agesbetween";
 
 export default function Profil_Edit() {
   const [userData, setUserData] = useState<UserType>({
@@ -119,7 +119,7 @@ export default function Profil_Edit() {
   function calculateAge(birthday: string) {
     const birthDate = new Date(birthday);
     const today = new Date();
-   return yearsBetween(birthDate, today);
+    return yearsBetween(birthDate, today);
   }
 
   useEffect(() => {
@@ -373,12 +373,85 @@ export default function Profil_Edit() {
     setGeolocation({ latitude: city.iLatitude, longitude: city.iLongitude });
   }
 
+  async function abos() {
+    const res = await fetch("/api/checkout/abo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: user?.uuid }),
+    });
+
+    const data = await res.json();
+    window.location.href = data.url;
+  }
+
+  const [hasAbo, setHasAbo] = useState(false);
+
+  useEffect(() => {
+    // Get hasAbo from DB
+
+    async function fetchAboStatus() {
+      try {
+        const res = await fetch(`/api/getAboStatus`);
+        const data = await res.json();
+
+        setHasAbo(data || false);
+      } catch (err) {
+        console.error("Fehler beim Laden des Abo-Status:", err);
+      }
+    }
+
+    fetchAboStatus();
+  }, []);
+
+  async function opencheckout() {
+  // POST an /api/checkout/boost mit userId
+  const res = await fetch("/api/checkout/abo", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: user?.uuid }),
+  });
+
+  const data = await res.json();                        
+  window.location.href = data.url;  
+}
+
+
+// Setzte das Passwort neu::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+const [OpenModalPW, setOpenModalPW] = useState(false);
+const [PW, setPW]= useState("");
+const [text, setText] = useState("");
+const [toggle,setToggle]=useState(true);
+
+async function save_PW() {
+  const res = await fetch('/api/users/password-change', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password: PW }),
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    
+     setText(data.message);
+
+
+  } else {
+    console.error(data.message);
+    setText(data.message);
+  }
+}
+
+  
+
   return (
     <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
         Bilder
       </h2>
-
       {/*---------- Images und die Container --------*/}
       <Refactoring_Images />
 
@@ -887,10 +960,11 @@ export default function Profil_Edit() {
             >
               Momentanes Lieblingslied
               {userData.favorite_track && (
-              <span className="block text-gray-300 text-sm mt-2">
-                { userData?.favorite_track?.name} von{" "}
-                {userData?.favorite_track?.artist}
-              </span>)}
+                <span className="block text-gray-300 text-sm mt-2">
+                  {userData?.favorite_track?.name} von{" "}
+                  {userData?.favorite_track?.artist}
+                </span>
+              )}
             </h3>
             {showFavoriteTune && (
               <PopUp
@@ -1459,6 +1533,103 @@ export default function Profil_Edit() {
                 </div>
               </PopUp>
             )}
+
+            {/*---------- Anzeige ob der User ein Abo hat --------*/}
+
+            <div className="flex flex-row text-gray-300 text-3xl font-bold m-2 text-shadow-sm rounded-2xl mt-10">
+              Abonnement
+              {hasAbo ? (
+                <p className="mt-2 ml-5 text-gray-300 text-xl">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-6"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M19.916 4.626a.75.75 0 0 1 .208 1.04l-9 13.5a.75.75 0 0 1-1.154.114l-6-6a.75.75 0 0 1 1.06-1.06l5.353 5.353 8.493-12.74a.75.75 0 0 1 1.04-.207Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </p>
+              ) : (
+                <p className="mt-2 ml-5 text-gray-300 text-xl">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="size-6"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <button onClick={opencheckout}
+              className=" active:inset-shadow-amber-100 bg-yellow-50 border-b-2 border-b-amber-100 border-t-2 border-t-white mt-5 font-extrabold text-lg md:text-3x p-2 text-gray-300 shadow hover:bg-yellow-50 hover:shadow-md rounded-2xl"
+              
+            >
+              Abo verlängern!
+            </button>
+                </p>
+
+                
+              )}
+            </div>
+
+            <div className="flex flex-row text-gray-300 text-3xl font-bold m-2 text-shadow-sm rounded-2xl mt-10">Passwort</div>
+
+            <h3 onClick={() =>{setOpenModalPW(true);}}
+              className="  mt-4 ml-4 mr-4 text-gray-300 text-center font-semibold border-t-2   text-2xl hover:bg-white rounded-2xl shadow-lg "
+            >Passwort ändern</h3>
+
+              {OpenModalPW && (
+                <PopUp onClose={()=>{setOpenModalPW(false), setText("")}
+                }>
+                    <input
+                    type="text"
+                    maxLength={8}
+                    inputMode="numeric"
+                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                    placeholder="Tippen Sie hier ihr neues Passwort (8 Zahlen)..."
+                    onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPW(e.target.value)}>
+                    </input>
+
+                    <input
+                    type="text"
+                    maxLength={8}
+                    inputMode="numeric"
+                    className="w-full border border-slate-300 rounded-md px-3 mt-4 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                    placeholder="Tippen Sie hier ihr neues Passwort ein 2tes Mal (8 Zahlen)..."
+                    onChange={(e: { target: { value: SetStateAction<string>; }; }) => {if(e.target.value !== PW)
+                    {
+                      setToggle(true);
+                      setText("Passwörter müssen übereinstimmen!");
+                    }
+                    else{
+                      setToggle(false);
+                      setText("Passwörter stimmen überein, sie können speichern!");
+                    }
+
+                    }}>
+                    </input>
+
+                    <p className="mt-2 text-yellow-500 font-bold">{text}</p>
+                    <button
+                      disabled ={toggle}
+                      onClick={()=>{save_PW(), setOpenModalPW(false)}}
+                      className="bg-yellow-500 text-white px-5 py-2 rounded-md mt-5 hover:bg-yellow-700 transition"
+                    >
+                      Speichern
+                    </button>
+                </PopUp>
+              )}
+
+   
+
+             
           </div>
         </div>
       </div>

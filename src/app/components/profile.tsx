@@ -32,6 +32,19 @@ export default function Profile() {
   const { user } = useUser();
 
   //---- api fetch ----
+  const [currentUserData, setCurrentUserData] = useState<UserType | null>(null);
+
+  // Einmal beim Mounten laden
+  useEffect(() => {
+    async function loadCurrentUser() {
+      const res = await fetch("/api/getuserdata");
+      const data = await res.json();
+      setCurrentUserData(data);
+    }
+    loadCurrentUser();
+  }, []);
+
+
   async function fetchUsers() {
     const res = await fetch("/api/filterUsers");
     if (!res.ok) return [];
@@ -60,19 +73,12 @@ export default function Profile() {
     );
 
     // Hier noch die Funktion über das Ranking mit dem Boost machen!!
-    
-    
-
     setUsers(filteredUsers);
 
     return filteredUsers;
   }
 
   // Hole Bilder für den aktuellen User
-  const [imageTs, setImageTs] = useState(() => Date.now());
-  useEffect(() => {
-    setImageTs(Date.now());
-  }, [Images]);
 
   async function fetchPics() {
     const res = await fetch(
@@ -84,16 +90,18 @@ export default function Profile() {
     setImages(data);
   }
 
-  async function usersContain() {
-    const fetchedUsers = await fetchUsers();
-    if (!fetchedUsers || fetchedUsers.length === 0) {
-      setIsEmpty(true);
-      return;
-    }
-    const i = 0;
-    calculateGenres(i);
-    await setUserIndex(i);
+ async function usersContain() {
+  const fetchedUsers = await fetchUsers();
+  if (!fetchedUsers || fetchedUsers.length === 0) {
+    setIsEmpty(true);
+    return;
   }
+  setUserIndex(0);
+  // Nutze currentUserData (aus State) + fetchedUsers[0]
+  if (currentUserData) {
+    calculateGenres(currentUserData, fetchedUsers[0]);
+  }
+}
   //---- sofort laden ----
   useEffect(() => {
     usersContain();
@@ -119,27 +127,23 @@ export default function Profile() {
   //---- deezer zeugs ----
 
   const { addSameTasteNotification } = useNotification();
-  async function calculateGenres(i: number) {
-    const res1 = await fetch("/api/getuserdata");
-    const data1 = await res1.json();
+  async function calculateGenres(currentUser: UserType, targetUser: UserType) {
+  // Kein fetchUsers() mehr nötig!
 
-    const filteredUsers = await fetchUsers();
+  if (arraysHaveCommonElement(currentUser.genres, targetUser.genres)) {
+    setSamegenres(true);
+    addSameTasteNotification(targetUser.uuid);
+  }
 
-    if (arraysHaveCommonElement(data1.genres, filteredUsers[i].genres)) {
-      setSamegenres(true);
-      // Anfangsnachricht schicken in chatter, wenn gleiche Genres
-
-      addSameTasteNotification(filteredUsers[i].uuid);
-    }
-
-    if (data1.favorite_artist && filteredUsers[i].favorite_artist) {
-      if (
-        data1.favorite_artist.name === filteredUsers[i].favorite_artist.name
-      ) {
-        setSameartist(true);
-      }
+  if (currentUser.favorite_artist && targetUser.favorite_artist) {
+    if (
+      JSON.stringify(currentUser.favorite_artist) ===
+      JSON.stringify(targetUser.favorite_artist)
+    ) {
+      setSameartist(true);
     }
   }
+}
 
   const [buttonsDisabled, setButtonsDisabled] = useState(false);
 
@@ -201,6 +205,7 @@ export default function Profile() {
 
   async function addlike() {
     if (buttonsDisabled) return;
+    if (!currentUserData) return
 
     if (!users[UserIndex]) return;
 
@@ -213,8 +218,7 @@ export default function Profile() {
       isUserFake = false;
     }
 
-    const data = await fetch("/api/getuserdata");
-    const user = await data.json();
+    const user= currentUserData;
 
     const payload = {
       from: user.uuid,
@@ -229,7 +233,6 @@ export default function Profile() {
     });
 
     await calculateMatch(user.uuid);
-    console.log("isMatched after calculateMatch:", isMatched);
   }
 
   //---- dislikes logik -----
@@ -262,11 +265,10 @@ export default function Profile() {
 
   async function addDislike() {
     if (buttonsDisabled) return;
-
+    if (!currentUserData) return;
     if (!users[UserIndex]) return;
 
-    const res = await fetch("/api/getuserdata");
-    const user = await res.json();
+    const user = currentUserData;
     const payload = { from: user.uuid, to: users[UserIndex].uuid };
 
     await fetch("/api/adddislike", {
@@ -337,11 +339,11 @@ export default function Profile() {
 
   async function addsuperlike() {
     if (buttonsDisabled) return;
-
+    if (!currentUserData) return;
     if (!users[UserIndex]) return;
 
-    const data = await fetch("/api/getuserdata");
-    const user = await data.json();
+  
+    const user = currentUserData;
 
     const payload = {
       from: user.uuid,
@@ -369,16 +371,16 @@ export default function Profile() {
   // ---- Boost Logik ----
 
   const [boosttime, setBoosttime] = useState("00:00:00");
-
   const [boostexpires, setBoostexpires] = useState<Date | null>(null);
-
   const [showModalBoost, setShowModalBoost] = useState(false);
 
 
   function confirmBoost()
   {
-    opencheckout();
+
     setGrayedOut2(true);
+    opencheckout();
+    
 
   }
 
@@ -419,6 +421,8 @@ export default function Profile() {
 
     const interval = setInterval(updateCountdown, 1000);
 
+    setGrayedOut2(true);
+
     return () => clearInterval(interval);
   }, [boostexpires]);
 
@@ -433,38 +437,27 @@ export default function Profile() {
     });
 
     const data = await res.json();
-
-    window.location.href = data.url;
     setRocket(true);
+    await delay(2000);
+    window.location.href = data.url;
+    
   }
 
 
   const [grayedOut2, setGrayedOut2] = useState(false);
   const [rocket, setRocket] = useState(false);
 
-  useEffect(() => {
-    if (!user) return;
-
-    let ispayed = true;
-    if (!ispayed) {
-      setGrayedOut2(true);
-      return;
-    }
-  }, [user]);
-
   // ---- neue users holen nach swipe ----
   async function getNewFilteredUsers() {
-    const filteredUsers = await fetchUsers();
-
-    if (!filteredUsers.length || filteredUsers == 404) {
-      setIsEmpty(true);
-      return;
-    }
-
-    const i = 0;
-    setUserIndex(i);
-
-    calculateGenres(i);
+  const filteredUsers = await fetchUsers();
+  if (!filteredUsers.length) {
+    setIsEmpty(true);
+    return;
+  }
+  setUserIndex(0);
+  if (currentUserData) {
+    calculateGenres(currentUserData, filteredUsers[0]);
+  }
   }
 
   const { playTrack, pauseTrack, playDeezerTrack } = useAudioPreview();
@@ -487,7 +480,7 @@ export default function Profile() {
       {showModalBoost && (
         <PopUp onClose={() => setShowModalBoost(false)}>
           <div className="overflow-y-auto max-h-96">
-            <div className="felx flex-wrap">
+            <div className="flex flex-wrap">
               <span className="text-gray-500 font-bold">
                 Möchten Sie wirklich boosten?
               </span>
@@ -644,7 +637,7 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
-                <div className="absolute  sm:right-5/12 top-80 right-1 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
+                <div className="absolute  sm:right-5/12 top-80 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
                   FAKE USER
                 </div>
               )}
