@@ -46,7 +46,8 @@ export async function GET(request: NextRequest) {
     })
     .from(users)
     .innerJoin(settings, eq(settings.uuid, users.uuid))
-    .leftJoin(swissLoc, eq(users.locationid, swissLoc.id));
+    .leftJoin(swissLoc, eq(users.locationid, swissLoc.id))
+    .where(eq(users.uuid, userfromAuth.uuid));
     
 
 
