@@ -637,7 +637,7 @@ export default function Profile() {
             <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
-                <div className="absolute  sm:right-5/12 top-80 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
+                <div className="absolute md:top-50 md:left-220 transform: rotate-20 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
                   FAKE USER
                 </div>
               )}

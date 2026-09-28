@@ -8,7 +8,7 @@ import PopUp from "./popup";
 export default function Settings() {
   const [interest, setInterest] = useState("");
   const [alter, setAlter] = useState<number[]>([20, 50]);
-  const [radius, setRadius] = useState<number[]>([Infinity]);
+  const [radius, setRadius] = useState<number[]>([50]);
   const [interestLocation, setInterestLocation] = useState("");
 
   function handleInteressiertAn(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -74,7 +74,7 @@ export default function Settings() {
         if (res.ok) {
           const settingsData = await res.json();
 
-          settingsData[0].alter = setAlter(settingsData[0].alter);
+          setAlter(settingsData[0].alter);
 
           if (settingsData[0].radius) {
             setRadius([settingsData[0].radius]);

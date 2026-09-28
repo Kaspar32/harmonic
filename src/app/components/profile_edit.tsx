@@ -797,6 +797,12 @@ async function save_PW() {
                 Standort
               </h3>
 
+              {!userData.location && (
+              <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
+                Du musst dein Ort angegeben, um angezeigt zu werden!
+              </div>
+            )}
+
               {showLocation && (
                 <PopUp onClose={() => setLocation(false)}>
                   <h2 className="text-xl text-gray-400 dark:text-gray-400 font-bold mb-4">
