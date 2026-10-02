@@ -9,9 +9,9 @@ const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
     origin: [
-      "http://195.15.205.186:3000",
+      "https://195.15.205.186:3000",
       "http://localhost:3000",
-      "http://harmonic.jcloud.ik-server.com:3000/",
+      "https://harmonic.jcloud.ik-server.com",
     ],
     methods: ["GET", "POST"],
   },

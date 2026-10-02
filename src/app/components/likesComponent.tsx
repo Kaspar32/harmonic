@@ -114,7 +114,7 @@ export default function LikesTest() {
 
       {/* Panel: Likes You */}
       <div
-        className={`absolute md:h-[500px] w-full overflow-y-auto h-[450px] bg-yellow-100 rounded-2xl rounded-tl-none shadow-xl ${
+        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-yellow-100 rounded-2xl rounded-tl-none shadow-xl ${
           toggleLikesYou ? "opacity-100 block" : "opacity-0 hidden"
         }`}
       >
@@ -199,7 +199,7 @@ export default function LikesTest() {
 
       {/* Panel: You Like */}
       <div
-        className={`absolute md:h-[500px] w-full overflow-y-auto h-[450px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
+        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
           toggleYouLike ? "opacity-100 block" : "opacity-0 hidden"
         }`}
       >

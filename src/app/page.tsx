@@ -48,7 +48,6 @@ export default function SalesPage() {
                   <ul className="text-xs text-gray-500">
                     <li>• Sehen wer dich geliked hat</li>
                     <li>• 10 Super Likes</li>
-                    <li>• 5 Boosts</li>
                   </ul>
                 </div>
               </div>

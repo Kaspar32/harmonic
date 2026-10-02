@@ -1596,19 +1596,15 @@ async function save_PW() {
                 }>
                     <input
                     type="text"
-                    maxLength={8}
-                    inputMode="numeric"
                     className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
-                    placeholder="Tippen Sie hier ihr neues Passwort (8 Zahlen)..."
+                    placeholder="Tippen Sie hier ihr neues Passwort"
                     onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPW(e.target.value)}>
                     </input>
 
                     <input
                     type="text"
-                    maxLength={8}
-                    inputMode="numeric"
                     className="w-full border border-slate-300 rounded-md px-3 mt-4 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
-                    placeholder="Tippen Sie hier ihr neues Passwort ein 2tes Mal (8 Zahlen)..."
+                    placeholder="Tippen Sie hier ihr neues Passwort ein 2tes Mal"
                     onChange={(e: { target: { value: SetStateAction<string>; }; }) => {if(e.target.value !== PW)
                     {
                       setToggle(true);

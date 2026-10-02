@@ -111,7 +111,7 @@ export default function Chatter() {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const socket = io("http://localhost:4001", {
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
       transports: ["websocket", "polling"],
     });
 
@@ -475,7 +475,7 @@ export default function Chatter() {
             <div key={index}>
               <div
                 className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
-                >
+                onClick={() => handleClick(index)}>
                 <Image
                   unoptimized
                   src={
@@ -487,10 +487,10 @@ export default function Chatter() {
                   width={80}
                   className="rounded-4xl border-2 border-yellow-300 "
                   alt="Profilbild"
-                  onClick={() => handlePPClick(index)}
+                  onClick={(e) => {e.stopPropagation();handlePPClick(index)}}
                 />
 
-                <p  onClick={() => handleClick(index)}
+                <p  
                   className="flex text-xl font-bold text-yellow-300 items-center ml-4"
                 >
                   Schreibe {users[index]?.name || ""}
