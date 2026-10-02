@@ -111,3 +111,21 @@ button {
   animation: star-rise 3s ease-out infinite;
 }
 
+@keyframes eq-bar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+.animate-eq > span {
+  display: block;
+  width: 3px;
+  border-radius: 999px;
+  background-color: currentColor;
+  transform-origin: bottom;
+  animation: eq-bar 0.9s ease-in-out infinite;
+}
+
+.animate-eq > span:nth-child(1) { height: 60%; animation-delay: 0s; }
+.animate-eq > span:nth-child(2) { height: 100%; animation-delay: 0.15s; }
+.animate-eq > span:nth-child(3) { height: 75%; animation-delay: 0.3s; }
+

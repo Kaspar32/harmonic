@@ -37,15 +37,15 @@ export default function Score({ uuid }: Props) {
   }, []);
 
   return (
-   <div className="flex flex-rows gap-x-20 mb-2">
-    
-      <div className=" w-40 bg-gray-200 rounded-2xl h-9 overflow-hidden border-yellow-400 border-3">
+   <div className="flex w-full min-w-0 mb-2">
+      <div className="relative w-full min-w-0 bg-gray-200 rounded-2xl h-6 @min-[17rem]:h-8 @min-[23rem]:h-9 overflow-hidden border-yellow-400 border-3">
         <div
-          className="bg-yellow-600 h-9 transition-all duration-300"
+          className="bg-yellow-600 h-full transition-all duration-300"
           style={{ width: `${score}%` }}
-        >
-          <p className="text-yellow-500 pl-5 pb-1 leading-9">{score}%</p>
-        </div>
+        />
+        <p className="absolute inset-0 flex items-center pl-2 text-xs @min-[17rem]:text-sm @min-[23rem]:text-base text-yellow-500">
+          {score}%
+        </p>
       </div>
     </div>
   );

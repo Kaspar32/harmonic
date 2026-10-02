@@ -460,7 +460,18 @@ export default function Profile() {
   }
   }
 
-  const { playTrack, pauseTrack, playDeezerTrack } = useAudioPreview();
+  const {
+    toggleDeezerTrack,
+    pauseTrack,
+    isTrackPlaying,
+    isTrackLoading,
+  } = useAudioPreview();
+
+  const currentTrack = users[UserIndex]?.favorite_track;
+  const trackKey = currentTrack
+    ? `${currentTrack.name}-${currentTrack.artist}`
+    : "";
+  const isThisPlaying = isTrackPlaying(trackKey);
 
 
   return (
@@ -634,7 +645,7 @@ export default function Profile() {
             </div>
           </div>
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
-            <div className="flex flex-col md:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
+            <div className="flex flex-col xl:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
                 <div className="absolute md:top-50 md:left-220 transform: rotate-20 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
@@ -687,9 +698,9 @@ export default function Profile() {
               </div>
 
               {/* kasten */}
-              <div className="text-sm sm:text-base">
+              <div className="text-sm sm:text-base w-full max-w-[600px] xl:shrink-0">
                 {/* kasten 1 */}
-                <div className="px-6 py-4 mt-4 w-full sm:w-sm lg:w-md bg-yellow-200/50 rounded-2xl text-yellow-400 font-semibold shadow-lg ">
+                <div className="px-6 py-4 mt-4 w-full bg-yellow-200/50 rounded-2xl text-yellow-400 font-semibold shadow-lg ">
                   <User className=" flex w-6 h-6 text-yellow-400" />
 
                   <div>
@@ -759,7 +770,7 @@ export default function Profile() {
 
                 {/* kasten 2 */}
                 <div
-                  className={`px-6 py-4 mt-5 rounded-2xl font-semibold shadow-lg   ${
+                  className={`@container w-full px-3 py-4 sm:px-6 mt-5 rounded-2xl font-semibold shadow-lg   ${
                     samegenres
                       ? "genre-animate animate-pulse text-yellow-400"
                       : "bg-yellow-200/50 text-yellow-400 "
@@ -773,10 +784,10 @@ export default function Profile() {
 
                   <div>
                     <div
-                      className={`grid grid-cols-2 gap-y-2 items-center mx-6 break-normal`}
+                      className={`grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-y-2 items-center mx-2 sm:mx-6 break-normal`}
                     >
                       <h3>Fragen:</h3>
-                      <div className="grid grid-cols gap-y-1 shrink">
+                      <div className="grid grid-cols gap-y-1 min-w-0">
                         <Score uuid={users[UserIndex]?.uuid}></Score>
                       </div>
 
@@ -800,42 +811,95 @@ export default function Profile() {
 
                       <h3>Lieblingslied:</h3>
 
-                      <div className="border-3 rounded-3xl py-1 px-3 text-center  break-normal">
-                        {users[UserIndex]?.favorite_track ? (
+                      <div className="border-3 rounded-3xl py-1 px-2 sm:px-3 text-center break-normal">
+                        {currentTrack ? (
                           <div className="flex items-center gap-1 min-w-0">
                             <Image
-                              src={
-                                users[UserIndex]?.favorite_track?.image ||
-                                "/images/Home.png"
-                              }
+                              src={currentTrack.image || "/images/Home.png"}
                               alt="Album Cover"
                               height={30}
                               width={30}
-                              style={{ objectFit: "cover" }} // schneidet es sauber zu
+                              className={`shrink-0 rounded transition-all duration-300 ${
+                                isThisPlaying
+                                  ? "ring-2 ring-green-400 scale-105"
+                                  : ""
+                              }`}
+                              style={{ objectFit: "cover" }}
                               quality={100}
                             />
 
-                            <div className="md:w-full max-w-[80px] min-w-0">
-                              <p className="font-semibold ">
-                                {users[UserIndex]?.favorite_track?.name}
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className={`font-semibold truncate text-xs sm:text-sm transition-colors duration-300 ${
+                                  isThisPlaying ? "text-green-600" : ""
+                                }`}
+                              >
+                                {currentTrack.name}
                               </p>
-                              <p className="text-sm text-yellow-400">
-                                {users[UserIndex]?.favorite_track?.artist}
+                              <p className="text-xs sm:text-sm text-yellow-400 truncate">
+                                {currentTrack.artist}
                               </p>
                             </div>
 
+                            {isTrackLoading(trackKey) ? (
+                              <span
+                                className="shrink-0 flex text-gray-400 animate-spin"
+                                aria-label="Lädt"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  className="size-5 sm:size-6"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                                  />
+                                </svg>
+                              </span>
+                            ) : isThisPlaying ? (
+                              <span
+                                className="animate-eq shrink-0 flex items-end gap-[2px] h-4 text-green-600"
+                                aria-label="Wird abgespielt"
+                              >
+                                <span />
+                                <span />
+                                <span />
+                              </span>
+                            ) : null}
+
                             <button
-                              onClick={() => {
-                                const track = users[UserIndex]?.favorite_track;
-                                if (!track) return;
-                                playDeezerTrack(track.name, track.artist);
-                              }}
+                              onClick={() =>
+                                toggleDeezerTrack(
+                                  trackKey,
+                                  currentTrack.name,
+                                  currentTrack.artist,
+                                )
+                              }
+                              aria-label={
+                                isThisPlaying ? "Song pausieren" : "Song abspielen"
+                              }
+                              className={`shrink-0 flex items-center justify-center rounded-full p-1 transition-all duration-150 active:scale-90 ${
+                                isThisPlaying
+                                  ? "text-green-600 bg-green-100 ring-2 ring-green-400"
+                                  : "text-gray-500 hover:text-green-500 hover:bg-green-50 active:bg-green-100"
+                              }`}
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="size-6 hover:text-green-500 hover:scale-150 transition-colors duration-300"
+                                className="size-5 sm:size-6"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -844,12 +908,21 @@ export default function Profile() {
                                 />
                               </svg>
                             </button>
-                            <button onClick={() => pauseTrack()}>
+
+                            <button
+                              onClick={() => pauseTrack()}
+                              aria-label="Song stoppen"
+                              className={`shrink-0 flex items-center justify-center rounded-full p-1 transition-all duration-150 active:scale-90 ${
+                                isThisPlaying
+                                  ? "text-red-600 bg-red-100 ring-2 ring-red-400"
+                                  : "text-gray-400 hover:text-red-500 hover:bg-red-50 active:bg-red-100"
+                              }`}
+                            >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 24 24"
                                 fill="currentColor"
-                                className="size-6 hover:text-red-500 hover:scale-150 transition-colors duration-300"
+                                className="size-5 sm:size-6"
                               >
                                 <path
                                   fillRule="evenodd"
@@ -865,16 +938,13 @@ export default function Profile() {
                       </div>
 
                       <div>
-                        <h3 className="">Lieblings-</h3>
-                        <h3 className="">interpret:</h3>
+                        <h3 className="">Lieblingsinterpret:</h3>
+                      
                       </div>
-                      <div
-                        className={`flex flex-col space-y-0.5 border-3 rounded-3xl py-1 px-3 text-center break-normal`}
-                      >
-
+                      <div className="flex flex-col space-y-1 border-3 rounded-3xl py-1 px-2 sm:px-3 text-center break-normal">
                         {users[UserIndex]?.favorite_artist ? (
                           <>
-                            <div className="flex items-center gap-1 py-1 px-3 mb-2">
+                            <div className="flex items-center gap-1 min-w-0">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
@@ -883,11 +953,12 @@ export default function Profile() {
                                 alt="Album Cover"
                                 height={30}
                                 width={30}
+                                className="shrink-0 rounded"
                                 style={{ objectFit: "cover" }} // schneidet es sauber zu
                                 quality={100}
                               />
-                              <div>
-                                <p className="font-semibold">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold truncate text-xs sm:text-sm">
                                   {
                                     users[UserIndex]?.favorite_artist
                                       ?.favorite_artist1?.name
@@ -895,7 +966,7 @@ export default function Profile() {
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center gap-1  py-1 px-3">
+                            <div className="flex items-center gap-1 min-w-0">
                               <Image
                                 src={
                                   users[UserIndex]?.favorite_artist
@@ -904,11 +975,12 @@ export default function Profile() {
                                 alt="Album Cover"
                                 height={30}
                                 width={30}
+                                className="shrink-0 rounded"
                                 style={{ objectFit: "cover" }} // schneidet es sauber zu
                                 quality={100}
                               />
-                              <div>
-                                <p className="font-semibold">
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold truncate text-xs sm:text-sm">
                                   {
                                     users[UserIndex]?.favorite_artist
                                       ?.favorite_artist2?.name
