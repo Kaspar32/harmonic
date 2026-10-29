@@ -1,6 +1,9 @@
 "use client";
 import { useRef, useCallback, useEffect, useState } from "react";
 
+let activeAudio: HTMLAudioElement | null = null;
+let stopActiveAudio: (() => void) | null = null;
+
 export function useAudioPreview() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playingTrack, setPlayingTrack] = useState<string | null>(null);
@@ -10,6 +13,10 @@ export function useAudioPreview() {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
+      if (activeAudio === audioRef.current) {
+        activeAudio = null;
+        stopActiveAudio = null;
+      }
       audioRef.current = null;
     }
     setPlayingTrack(null);
@@ -17,7 +24,11 @@ export function useAudioPreview() {
 
   useEffect(() => {
     return () => {
-      audioRef.current?.pause();
+      if (audioRef.current && activeAudio === audioRef.current) {
+        audioRef.current.pause();
+        activeAudio = null;
+        stopActiveAudio = null;
+      }
       audioRef.current = null;
     };
   }, []);
@@ -26,18 +37,23 @@ export function useAudioPreview() {
     (previewUrl: string | null | undefined, trackKey?: string) => {
       if (!previewUrl) return;
 
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      const previousAudio = activeAudio;
+      previousAudio?.pause();
+      stopActiveAudio?.();
 
       const audio = new Audio(previewUrl);
       audioRef.current = audio;
+      activeAudio = audio;
 
       const clearPlayback = () => {
         setPlayingTrack(null);
         if (audioRef.current === audio) audioRef.current = null;
+        if (activeAudio === audio) {
+          activeAudio = null;
+          stopActiveAudio = null;
+        }
       };
+      stopActiveAudio = clearPlayback;
 
       audio.addEventListener("ended", clearPlayback);
       audio.addEventListener("error", clearPlayback);
@@ -56,7 +72,12 @@ export function useAudioPreview() {
   );
 
   const pauseTrack = useCallback(() => {
-    audioRef.current?.pause();
+    const audio = audioRef.current;
+    audio?.pause();
+    if (audio && activeAudio === audio) {
+      activeAudio = null;
+      stopActiveAudio = null;
+    }
     setPlayingTrack(null);
   }, []);
 

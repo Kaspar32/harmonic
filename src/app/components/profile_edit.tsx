@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useMemo, SetStateAction } from "react";
+import { useEffect, useState, useMemo, SetStateAction } from "react";
 import Interests from "../data/Intrests";
 import PopUp from "./popup";
 import IchSucheData from "../data/IchSucheData";
@@ -11,6 +11,7 @@ import { useUser } from "@/app/context/UserContext";
 import { getLocation } from "@/lib/getLocation";
 import { reverseGeocode } from "@/lib/getSuburbbyLocation";
 import { yearsBetween } from "@/lib/agesbetween";
+import { useAudioPreview } from "@/hooks/useAudioPreview";
 
 export default function Profil_Edit() {
   const [userData, setUserData] = useState<UserType>({
@@ -170,7 +171,6 @@ export default function Profil_Edit() {
 
   const [tracks, setTracks] = useState<Track[]>([]);
   const [artists, setArtists] = useState<Artist[]>([]);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // 🔍 TRACK SEARCH
   async function search() {
@@ -294,22 +294,15 @@ export default function Profil_Edit() {
     });
   }
 
-  // 🎧 AUDIO PREVIEW
+  const { playTrack: playAudioTrack, pauseTrack: pauseAudioTrack } =
+    useAudioPreview();
+
   function playTrack(track: Track) {
-    if (!track.preview) return;
-
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    audioRef.current = new Audio(track.preview);
-    audioRef.current.play();
+    playAudioTrack(track.preview);
   }
 
   function pauseTrack(_track: Track) {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
+    pauseAudioTrack();
   }
 
   // ---- Location:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::

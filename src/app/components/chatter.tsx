@@ -549,9 +549,9 @@ export default function Chatter() {
       {openChat && (
 
         
-        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/90">
+        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/95">
           
-        <div className="flex justify-start text-xl font-bold text-yellow-500 absolute top-30 left-15 shadow rounded">{chatPartner}</div>
+        <div className="flex justify-start text-xl font-bold text-yellow-500 bg-white absolute top-10 left-10 shadow rounded">{chatPartner}</div>
           
           
           <div
@@ -605,7 +605,7 @@ export default function Chatter() {
           </div>
 
           {/* Eingabefeld */}
-          <div className="fixed bottom-30 left-5 right-5 flex items-center gap-2">
+          <div className="fixed bottom-0 left-0 right-0 flex items-center gap-2 p-4 pb-[env(safe-area-inset-bottom)]">
             <input
               value={input}
               onChange={handleChange}

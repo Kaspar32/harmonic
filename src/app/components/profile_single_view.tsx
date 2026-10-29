@@ -1,7 +1,8 @@
 import Image from "next/image";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { UserType } from "../types/User";
 import { useUser } from "@/app/context/UserContext";
+import { useAudioPreview } from "@/hooks/useAudioPreview";
 
 type Props = {
   selectedProfileIndex: number;
@@ -97,25 +98,7 @@ export default function ProfileSingleView({
       return null;
     }
   }
-  // Preview-Player
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  // 🎧 AUDIO PREVIEW
-  function playTrack(previewUrl: string | null | undefined) {
-    if (!previewUrl) return;
-
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    audioRef.current = new Audio(previewUrl);
-    audioRef.current.play();
-  }
-
-  function pauseTrack(_previewUrl: string | null | undefined) {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-  }
+  const { playTrack, pauseTrack } = useAudioPreview();
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -228,7 +211,7 @@ export default function ProfileSingleView({
                   />
                 </svg>
               </button>
-              <button onClick={() => pauseTrack(null)}>
+              <button onClick={() => pauseTrack()}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"

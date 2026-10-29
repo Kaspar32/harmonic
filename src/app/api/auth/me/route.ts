@@ -5,19 +5,12 @@ import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function GET(req: NextRequest) {
-
-
     const token = req.cookies.get("authtoken")?.value;
-
     if (!token) {
         
         return new NextResponse("Nicht eingeloggt", { status: 401 });
     }
-
-
     let payload;
-
-
     try {
         payload = jwt.verify(token, process.env.JWT_SECRET!);
 
