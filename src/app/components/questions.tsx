@@ -1,11 +1,8 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import { useUser } from "@/app/context/UserContext";
 
-import { set } from "date-fns";
-import { uuid } from "drizzle-orm/gel-core";
-import { NextResponse } from "next/server";
-import React, { use, useEffect, useState } from "react";
-
-export default function Questions() {
+export default function Questions({ onClose }: { onClose: () => void }) {
   interface Questions {
     question1?: string;
     question2?: string;
@@ -13,6 +10,8 @@ export default function Questions() {
     question4?: string;
     question5?: string;
     question6?: string;
+    question7?: string;
+    question8?: string;
   }
 
   const [question1, setQuestion1] = useState("");
@@ -21,14 +20,13 @@ export default function Questions() {
   const [question4, setQuestion4] = useState("");
   const [question5, setQuestion5] = useState("");
   const [question6, setQuestion6] = useState("");
+  const [question7, setQuestion7] = useState("");
+  const [question8, setQuestion8] = useState("");
+
+  const {user} = useUser();
 
   async function saveAnswers() {
-    const userRes = await fetch("/api/auth", { credentials: "include" });
-    if (!userRes.ok) {
-      throw new Error("Nicht eingeloggt oder Fehler");
-    }
-    const userData = await userRes.json();
-    const userUuid = userData.uuid;
+    
 
     let payload = {
       question1,
@@ -37,7 +35,9 @@ export default function Questions() {
       question4,
       question5,
       question6,
-      uuid: userUuid,
+      question7,
+      question8,
+      uuid: user?.uuid,
     };
 
     const res = await fetch("/api/savequestionaire", {
@@ -47,17 +47,22 @@ export default function Questions() {
       },
       body: JSON.stringify(payload),
     });
+
+    onClose();
   }
   const [answers, setAnswers] = useState<Questions>({});
 
   useEffect(() => {
+
+    if(!user?.uuid && user?.uuid === undefined)
+    {
+      alert("Sie müssen eingeloggt sein, um auf diese Seite zuzugreifen.");
+    }
+
+
     const loadData = async () => {
-      const userRes = await fetch("/api/auth", { credentials: "include" });
 
-      const userData = await userRes.json();
-      const userUuid = userData.uuid;
-
-      const res = await fetch("api/savequestionaire" + `?uuid=${userUuid}`, {
+      const res = await fetch("api/savequestionaire" + `?uuid=${user?.uuid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -65,12 +70,11 @@ export default function Questions() {
       });
       const data = await res.json();
 
-      console.log("Empfangene antworten:", data[0].answers.question1);
-      setAnswers(data[0].answers);
+      setAnswers(data[0]?.answers);
     };
 
     loadData();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (answers?.question1) {
@@ -83,11 +87,12 @@ export default function Questions() {
     if (answers?.question6) {
       setQuestion6(answers.question6);
     }
+
   }, [answers]);
 
   return (
     <div className="flex flex-col min-h-screen py-2 overflow-y-auto">
-      <h1 className="mt-30 text-4xl font-bold text-yellow-500">Fragen</h1>
+      <h1 className="mt-10 text-4xl font-bold text-yellow-500">Fragen</h1>
 
       <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches ist dein Lieblingsopenair?
@@ -213,8 +218,30 @@ export default function Questions() {
         <option>...</option>
       </select>
 
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+        Welches Lied ist dein Guilty Pleasure?
+      </p>
+
+      <input
+        onChange={(e) => setQuestion7(e.target.value)}
+        defaultValue={answers?.question7}
+        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        placeholder="Liedtitel"
+      />
+
+      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+        Gibt es ein Lied, das dich immer emotional trifft?
+      </p>
+
+      <input
+        onChange={(e) => setQuestion8(e.target.value)}
+        defaultValue={answers?.question8}
+        className="bg-gray-200 text-gray-400 dark:text-black appearance-none focus:outline-none"
+        placeholder="Liedtitel"
+      />
+
       <button
-        onClick={() => saveAnswers()}
+        onClick={() => {saveAnswers()}}
         className="bg-yellow-400 text-white rounded-2xl p-2 mt-2 shadow-lg"
       >
         Speichern

@@ -1,5 +1,5 @@
 export async function convertImagesToBase64(
-    images: { id: string; image?: File | null }[]
+    images: {image?: File | null }[]
   ) {
     const promises = images.map((img) => {
       return new Promise<string | null>((resolve) => {

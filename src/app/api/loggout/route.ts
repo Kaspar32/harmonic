@@ -5,6 +5,7 @@ export async function POST(){
 
     const res = NextResponse.json({ message: 'Logged out'});
     res.cookies.delete({name: 'userId', path: '/'});
+    res.cookies.delete({name: 'authtoken', path: '/'});
     return res;
 
 }

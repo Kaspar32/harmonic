@@ -6,19 +6,33 @@ import { cookies } from "next/headers";
 
 
 export async function POST(req: Request) {
+
+  let userfromAuth;
+  try {
+    const res = await fetch("http://localhost:3000/api/auth/me", {
+      method: "GET",
+      headers: {
+        cookie: req.headers.get("cookie") ?? "",
+      },
+    });
+
+    if (res.ok) {
+      const UserData = await res.json();
+      userfromAuth = UserData;
+    }
+  } catch (err) {
+    console.error("Error fetching user:", err);
+  }
+
+
+
   try {
     const artistData = await req.json();
 
 
-    console.log("Eingehende Daten:", artistData);
+  
 
-    const cookieStore = cookies();
-
-    const userId = (await cookieStore).get("userId")?.value;
-
-    if (!userId) return new Response("Not logged in");
-
-    if (!userId || !artistData) {
+    if (!artistData) {
       return NextResponse.json(
         { error: "userId und artists sind erforderlich" },
         { status: 400 }
@@ -31,7 +45,7 @@ export async function POST(req: Request) {
     const updated = await db
       .update(users)
       .set({ favorite_artist: artistData })
-      .where(eq(users.uuid, userId))
+      .where(eq(users.uuid, userfromAuth.uuid))
       .returning();
 
     return NextResponse.json(updated[0], { status: 200 });

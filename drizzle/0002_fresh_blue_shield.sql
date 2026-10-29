@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "last_match_check" timestamp;

@@ -34,8 +34,8 @@
     "src/**/*.tsx",
     ".next/types/**/*.ts",
     "types/**/*.d.ts",
-    "middleware.ts",
-    ".next/dev/types/**/*.ts",
+    "src/middleware.ts",
+    ".next/dev/types/**/*.ts", "uploads/images/route.ts",
   ],
   "exclude": [
     "node_modules"

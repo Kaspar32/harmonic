@@ -2,24 +2,23 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 export default function UserRegister() {
   const [user, setUser] = useState<{ name: string } | null>(null);
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const { user: user2 } = useUser();
+
+
   useEffect(() => {
-    fetch("/api/auth")
-      .then((res) => {
-        if (!res.ok) throw new Error("Nicht eingeloggt oder Fehler");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
-  }, []);
+    setUser(user2);
+  }, [user2]);
 
   async function loggout() {
     await fetch("/api/loggout", {
@@ -36,7 +35,7 @@ export default function UserRegister() {
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, confirmPassword }),
+      body: JSON.stringify({ username, email, password, confirmPassword }),
     });
 
     if (!res.ok) {
@@ -45,6 +44,23 @@ export default function UserRegister() {
     } else {
       const successText = await res.text();
       setSuccess(successText);
+
+      // Schicke eine Mail an den User mit Willkommensnachricht
+
+      const res2= await fetch("/api/users/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailAddress: email, fullName: username }),
+      });
+
+        if (!res2.ok) {
+          const errorText = await res2.text();
+          setError(errorText);
+        } else {
+          const successText = await res2.text();
+          setSuccess(successText);
+        }
+
     }
   }
 
@@ -63,7 +79,14 @@ export default function UserRegister() {
           </button>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 border-4 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-500">
+        <div className="flex flex-wrap items-center justify-center gap-1 border-2 border-yellow-300 bg-yellow-100 rounded-2xl p-6 shadow-2xl text-gray-500">
+        <div className="ml-20 text-2xl md:text-4xl font-extrabold text-yellow-400 bg-yellow-50 mr-30 mb-10 border-2 border-yellow-400 rounded-2xl p-4 shadow-2xl hover:mb-10 transition-all duration-300">
+          Starte dein <a className="text-yellow-700">Music-first</a> Dating
+        </div>
+        
+
+        <div className="flex flex-col gap-4 border-2 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-500">
+          
           <input
             id="name"
             name="name"
@@ -73,6 +96,17 @@ export default function UserRegister() {
             type="text"
             placeholder="Benutzername"
           />
+
+          <input
+            id="email"
+            name="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="border border-amber-300 focus:outline-none px-2 py-1 rounded "
+            type="text"
+            placeholder="Email"
+          />
+
           <input
             id="password"
             name="password"
@@ -108,7 +142,7 @@ export default function UserRegister() {
               href="/loggin"
               className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold text-center flex gap-2 justify-center"
             >
-              <p>Zum loggin</p>
+              <p>Zum Login</p>
               <div>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -127,6 +161,7 @@ export default function UserRegister() {
               </div>
             </Link>
           </div>
+        </div>
         </div>
       )}
     </div>
