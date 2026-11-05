@@ -7,6 +7,12 @@ import bcrypt from "bcryptjs";
 export async function POST(req: Request) {
   const { username, password } = await req.json();
 
+  if (!username || !password) {
+    return new Response("Benutzername und Passwort sind erforderlich.", {
+      status: 400,
+    });
+  }
+
   const foundUser = await db
     .select()
     .from(users)
@@ -14,13 +20,14 @@ export async function POST(req: Request) {
 
   const user = foundUser[0];
 
-  const isdeleted= await db.select({ deleted: users.deleted })
-  .from(users)
-  .where(eq(users.uuid, user?.uuid));
-
   if (!user) {
     return new Response("Login fehlgeschlagen!", { status: 400 });
   }
+
+  const isdeleted = await db
+    .select({ deleted: users.deleted })
+    .from(users)
+    .where(eq(users.uuid, user?.uuid));
 
   const comparePasswords = await bcrypt.compare(
     password,
@@ -33,14 +40,12 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ message: "Loggin erfolgreich" });
 
-
   res.cookies.set("userId", user.uuid, {
     httpOnly: true,
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7,
     path: "/",
   });
-
 
   //neuer Token setzten mit JWT
   const jwt = require("jsonwebtoken");
@@ -49,14 +54,14 @@ export async function POST(req: Request) {
     expiresIn: "24h",
   });
 
-  // Cookie setzten 
+  // Cookie setzten
   res.cookies.set("authtoken", token, {
-  httpOnly: true,
-  secure: false,       
-  sameSite: "lax",
-  path: "/",
-  maxAge: 60*60*24*7
-});
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 7,
+  });
 
   return res;
 }

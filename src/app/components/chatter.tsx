@@ -375,7 +375,6 @@ export default function Chatter() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         reportedId: users[selectedIndex].uuid,
-        reporterId: data.uuid,
         reason,
       }),
     });

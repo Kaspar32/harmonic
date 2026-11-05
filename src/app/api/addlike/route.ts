@@ -25,6 +25,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (from === to) {
+      return NextResponse.json(
+        { error: "Du kannst dich nicht selbst liken." },
+        { status: 400 },
+      );
+    }
+
     const isFake = isFakeUser === true || isFakeUser === "true";
 
     const existingLike = await db

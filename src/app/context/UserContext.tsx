@@ -3,9 +3,7 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 type UserType = {
   location: string | null;
-  id: string;
   uuid: string;
-  passwort: string;
   name: string;
   geschlecht: string;
   alter: string;

@@ -117,6 +117,13 @@ export default function ProfileSingleView({
         className="border-2 border-yellow-500 rounded-2xl p-1"
       />
 
+      {User?.roles == "fakeUser" && (
+
+        <div className="h-10 bg-green-300 text-white rounded-2xl p-2" >FakeUser</div>
+
+
+      )}
+
       <div onClick={handleClick}>
         <svg
           xmlns="http://www.w3.org/2000/svg"
