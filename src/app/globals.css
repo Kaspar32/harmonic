@@ -64,6 +64,39 @@ button {
   outline-offset: 2px;
 }
 
+.chat-composer {
+  position: fixed !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  min-height: 76px;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.chat-composer input {
+  display: block !important;
+  min-height: 48px;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.chat-composer button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+body:has(.chat-composer) .site-footer {
+  display: none;
+}
+
+body:has(.chat-page) .site-footer {
+  display: none;
+}
+
 .neu-profile {
   background: #e9edf3;
   color: #3d4654;

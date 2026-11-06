@@ -548,17 +548,17 @@ export default function Chatter() {
       {openChat && (
 
         
-        <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/95">
+        <div className="fixed inset-0 z-[9998] flex h-screen w-screen flex-col justify-end bg-white/95">
           
         <div className="flex justify-start text-xl font-bold text-blue-500 bg-white absolute top-10 left-10 shadow rounded">{chatPartner}</div>
           
           
           <div
             id="chatmessagewindow"
-            className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
+            className="mb-[76px] max-h-[calc(100vh-9rem)] w-full space-y-4 overflow-x-hidden overflow-y-auto"
           >
             
-            <div className="w-screen h-full p-4 md:p-10">
+            <div className="h-full w-full p-4 md:p-10">
               {messages
                 .filter(
                   (msg) =>
@@ -604,7 +604,20 @@ export default function Chatter() {
           </div>
 
           {/* Eingabefeld */}
-          <div className="fixed bottom-0 left-0 right-0 flex items-center gap-2 p-4 pb-[env(safe-area-inset-bottom)]">
+          <div
+            className="chat-composer items-center gap-2 border-t border-blue-200 bg-blue-50 p-4 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_20px_rgba(148,163,184,0.2)]"
+            style={{
+              position: "absolute",
+              right: 0,
+              bottom: 0,
+              left: 0,
+              zIndex: 999999,
+              display: "flex",
+              minHeight: 76,
+              visibility: "visible",
+              opacity: 1,
+            }}
+          >
             <input
               value={input}
               onChange={handleChange}
@@ -614,18 +627,22 @@ export default function Chatter() {
                   sendMessage();
                 }
               }}
-              className="flex-1 text-2xl pt-1 mr-15 border-3 border-blue-500 rounded-2xl focus:outline-none z-50"
+              aria-label="Nachricht schreiben"
+              placeholder="Nachricht schreiben ..."
+              className="z-[111] block min-h-12 min-w-0 flex-1 rounded-2xl border-2 border-blue-400 bg-white px-4 py-2 text-base text-slate-700 shadow-inner focus:outline-none md:text-lg"
+              style={{ display: "block", visibility: "visible", opacity: 1 }}
             />
 
             <button
-              className="absolute right-[-5px] bg-blue-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
+              aria-label="Nachricht senden"
+              className="z-[111] flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-500 p-0 text-white transition-colors duration-300 hover:bg-blue-600"
               onClick={sendMessage}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="size-6 text-black"
+                className="size-6 text-white"
               >
                 <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
               </svg>
