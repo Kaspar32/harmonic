@@ -1,16 +1,13 @@
  
-import { cookies } from 'next/headers';
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { getAuthenticatedUserId } from '@/lib/auth';
  
-export async function GET() {
+export async function GET(request: Request) {
+  const userId = await getAuthenticatedUserId(request);
  
-  const cookieStore = cookies();
- 
-  const userId = (await cookieStore).get('userId')?.value;
- 
-  if (!userId) return new Response('Not logged in');
+  if (!userId) return new Response('Not logged in', { status: 401 });
  
   const userData = await db.select({uuid: users.uuid,
     name: users.name,

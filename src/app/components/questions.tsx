@@ -92,9 +92,9 @@ export default function Questions({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="flex flex-col min-h-screen py-2 overflow-y-auto">
-      <h1 className="mt-10 text-4xl font-bold text-yellow-500">Fragen</h1>
+      <h1 className="mt-10 text-4xl font-bold text-blue-500">Fragen</h1>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches ist dein Lieblingsopenair?
       </p>
 
@@ -114,7 +114,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <option>...</option>
       </select>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Machst du auch Musik?
       </p>
 
@@ -126,7 +126,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <input
           onChange={(e) => setQuestion2(e.target.value)}
           defaultValue={answers?.question2}
-          className="bg-yellow-600 shadow-lg rounded-2xl border-t-2 border-slate-200 w-15"
+          className="bg-blue-600 shadow-lg rounded-2xl border-t-2 border-slate-200 w-15"
           type="range"
           max="1"
           id="choice"
@@ -137,7 +137,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         </span>
       </div>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches Instrument spielst du?
       </p>
 
@@ -156,7 +156,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <option>...</option>
       </select>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Gehst du auf Raves?
       </p>
 
@@ -168,7 +168,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <input
           onChange={(e) => setQuestion4(e.target.value)}
           defaultValue={answers?.question4}
-          className="bg-yellow-600 shadow-lg rounded-2xl w-15"
+          className="bg-blue-600 shadow-lg rounded-2xl w-15"
           type="range"
           max="1"
           id="choice"
@@ -179,7 +179,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         </span>
       </div>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Magst du klassische Musik und Opern?
       </p>
 
@@ -191,7 +191,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <input
           onChange={(e) => setQuestion5(e.target.value)}
           defaultValue={answers?.question5}
-          className="bg-yellow-600 shadow-lg rounded-2xl w-15"
+          className="bg-blue-600 shadow-lg rounded-2xl w-15"
           type="range"
           max="1"
           id="choice"
@@ -201,7 +201,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
           Ja
         </span>
       </div>
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Was für eine Genre hörst du im Flugzeug?
       </p>
 
@@ -218,7 +218,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         <option>...</option>
       </select>
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Welches Lied ist dein Guilty Pleasure?
       </p>
 
@@ -229,7 +229,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
         placeholder="Liedtitel"
       />
 
-      <p className="text-yellow-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
+      <p className="text-blue-400 border-1 rounded-2xl p-2 mt-2 font-bold shadow-xl border-t-2 border-slate-200">
         Gibt es ein Lied, das dich immer emotional trifft?
       </p>
 
@@ -242,7 +242,7 @@ export default function Questions({ onClose }: { onClose: () => void }) {
 
       <button
         onClick={() => {saveAnswers()}}
-        className="bg-yellow-400 text-white rounded-2xl p-2 mt-2 shadow-lg"
+        className="bg-blue-400 text-white rounded-2xl p-2 mt-2 shadow-lg"
       >
         Speichern
       </button>

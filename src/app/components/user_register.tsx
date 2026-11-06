@@ -67,32 +67,32 @@ export default function UserRegister() {
   return (
     <div>
       {user ? (
-        <div className="flex flex-col gap-4 border-4 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-700">
+        <div className="flex flex-col gap-4 border-4 border-blue-300 bg-blue-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-700">
           <p className="text-gray-400">
-            <b className="text-yellow-400">Angemeldet als:</b> {user?.name}
+            <b className="text-blue-400">Angemeldet als:</b> {user?.name}
           </p>
           <button
             onClick={loggout}
-            className="bg-yellow-400 hover:bg-yellow-500 text-white w-max px-4 py-2 rounded font-bold flex justify-center"
+            className="bg-blue-400 hover:bg-blue-500 text-white w-max px-4 py-2 rounded font-bold flex justify-center"
           >
             Ausloggen
           </button>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-center gap-1 border-2 border-yellow-300 bg-yellow-100 rounded-2xl p-6 shadow-2xl text-gray-500">
-        <div className="ml-20 text-2xl md:text-4xl font-extrabold text-yellow-400 bg-yellow-50 mr-30 mb-10 border-2 border-yellow-400 rounded-2xl p-4 shadow-2xl hover:mb-10 transition-all duration-300">
-          Starte dein <a className="text-yellow-700">Music-first</a> Dating
+        <div className="flex flex-wrap items-center justify-center gap-1 border-2 border-blue-300 bg-blue-100 rounded-2xl p-6 shadow-2xl text-gray-500">
+        <div className="ml-20 text-2xl md:text-4xl font-extrabold text-blue-400 bg-blue-50 mr-30 mb-10 border-2 border-blue-400 rounded-2xl p-4 shadow-2xl hover:mb-10 transition-all duration-300">
+          Starte dein <a className="text-blue-700">Music-first</a> Dating
         </div>
         
 
-        <div className="flex flex-col gap-4 border-2 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-500">
+        <div className="flex flex-col gap-4 border-2 border-blue-300 bg-blue-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-500">
           
           <input
             id="name"
             name="name"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="border border-amber-300 focus:outline-none px-2 py-1 rounded "
+            className="border border-blue-300 focus:outline-none px-2 py-1 rounded "
             type="text"
             placeholder="Benutzername"
           />
@@ -102,7 +102,7 @@ export default function UserRegister() {
             name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border border-amber-300 focus:outline-none px-2 py-1 rounded "
+            className="border border-blue-300 focus:outline-none px-2 py-1 rounded "
             type="text"
             placeholder="Email"
           />
@@ -112,7 +112,7 @@ export default function UserRegister() {
             name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+            className="border border-blue-300 focus:outline-none px-2 py-1 rounded"
             type="password"
             placeholder="Passwort"
           />
@@ -121,13 +121,13 @@ export default function UserRegister() {
             name="confirmPassword"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+            className="border border-blue-300 focus:outline-none px-2 py-1 rounded"
             type="password"
             placeholder="Passwort bestätigen"
           />
           <button
             onClick={register}
-            className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold"
+            className="bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold"
           >
             Registrieren
           </button>
@@ -140,7 +140,7 @@ export default function UserRegister() {
             <p className="text-gray-400 mt-4">Haben Sie bereits einen Account?</p>
             <Link
               href="/loggin"
-              className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold text-center flex gap-2 justify-center"
+              className="bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold text-center flex gap-2 justify-center"
             >
               <p>Zum Login</p>
               <div>

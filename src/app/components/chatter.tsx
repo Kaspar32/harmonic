@@ -460,7 +460,7 @@ export default function Chatter() {
 
   return (
     <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
-      {loading && <Loader2 className=" animate-spin text-yellow-400" />}
+      {loading && <Loader2 className=" animate-spin text-blue-400" />}
 
       <Superlike
         onImageClick={(user) => {
@@ -473,7 +473,7 @@ export default function Chatter() {
           {images.map((item, index) => (
             <div key={index}>
               <div
-                className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
+                className={`${index === animateindex ? "bg-blue-100" : "bg-blue-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-blue-100 border-blue-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
                 onClick={() => handleClick(index)}>
                 <Image
                   unoptimized
@@ -484,13 +484,13 @@ export default function Chatter() {
                   }
                   height={70}
                   width={80}
-                  className="rounded-4xl border-2 border-yellow-300 "
+                  className="rounded-4xl border-2 border-blue-300 "
                   alt="Profilbild"
                   onClick={(e) => {e.stopPropagation();handlePPClick(index)}}
                 />
 
                 <p  
-                  className="flex text-xl font-bold text-yellow-300 items-center ml-4"
+                  className="flex text-xl font-bold text-blue-300 items-center ml-4"
                 >
                   Schreibe {users[index]?.name || ""}
                 </p>
@@ -517,7 +517,7 @@ export default function Chatter() {
 
                 {sameTasteMessages[index] && (
                   <Music
-                    className={`flex w-11 h-11 mt-10 mr-10 text-yellow-400`}
+                    className={`flex w-11 h-11 mt-10 mr-10 text-blue-400`}
                   />
                 )}
 
@@ -550,7 +550,7 @@ export default function Chatter() {
         
         <div className="fixed inset-0 flex items-center justify-center w-screen h-screen  bg-white/95">
           
-        <div className="flex justify-start text-xl font-bold text-yellow-500 bg-white absolute top-10 left-10 shadow rounded">{chatPartner}</div>
+        <div className="flex justify-start text-xl font-bold text-blue-500 bg-white absolute top-10 left-10 shadow rounded">{chatPartner}</div>
           
           
           <div
@@ -614,11 +614,11 @@ export default function Chatter() {
                   sendMessage();
                 }
               }}
-              className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none z-50"
+              className="flex-1 text-2xl pt-1 mr-15 border-3 border-blue-500 rounded-2xl focus:outline-none z-50"
             />
 
             <button
-              className="absolute right-[-5px] bg-yellow-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
+              className="absolute right-[-5px] bg-blue-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
               onClick={sendMessage}
             >
               <svg
@@ -633,7 +633,7 @@ export default function Chatter() {
           </div>
 
           <button
-            className="fixed top-15 right-4 sm:top-23 sm:right-4 mt-6 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-200 transition-colors duration-300"
+            className="fixed top-15 right-4 sm:top-23 sm:right-4 mt-6 px-4 py-2 bg-blue-400 text-black font-semibold rounded hover:bg-blue-200 transition-colors duration-300"
             onClick={() => {
               setopenChat(false);
             }}
@@ -644,7 +644,7 @@ export default function Chatter() {
       )}
 
       {openProfile && (
-        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-blue-50">
           <ProfileSingleView
             selectedProfileIndex={selectedProfileIndex}
             fromWhere="chatter"
@@ -655,7 +655,7 @@ export default function Chatter() {
       {openSuperlikeProfile && selectedSuperlikeUser && (
         <Popup
           onClose={() => setOpenSuperlikeProfile(false)}
-          bgColor="bg-yellow-50"
+          bgColor="bg-blue-50"
         >
           <ProfileSingleView
             selectedProfileIndex={0}
@@ -673,7 +673,7 @@ export default function Chatter() {
                 handleunmatch();
                 setUnlike(false);
               }}
-              className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded-2xl hover:bg-yellow-500 w-full"
+              className="px-4 py-2 bg-blue-400 text-white font-semibold rounded-2xl hover:bg-blue-500 w-full"
             >
               Unmatchen
             </button>
@@ -703,14 +703,14 @@ export default function Chatter() {
 
       {report && (
         <Popup onClose={() => setReport(false)}>
-          <p className="text-yellow-500 text-lg mt-8">
+          <p className="text-blue-500 text-lg mt-8">
             Bitte wählen Sie einen Grund für die Meldung aus:
           </p>
 
           <select
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            className="mt-4 p-2 border-2 text-red-300 border-yellow-300 rounded-lg w-full"
+            className="mt-4 p-2 border-2 text-red-300 border-blue-300 rounded-lg w-full"
           >
             <option value="unangemessenes_verhalten">
               Unangemessenes Verhalten

@@ -33,14 +33,14 @@ export default function Universe() {
   return (
     <div className="">
       {/*Container mit allen Nachrichten*/}
-      <div className="w-full h-full bg-yellow-100 rounded-t-2xl">
+      <div className="w-full h-full bg-blue-100 rounded-t-2xl">
         <div className="flex justify-end items-end">
           <svg
             onClick={newPost}
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className="size-10 active:inset-shadow bg-yellow-50 border-b-2 border-b-amber-100 border-t-2 border-t-white mt-10 font-extrabold text-lg md:text-3x p-2 text-yellow-500 shadow hover:bg-yellow-50 hover:shadow-md rounded-2xl "
+            className="size-10 active:inset-shadow bg-blue-50 border-b-2 border-b-blue-100 border-t-2 border-t-white mt-10 font-extrabold text-lg md:text-3x p-2 text-blue-500 shadow hover:bg-blue-50 hover:shadow-md rounded-2xl "
           >
             <path
               fillRule="evenodd"
@@ -53,7 +53,7 @@ export default function Universe() {
         <Swiper spaceBetween={20} slidesPerView={3} loop={true}>
           {post.map((post, index) => (
             <SwiperSlide>
-              <div className="border-2 border-white rounded-2xl w-96 bg-yellow-50 p-2 mb-2 ml-2">
+              <div className="border-2 border-white rounded-2xl w-96 bg-blue-50 p-2 mb-2 ml-2">
                 <div>{post.author}:</div>
 
                 <div>{post.content}</div>

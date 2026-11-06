@@ -42,23 +42,22 @@ export default function LikesTest() {
   const [toggleLikesYou, settoggleLikesYou] = useState(true);
   const [toggleYouLike, settoggleYouLike] = useState(false);
 
-  function blurred(str: string) {
-    const blurred = str.replace(/\.png$/, "_blurred.png");
-    return `${blurred}?blur=1`;
-  }
-
   const [openProfile, setOpenProfile] = useState(false);
-  const [openblurredProfile, setOpenblurredProfile] = useState(false);
+  const [profileSource, setProfileSource] = useState<
+    "likesComponent" | "likesComponentYou"
+  >("likesComponent");
   const [selectedProfileIndex, setSelectedProfileIndex] = useState(-1);
 
   function handlePPClick(index: number): void {
     setSelectedProfileIndex(index);
+    setProfileSource("likesComponent");
     setOpenProfile(true);
   }
 
-  function handleblurrredPPClick(index: number): void {
+  function handleYouLikePPClick(index: number): void {
     setSelectedProfileIndex(index);
-    setOpenblurredProfile(true);
+    setProfileSource("likesComponentYou");
+    setOpenProfile(true);
   }
 
   const [openDialog, setOpenDialog] = useState(false);
@@ -86,10 +85,6 @@ export default function LikesTest() {
   async function opencheckout() {
     const res = await fetch("/api/checkout/abo", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user?.uuid, 
-      }),
     });
 
     const data = await res.json();
@@ -105,21 +100,21 @@ export default function LikesTest() {
           settoggleLikesYou(true);
           settoggleYouLike(false);
         }}
-        className="text-center bg-yellow-100 h-full px-4 py-1 rounded-tl-2xl"
+        className="text-center bg-blue-100 h-full px-4 py-1 rounded-tl-2xl"
       >
-        <label className="text-yellow-400 md:text-3xl text-sm font-extrabold cursor-pointer">
+        <label className="text-blue-400 md:text-3xl text-sm font-extrabold cursor-pointer">
           Mögen Sie
         </label>
       </button>
 
       {/* Panel: Likes You */}
       <div
-        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-yellow-100 rounded-2xl rounded-tl-none shadow-xl ${
+        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-blue-100 rounded-2xl rounded-tl-none shadow-xl ${
           toggleLikesYou ? "opacity-100 block" : "opacity-0 hidden"
         }`}
       >
         <div className="flex flex-wrap gap-4 m-4 md:m-20  justify-center">
-          {loading && <Loader2 className="animate-spin text-yellow-400" />}
+          {loading && <Loader2 className="animate-spin text-blue-400" />}
 
           {!loading && (
             <>
@@ -128,7 +123,7 @@ export default function LikesTest() {
                   user?.profile_pics ? (
                     <div
                       key={index}
-                      className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
+                      className="border-2 rounded-2xl p-2 border-blue-400 bg-blue-100 flex flex-col items-center"
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
@@ -140,13 +135,13 @@ export default function LikesTest() {
                           className="w-full h-full object-cover cursor-pointer"
                           onClick={() =>
                             hasAbo
-                              ? handleblurrredPPClick(index)
+                              ? handleYouLikePPClick(index)
                               : setOpenDialog(true)
                           }
                         />
                       </div>
 
-                      <div className="text-yellow-400 mt-2 text-center">
+                      <div className="text-blue-400 mt-2 text-center">
                         {users_youlikes[index].name},{" "}
                         {users_youlikes[index].alter}
                       </div>
@@ -174,7 +169,7 @@ export default function LikesTest() {
                 </div>
                 <button
                   onClick={opencheckout}
-                  className="bg-yellow-400 text-white px-4 py-2 rounded-lg hover:bg-yellow-500 flex items-center gap-2 mt-4"
+                  className="bg-blue-400 text-white px-4 py-2 rounded-lg hover:bg-blue-500 flex items-center gap-2 mt-4"
                 >
                   Jetzt kaufen!
                 </button>
@@ -190,21 +185,21 @@ export default function LikesTest() {
           settoggleYouLike(true);
           settoggleLikesYou(false);
         }}
-        className="h-full w-max bg-yellow-200 px-4 py-1 rounded-tr-2xl"
+        className="h-full w-max bg-blue-200 px-4 py-1 rounded-tr-2xl"
       >
-        <label className="text-yellow-400 mt-5 md:text-3xl text-sm font-extrabold cursor-pointer">
+        <label className="text-blue-400 mt-5 md:text-3xl text-sm font-extrabold cursor-pointer">
           Sie mögen
         </label>
       </button>
 
       {/* Panel: You Like */}
       <div
-        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-yellow-200 rounded-2xl rounded-tl-none shadow-xl ${
+        className={`absolute md:h-[475px] w-full overflow-y-auto h-[425px] bg-blue-200 rounded-2xl rounded-tl-none shadow-xl ${
           toggleYouLike ? "opacity-100 block" : "opacity-0 hidden"
         }`}
       >
         <div className="flex flex-wrap gap-4 m-4 md:m-20 justify-center">
-          {loading && <Loader2 className="animate-spin text-yellow-400" />}
+          {loading && <Loader2 className="animate-spin text-blue-400" />}
 
           {!loading && (
             <>
@@ -213,7 +208,7 @@ export default function LikesTest() {
                   users?.profile_pics? (
                     <div
                       key={index}
-                      className="border-2 rounded-2xl p-2 border-yellow-400 bg-yellow-100 flex flex-col items-center"
+                      className="border-2 rounded-2xl p-2 border-blue-400 bg-blue-100 flex flex-col items-center"
                     >
                       <div className="w-24 h-24 overflow-hidden rounded-2xl">
                         <Image
@@ -227,7 +222,7 @@ export default function LikesTest() {
                         />
                       </div>
 
-                      <div className="text-yellow-400 mt-2 text-center">
+                      <div className="text-blue-400 mt-2 text-center">
                         {users_likes[index].name}, {users_likes[index].alter}
                       </div>
                     </div>
@@ -244,22 +239,10 @@ export default function LikesTest() {
       </div>
 
       {openProfile && (
-        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-yellow-50">
+        <Popup onClose={() => setOpenProfile(false)} bgColor="bg-blue-50">
           <ProfileSingleView
             selectedProfileIndex={selectedProfileIndex}
-            fromWhere={"likesComponent"}
-          />
-        </Popup>
-      )}
-
-      {openblurredProfile && (
-        <Popup
-          onClose={() => setOpenblurredProfile(false)}
-          bgColor="bg-yellow-50"
-        >
-          <ProfileSingleView
-            selectedProfileIndex={selectedProfileIndex}
-            fromWhere={"likesComponentblurred"}
+            fromWhere={profileSource}
           />
         </Popup>
       )}

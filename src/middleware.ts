@@ -2,20 +2,20 @@ import { NextResponse, NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
-  const user = req.cookies.get("userId")?.value;
   const token = req.cookies.get("authtoken")?.value;
   const secret = process.env.JWT_SECRET;
 
   const redirectToLogin = () => NextResponse.redirect(new URL("/loggin", req.url));
 
-  if (!user || !token || !secret) return redirectToLogin();
+  if (!token || !secret) return redirectToLogin();
 
   try {
     const encoder = new TextEncoder();
     const key = encoder.encode(secret);
 
     // JWT überprüfen
-    await jwtVerify(token, key);
+    const { payload } = await jwtVerify(token, key);
+    if (typeof payload.userId !== "string") return redirectToLogin();
     
     return NextResponse.next();
   } catch (err) {

@@ -40,27 +40,23 @@ export async function POST(req: Request) {
 
   const res = NextResponse.json({ message: "Loggin erfolgreich" });
 
-  res.cookies.set("userId", user.uuid, {
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
-    path: "/",
-  });
+  const jwt = await import("jsonwebtoken");
 
-  //neuer Token setzten mit JWT
-  const jwt = require("jsonwebtoken");
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    return new Response("Server ist nicht konfiguriert.", { status: 500 });
+  }
 
-  const token = jwt.sign({ userId: user.uuid }, process.env.JWT_SECRET, {
+  const token = jwt.default.sign({ userId: user.uuid }, secret, {
     expiresIn: "24h",
   });
 
-  // Cookie setzten
   res.cookies.set("authtoken", token, {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     path: "/",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: 60 * 60 * 24,
   });
 
   return res;

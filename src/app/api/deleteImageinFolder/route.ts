@@ -27,14 +27,11 @@ export async function POST(request: Request) {
 
   try {
     const { Imageid: id } = await request.json();
-    console.log("ID zum Löschen:", id);
 
     const directory = path.join(process.cwd(), "uploads/images");
     const files = await fs.readdir(directory);
-    const blurredFile = id.replace('.png', '_blurred.png');
     for (const file of files) {
-      if (file === id || file === blurredFile) {
-        console.log("Lösche Datei:", file);
+      if (file === id) {
         await fs.unlink(path.join(directory, file));
       }
     }
@@ -45,10 +42,7 @@ export async function POST(request: Request) {
 
     const pics = user[0].profile_pics as string[];
 
-    const blurredPic = id.replace('.png', '_blurred.png');
-    const newPics = pics.filter((pic) => pic !== id && pic !== blurredPic);
-
-    console.log("Aktualisierte Bilderliste:", newPics);
+    const newPics = pics.filter((pic) => pic !== id);
 
     await db
       .update(users)

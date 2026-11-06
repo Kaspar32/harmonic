@@ -81,9 +81,9 @@ export default function Footer() {
   }, [user]);
 
   return (
-    <div className="flex justify-between bg-blue-200 p-10  h-6  border-t-2 border-blue-400">
+    <div className="neu-surface flex min-h-16 items-center justify-between rounded-none border-t-0 p-4 md:px-8">
       <div className=" relative w-[60%] top-[-40px] left-[-30px] text-xs md:text-sm md:w-[600px]">
-        <label className=" font-bold font-sans  text-blue-500 text-shadow-sm">
+        <label className="font-bold font-sans text-slate-500">
           harmonic Datingapp 2025, Alle Rechte vorbehalten.
         </label>
       </div>

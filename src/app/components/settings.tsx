@@ -94,22 +94,22 @@ export default function Settings() {
 
   return (
     <div className="w-md flex flex-col justify-center">
-      <div className="bg-white border-2 border-yellow-200 rounded-2xl shadow-xl shadow-amber-900/10 p-6 w-full space-y-4">
-        <h2 className="text-lg font-semibold text-yellow-500 text-center">
+      <div className="bg-white border-2 border-blue-200 rounded-2xl shadow-xl shadow-blue-900/10 p-6 w-full space-y-4">
+        <h2 className="text-lg font-semibold text-blue-500 text-center">
           Intressiert an:
         </h2>
         <div className="flex flex-col items-center space-y-2">
           <select
             onChange={handleInteressiertAn}
             value={interest}
-            className="w-full px-4 py-2 border border-yellow-300 rounded-xl text-yellow-600 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-200"
+            className="w-full px-4 py-2 border border-blue-300 rounded-xl text-blue-600 font-medium focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
           >
             <option value="mann">Mann</option>
             <option value="frau">Frau</option>
             <option value="divers">Divers</option>
             <option value="alle">Alle</option>
           </select>
-          <label className="block text-lg font-semibold text-yellow-500 text-center">
+          <label className="block text-lg font-semibold text-blue-500 text-center">
             Alter: {alter[0]} – {alter[1]} Jahre
           </label>
 
@@ -123,12 +123,12 @@ export default function Settings() {
           >
             {/* Track */}
             <Slider.Track className="bg-gray-700 relative grow rounded-full h-2">
-              <Slider.Range className="absolute bg-yellow-400 rounded-full h-full" />
+              <Slider.Range className="absolute bg-blue-400 rounded-full h-full" />
             </Slider.Track>
 
             {/* Daumen (Handles) */}
-            <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
-            <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+            <Slider.Thumb className="block w-5 h-5 rounded-full bg-blue-400 shadow-lg hover:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <Slider.Thumb className="block w-5 h-5 rounded-full bg-blue-400 shadow-lg hover:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
           </Slider.Root>
 
           {/* In der Nähe Toggel */}
@@ -137,7 +137,7 @@ export default function Settings() {
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className="size-6 text-yellow-500"
+            className="size-6 text-blue-500"
           >
             <path
               fillRule="evenodd"
@@ -146,7 +146,7 @@ export default function Settings() {
             />
           </svg>
           <div className="mt-1 ml-10">
-            <label className="block text-lg font-semibold text-yellow-500 text-center">
+            <label className="block text-lg font-semibold text-blue-500 text-center">
               Radius: {radius[0]} km
             </label>
 
@@ -160,17 +160,17 @@ export default function Settings() {
             >
               {/* Track */}
               <Slider.Track className="bg-gray-700 relative grow rounded-full h-2">
-                <Slider.Range className="absolute bg-yellow-400 rounded-full h-full" />
+                <Slider.Range className="absolute bg-blue-400 rounded-full h-full" />
               </Slider.Track>
 
               {/* Daumen (Handles) */}
-              <Slider.Thumb className="block w-5 h-5 rounded-full bg-yellow-400 shadow-lg hover:bg-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-500" />
+              <Slider.Thumb className="block w-5 h-5 rounded-full bg-blue-400 shadow-lg hover:bg-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500" />
             </Slider.Root>
           </div>
 
           <button
             onClick={handleAlterChange}
-            className="mt-4 px-4 py-2 bg-yellow-400 text-white rounded"
+            className="mt-4 px-4 py-2 bg-blue-400 text-white rounded"
           >
             Speichern
           </button>
@@ -178,7 +178,7 @@ export default function Settings() {
 
         <button
           onClick={deleteaccount}
-          className="w-full px-4 py-2 border border-yellow-300 rounded-xl hover:bg-yellow-400 hover:text-white text-yellow-600 font-medium focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-200"
+          className="w-full px-4 py-2 border border-blue-300 rounded-xl hover:bg-blue-400 hover:text-white text-blue-600 font-medium focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
         >
           Konto Löschen
         </button>
@@ -187,14 +187,14 @@ export default function Settings() {
           <PopUp onClose={() => setShowDelModal(false)}>
             <div className="flex flex-cols-1 items-center justify-center p-6">
               <span className="text-red-500 font-bold text-lg">Achtung!</span>
-              <a className="text-yellow-500 text-sm text-center mt-4">
+              <a className="text-blue-500 text-sm text-center mt-4">
                 Möchten Sie wirklich Ihr Konto löschen? Dieser Vorgang ist
                 unwiderruflich.
               </a>
 
               <button
                 onClick={deletedef}
-                className="mt-4 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-100 hover:text-yellow-400"
+                className="mt-4 px-4 py-2 bg-blue-400 text-white rounded hover:bg-blue-100 hover:text-blue-400"
               >
                 Löschen
               </button>

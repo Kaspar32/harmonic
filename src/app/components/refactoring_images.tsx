@@ -211,7 +211,7 @@ export default function Refactoring_Images() {
             >
               <div
                 key={index}
-                className="mb-4 border-2 rounded-2xl ml-2 p-2 border-yellow-500 relative"
+                className="mb-4 border-2 rounded-2xl ml-2 p-2 border-blue-500 relative"
               >
                 <button className="absolute bottom-2 left-2 cursor-pointer">
                   <Image

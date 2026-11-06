@@ -29,12 +29,12 @@ export default function RootLayout({
         <UserProvider>
         <NotificationProvider>
 
-        <div className="flex flex-col h-screen ">
+        <div className="neu-app flex min-h-screen flex-col">
           <div className="sticky top-0 z-50">
             <Header />
           </div>
 
-          <div className="flex-1 bg-white z-80"> {children}</div>
+          <div className="z-0 flex-1">{children}</div>
           <div className="sticky bottom-0 z-50">
             <Footer />
           </div>

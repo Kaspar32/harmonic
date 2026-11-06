@@ -1,7 +1,7 @@
 import { messages, users } from "@/db/schema"; // Beispiel: deine DB-Funktion
 import { db } from "@/db";
-import { cookies } from "next/headers";
 import { eq, and, or } from "drizzle-orm";
+import { getAuthenticatedUserId } from "@/lib/auth";
 
 export async function GET(req: { url: string | URL }) {
 
@@ -14,8 +14,7 @@ export async function GET(req: { url: string | URL }) {
 
 
       // Wenn Partner nicht im Url dann ists für die Notification im Footer
-      const cookieStore = cookies();
-      const userId = (await cookieStore).get("userId")?.value;
+      const userId = await getAuthenticatedUserId(req as Request);
 
       if (!userId) {
         return new Response(JSON.stringify({ error: "User ID not found" }), {
@@ -46,8 +45,7 @@ export async function GET(req: { url: string | URL }) {
       });
     }
 
-    const cookieStore = cookies();
-    const userId = (await cookieStore).get("userId")?.value;
+    const userId = await getAuthenticatedUserId(req as Request);
 
     if (!userId) {
       return new Response(JSON.stringify({ error: "User ID not found" }), {

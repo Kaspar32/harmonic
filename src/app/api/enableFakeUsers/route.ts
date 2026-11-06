@@ -2,8 +2,8 @@
 import { db } from "@/db";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
+import { getAuthenticatedUserId } from "@/lib/auth";
 
 
 export async function GET(request:NextRequest){
@@ -37,12 +37,11 @@ export async function GET(request:NextRequest){
 
 
 export async function POST(req: Request) {
-  const cookieStore = cookies();
-  const userId = (await cookieStore).get("userId")?.value;
+  const userId = await getAuthenticatedUserId(req);
 
   if (!userId) {
-    return new Response(JSON.stringify({ error: "User ID is required" }), {
-      status: 400,
+    return new Response(JSON.stringify({ error: "Nicht eingeloggt" }), {
+      status: 401,
     });
   }
 

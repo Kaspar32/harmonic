@@ -33,7 +33,7 @@ export default function ProfileSingleView({
     }
 
     // Handhabung wenn die Anfrage von der likesComponent kommt und die Bilder freigegeben wurden, also im sonst blurred Bereich geklickt wurde
-    if (fromWhere == "likesComponentblurred") {
+    if (fromWhere == "likesComponentYou") {
       res1 = await fetch(`/api/getlikesyoubyid?id=${user?.uuid}`);
     }
 
@@ -101,9 +101,9 @@ export default function ProfileSingleView({
   const { playTrack, pauseTrack } = useAudioPreview();
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <h2 className="text-2xl font-bold mb-4 text-yellow-600">
-        <p className="text-yellow-500">{User?.name}</p>
+    <div className="neu-profile flex w-full max-w-xl flex-col items-center gap-3 p-5 sm:p-8">
+      <h2 className="mb-2 text-3xl font-bold text-slate-700">
+        <p className="text-blue-600">{User?.name}</p>
       </h2>
 
       <Image
@@ -114,12 +114,12 @@ export default function ProfileSingleView({
         width={1000}
         height={1000}
         alt=""
-        className="border-2 border-yellow-500 rounded-2xl p-1"
+        className="neu-surface aspect-square w-full max-w-md cursor-pointer object-cover p-2"
       />
 
       {User?.roles == "fakeUser" && (
 
-        <div className="h-10 bg-green-300 text-white rounded-2xl p-2" >FakeUser</div>
+        <div className="neu-surface px-4 py-2 font-semibold text-emerald-700">FakeUser</div>
 
 
       )}
@@ -129,7 +129,7 @@ export default function ProfileSingleView({
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
           fill="currentColor"
-          className="size-8 text-yellow-700 cursor-pointer border-2 rounded"
+          className="neu-surface neu-interactive size-10 cursor-pointer p-2 text-blue-700"
         >
           <path
             fillRule="evenodd"
@@ -139,32 +139,32 @@ export default function ProfileSingleView({
         </svg>
       </div>
 
-      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="neu-surface mb-1 w-full p-3 text-lg">
         <span className="font-semibold text-gray-400">Geschlecht:</span>{" "}
         {User?.geschlecht}
       </p>
 
-      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="neu-surface mb-1 w-full p-3 text-lg">
         <span className="font-semibold text-gray-400">Alter:</span>{" "}
         {User?.alter}
       </p>
 
-      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="neu-surface mb-1 w-full p-3 text-lg">
         <span className="font-semibold text-gray-400">Standort:</span>{" "}
         {User?.location}
       </p>
 
-      <p className="text-lg mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="neu-surface mb-1 w-full p-3 text-lg">
         <span className="font-semibold text-gray-400">Grösse (cm):</span>{" "}
         {User?.groesse}
       </p>
 
-      <p className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <p className="neu-surface mb-1 w-full p-3 text-sm">
         <span className="font-semibold text-gray-400">Musikgeneres:</span>{" "}
         {User?.genres?.join(", ")}
       </p>
 
-      <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl p-2">
+      <div className="neu-surface mb-1 w-full p-3 text-sm">
         <span className="font-semibold text-gray-400">Lieblingslied:</span>
         <div className=" py-1 px-3 text-center  break-normal">
           {User?.favorite_track ? (
@@ -178,10 +178,10 @@ export default function ProfileSingleView({
                 quality={100}
               />
               <div className="md:w-full max-w-[120px]">
-                <div className="font-semibold text-yellow-500">
+                <div className="font-semibold text-blue-500">
                   {User?.favorite_track?.name}
                 </div>
-                <div className="text-sm text-yellow-500">
+                <div className="text-sm text-blue-500">
                   {User?.favorite_track?.artist}
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function ProfileSingleView({
         </div>
       </div>
 
-      <div className="text-sm mb-2 border-2 border-yellow-500 rounded-2xl  p-2">
+      <div className="neu-surface mb-1 w-full p-3 text-sm">
         <span className="font-semibold text-gray-400">
           Lieblingsinterpreten:
         </span>{" "}
@@ -260,7 +260,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist1?.name}
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist2?.name}
                     </div>
                   </div>
@@ -300,7 +300,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist3?.name}
                     </div>
                   </div>
@@ -320,7 +320,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist4?.name}
                     </div>
                   </div>
@@ -340,7 +340,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist5?.name}
                     </div>
                   </div>
@@ -360,7 +360,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist6?.name}
                     </div>
                   </div>
@@ -380,7 +380,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist7?.name}
                     </div>
                   </div>
@@ -400,7 +400,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist8?.name}
                     </div>
                   </div>
@@ -420,7 +420,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist9?.name}
                     </div>
                   </div>
@@ -440,7 +440,7 @@ export default function ProfileSingleView({
                     quality={100}
                   />
                   <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-yellow-500">
+                    <div className="font-semibold text-blue-500">
                       {User?.favorite_artist?.favorite_artist10?.name}
                     </div>
                   </div>

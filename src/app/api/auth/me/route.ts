@@ -1,26 +1,12 @@
-import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from '@/db';
 import { users } from '@/db/schema';
 import { eq } from 'drizzle-orm';
+import { getAuthenticatedUserId } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
-    const token = req.cookies.get("authtoken")?.value;
-    if (!token) {
-        
-        return new NextResponse("Nicht eingeloggt", { status: 401 });
-    }
-    let payload;
-    try {
-        payload = jwt.verify(token, process.env.JWT_SECRET!);
-
-        
-    } catch(err) {
-        console.error("JWT ERROR:", err);
-        return new NextResponse("Invalider Token", { status: 401 });
-    }
-
-    const userId = (payload as any).userId;
+    const userId = await getAuthenticatedUserId(req);
+    if (!userId) return new NextResponse("Nicht eingeloggt", { status: 401 });
 
     const userData = await db.select({uuid: users.uuid,
     name: users.name,

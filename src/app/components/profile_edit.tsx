@@ -369,8 +369,6 @@ export default function Profil_Edit() {
   async function abos() {
     const res = await fetch("/api/checkout/abo", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId: user?.uuid }),
     });
 
     const data = await res.json();
@@ -397,11 +395,8 @@ export default function Profil_Edit() {
   }, []);
 
   async function opencheckout() {
-  // POST an /api/checkout/boost mit userId
   const res = await fetch("/api/checkout/abo", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: user?.uuid }),
   });
 
   const data = await res.json();                        
@@ -441,7 +436,7 @@ async function save_PW() {
   
 
   return (
-    <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
+    <div className="neu-profile profile-edit-shell flex h-full flex-col gap-4 p-4 md:m-2 md:flex-row">
       <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
         Bilder
       </h2>
@@ -472,10 +467,10 @@ async function save_PW() {
                   disabled
                   defaultValue={userData.name}
                   onChange={(e) => setTemp_Name(e.target.value)}
-                  className="bg-yellow-200 rounded-xl w-full h-24 p-2 focus:outline-none dark:text-black"
+                  className="bg-blue-200 rounded-xl w-full h-24 p-2 focus:outline-none dark:text-black"
                 />
                 <button
-                  className="mt-4 px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  className="mt-4 px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                   onClick={async () => {
                     setName(false);
                     await updateUser({ name: Temp_Name });
@@ -498,7 +493,7 @@ async function save_PW() {
             </h3>
 
             {!userData.alter && (
-              <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
+              <div className=" text-blue-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
                 Du musst dein Geburtstag angegeben, um angezeigt zu werden!
               </div>
             )}
@@ -513,12 +508,12 @@ async function save_PW() {
                   type="date"
                   value={Temp_Geburtstag}
                   onChange={(e) => setTemp_Geburtstag(e.target.value)}
-                  className="w-50 text-center text-xl  text-black dark:text-black border-2 border-yellow-300 rounded-xl p-2 appearance-none focus:outline-none"
+                  className="w-50 text-center text-xl  text-black dark:text-black border-2 border-blue-300 rounded-xl p-2 appearance-none focus:outline-none"
                 />
 
                 <div className="flex gap-4 mt-4">
                   <button
-                    className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                     onClick={async () => {
                       setAlter(false);
                       await updateUser({
@@ -546,7 +541,7 @@ async function save_PW() {
             </h3>
 
             {!userData.geschlecht && (
-              <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
+              <div className=" text-blue-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
                 Du musst dein Geschlecht angegeben, um angezeigt zu werden!
               </div>
             )}
@@ -569,7 +564,7 @@ async function save_PW() {
                 </select>
                 <div className="flex gap-4 mt-4">
                   <button
-                    className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                     onClick={async () => {
                       setGeschlecht(false);
                       await updateUser({ geschlecht: Temp_Geschlecht });
@@ -604,11 +599,11 @@ async function save_PW() {
                   max="210"
                   defaultValue={userData.groesse}
                   onChange={(e) => setTemp_Groesse(e.target.value)}
-                  className="w-full accent-yellow-400"
+                  className="w-full accent-blue-400"
                 />
 
                 <button
-                  className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                   onClick={async () => {
                     setGroesse(false);
                     await updateUser({ groesse: Temp_Groesse });
@@ -652,7 +647,7 @@ async function save_PW() {
                 </select>
                 <div className="flex gap-4 mt-4">
                   <button
-                    className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                     onClick={async () => {
                       setAusbildung(false);
                       await updateUser({ ausbildung: Temp_Ausbildung });
@@ -685,7 +680,7 @@ async function save_PW() {
                       key={index}
                       className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
                         userData.intressen?.includes(interest.name)
-                          ? "bg-yellow-500 text-white"
+                          ? "bg-blue-500 text-white"
                           : "bg-white text-gray-400"
                       }`}
                       onClick={() => {
@@ -717,7 +712,7 @@ async function save_PW() {
                 </div>
 
                 <button
-                  className="px-4 py-2 mt-4 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  className="px-4 py-2 mt-4 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                   onClick={() => {
                     updateUser({ intressen: userData.intressen });
                     setInteressen(false);
@@ -749,7 +744,7 @@ async function save_PW() {
                       key={index}
                       className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
                         userData.ichsuche?.includes(suche.name)
-                          ? "bg-yellow-500 text-white"
+                          ? "bg-blue-500 text-white"
                           : "bg-white text-gray-400"
                       }`}
                       onClick={() => {
@@ -773,7 +768,7 @@ async function save_PW() {
                       updateUser({ ichsuche: userData.ichsuche });
                       setSuche(false);
                     }}
-                    className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                    className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                   >
                     Speichern
                   </button>
@@ -791,7 +786,7 @@ async function save_PW() {
               </h3>
 
               {!userData.location && (
-              <div className=" text-yellow-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
+              <div className=" text-blue-500 font-bold ml-10 border-2 p-2 rounded-2xl mt-2 animate-pulse">
                 Du musst dein Ort angegeben, um angezeigt zu werden!
               </div>
             )}
@@ -819,7 +814,7 @@ async function save_PW() {
                     </div>
 
                     <input
-                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                       type="text"
                       placeholder="Stadt per ZIP suchen..."
                       value={searchLocation}
@@ -845,7 +840,7 @@ async function save_PW() {
                         saveLocation();
                         setLocation(false);
                       }}
-                      className="px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                      className="px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                     >
                       Speichern
                     </button>
@@ -867,7 +862,7 @@ async function save_PW() {
                   E-Mail-Adresse
                 </h2>
                 <input
-                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                  className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                   type="email"
                   placeholder="E-Mail-Adresse"
                   value={userData.email ?? ""}
@@ -877,7 +872,7 @@ async function save_PW() {
                 />
 
                 <button
-                  className="px-4 py-2 mt-4 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                  className="px-4 py-2 mt-4 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
                   onClick={() => {
                     updateUser({ email: userData.email });
                     setMail(false);
@@ -917,7 +912,7 @@ async function save_PW() {
                       key={index}
                       className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
                         userData.genres?.includes(genre.name)
-                          ? "bg-yellow-500 text-white"
+                          ? "bg-blue-500 text-white"
                           : "bg-white text-gray-400"
                       }`}
                       onClick={() => {
@@ -942,7 +937,7 @@ async function save_PW() {
                 </div>
 
                 <button
-                  className="px-4 py-2 mt-4 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-300"
+                  className="px-4 py-2 mt-4 bg-blue-400 text-black font-semibold rounded hover:bg-blue-300"
                   onClick={() => {
                     updateUser({ genres: userData.genres });
                     setGenres(false);
@@ -972,7 +967,7 @@ async function save_PW() {
                   setTracks(tracks.map((t) => ({ ...t, isSelected: false })));
                 }}
               >
-                <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
+                <p className="text-blue-500 font-bold w-max  rounded-full text-sm mb-2">
                   Suche nache einem Lied
                 </p>
 
@@ -980,7 +975,7 @@ async function save_PW() {
                   {/* input */}
                   <div className="w-full max-w-sm">
                     <input
-                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                      className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                       placeholder="Tippen Sie hier..."
                       onChange={(event) => setSearchInput(event.target.value)}
                       onKeyDown={(e) => {
@@ -994,7 +989,7 @@ async function save_PW() {
                   {/* ssearch button */}
                   <button
                     onClick={search}
-                    className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
+                    className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
                   >
                     Suche
                   </button>
@@ -1009,7 +1004,7 @@ async function save_PW() {
                         className={`rounded-md px-3 py-1 flex gap-2 items-center
                                 border ${
                                   track.isSelected
-                                    ? "border-yellow-400 bg-yellow-100"
+                                    ? "border-blue-400 bg-blue-100"
                                     : "border-slate-200"
                                 }`}
                         onClick={() => toggleTrack(track)}
@@ -1067,17 +1062,17 @@ async function save_PW() {
                     saveTrack();
                     setFavoriteTune(false);
                   }}
-                  className="bg-yellow-500 text-white px-3 py-2 mt-5 rounded-md hover:bg-yellow-700 transition"
+                  className="bg-blue-500 text-white px-3 py-2 mt-5 rounded-md hover:bg-blue-700 transition"
                 >
                   Speichern
                 </button>
 
                 <div className="border-t-2 border-slate-200 mt-4 pt-4">
-                  <p className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm ">
+                  <p className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm ">
                     Ausgewählter Song:
                   </p>
                   {userData.favorite_track && (
-                    <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                    <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                       <img
                         src={userData.favorite_track?.image || "/fallback.jpg"}
                         alt={userData.favorite_track?.name}
@@ -1109,7 +1104,7 @@ async function save_PW() {
                     setFavoriteBand(false);
                   }}
                 >
-                  <p className="text-yellow-500 font-bold w-max  rounded-full text-sm mb-2">
+                  <p className="text-blue-500 font-bold w-max  rounded-full text-sm mb-2">
                     Suche nache einem Künstler
                   </p>
 
@@ -1117,7 +1112,7 @@ async function save_PW() {
                     {/* input */}
                     <div className="w-full max-w-sm">
                       <input
-                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                        className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                         placeholder="Tippen Sie hier..."
                         onChange={(event) =>
                           setSearchInput_Artist(event.target.value)
@@ -1128,7 +1123,7 @@ async function save_PW() {
                     {/* ssearch button */}
                     <button
                       onClick={search_artist}
-                      className="bg-yellow-500 text-white px-5 py-2 rounded-md hover:bg-yellow-700 transition"
+                      className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-700 transition"
                     >
                       Suche
                     </button>
@@ -1142,7 +1137,7 @@ async function save_PW() {
                           className={`rounded-md px-3 py-1 flex gap-2 items-center
                                 border ${
                                   artist.isSelected
-                                    ? "border-yellow-400 bg-yellow-100"
+                                    ? "border-blue-400 bg-blue-100"
                                     : "border-slate-200"
                                 }`}
                           onClick={() => toggleArtist(artist)}
@@ -1165,13 +1160,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(1)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1179,7 +1174,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist.favorite_artist1?.image ||
@@ -1200,13 +1195,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(2)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1214,7 +1209,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist2 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist2?.image ||
@@ -1235,13 +1230,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(3)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1249,7 +1244,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist3 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist3?.image ||
@@ -1270,13 +1265,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(4)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1284,7 +1279,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist4 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist4?.image ||
@@ -1305,13 +1300,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(5)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1319,7 +1314,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist5 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist5?.image ||
@@ -1340,13 +1335,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(6)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1354,7 +1349,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist6 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist6?.image ||
@@ -1375,13 +1370,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(7)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1389,7 +1384,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist7 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist7?.image ||
@@ -1410,13 +1405,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(8)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1424,7 +1419,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist8 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist8?.image ||
@@ -1445,13 +1440,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(9)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1459,7 +1454,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist9 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist9?.image ||
@@ -1480,13 +1475,13 @@ async function save_PW() {
                   <div className="border-t-2 border-slate-200 mt-4 pt-4">
                     <p
                       onClick={() => saveArtist(10)}
-                      className=" text-yellow-500 font-bold w-max mt-4 rounded-full text-sm "
+                      className=" text-blue-500 font-bold w-max mt-4 rounded-full text-sm "
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
                         fill="currentColor"
-                        className="size-6 text-yellow-600 position-relative"
+                        className="size-6 text-blue-600 position-relative"
                       >
                         <path d="M12 1.5a.75.75 0 0 1 .75.75V4.5a.75.75 0 0 1-1.5 0V2.25A.75.75 0 0 1 12 1.5ZM5.636 4.136a.75.75 0 0 1 1.06 0l1.592 1.591a.75.75 0 0 1-1.061 1.06l-1.591-1.59a.75.75 0 0 1 0-1.061Zm12.728 0a.75.75 0 0 1 0 1.06l-1.591 1.592a.75.75 0 0 1-1.06-1.061l1.59-1.591a.75.75 0 0 1 1.061 0Zm-6.816 4.496a.75.75 0 0 1 .82.311l5.228 7.917a.75.75 0 0 1-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 0 1-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 0 1-1.247-.606l.569-9.47a.75.75 0 0 1 .554-.68ZM3 10.5a.75.75 0 0 1 .75-.75H6a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 10.5Zm14.25 0a.75.75 0 0 1 .75-.75h2.25a.75.75 0 0 1 0 1.5H18a.75.75 0 0 1-.75-.75Zm-8.962 3.712a.75.75 0 0 1 0 1.061l-1.591 1.591a.75.75 0 1 1-1.061-1.06l1.591-1.592a.75.75 0 0 1 1.06 0Z" />
                       </svg>
@@ -1494,7 +1489,7 @@ async function save_PW() {
                       (bitte der gesuchte Artist hier per Klick einfügen)
                     </p>
                     {userData.favorite_artist?.favorite_artist10 && (
-                      <div className="mt-4 p-2 border-2 border-yellow-400 rounded-lg flex items-center gap-4">
+                      <div className="mt-4 p-2 border-2 border-blue-400 rounded-lg flex items-center gap-4">
                         <img
                           src={
                             userData.favorite_artist?.favorite_artist10
@@ -1567,7 +1562,7 @@ async function save_PW() {
                     />
                   </svg>
                   <button onClick={opencheckout}
-              className=" active:inset-shadow-amber-100 bg-yellow-50 border-b-2 border-b-amber-100 border-t-2 border-t-white mt-5 font-extrabold text-lg md:text-3x p-2 text-gray-300 shadow hover:bg-yellow-50 hover:shadow-md rounded-2xl"
+              className=" active:inset-shadow-blue-100 bg-blue-50 border-b-2 border-b-blue-100 border-t-2 border-t-white mt-5 font-extrabold text-lg md:text-3x p-2 text-gray-300 shadow hover:bg-blue-50 hover:shadow-md rounded-2xl"
               
             >
               Abo verlängern!
@@ -1589,14 +1584,14 @@ async function save_PW() {
                 }>
                     <input
                     type="text"
-                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                    className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                     placeholder="Tippen Sie hier ihr neues Passwort"
                     onChange={(e: { target: { value: SetStateAction<string>; }; }) => setPW(e.target.value)}>
                     </input>
 
                     <input
                     type="text"
-                    className="w-full border border-slate-300 rounded-md px-3 mt-4 py-2 text-sm focus: outline-yellow-300 text-slate-700 placeholder:text-slate-400"
+                    className="w-full border border-slate-300 rounded-md px-3 mt-4 py-2 text-sm focus: outline-blue-300 text-slate-700 placeholder:text-slate-400"
                     placeholder="Tippen Sie hier ihr neues Passwort ein 2tes Mal"
                     onChange={(e: { target: { value: SetStateAction<string>; }; }) => {if(e.target.value !== PW)
                     {
@@ -1611,11 +1606,11 @@ async function save_PW() {
                     }}>
                     </input>
 
-                    <p className="mt-2 text-yellow-500 font-bold">{text}</p>
+                    <p className="mt-2 text-blue-500 font-bold">{text}</p>
                     <button
                       disabled ={toggle}
                       onClick={()=>{save_PW(), setOpenModalPW(false)}}
-                      className="bg-yellow-500 text-white px-5 py-2 rounded-md mt-5 hover:bg-yellow-700 transition"
+                      className="bg-blue-500 text-white px-5 py-2 rounded-md mt-5 hover:bg-blue-700 transition"
                     >
                       Speichern
                     </button>

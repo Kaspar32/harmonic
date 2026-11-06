@@ -86,13 +86,13 @@ export default function Loggin() {
     <div>
       {!user ? (
         <div className="space-y-4 text-gray-500">
-          <div className="flex flex-col gap-4 border-4 border-yellow-300 bg-yellow-50 rounded-2xl p-4 w-80 shadow-2xl">
+          <div className="flex flex-col gap-4 border-4 border-blue-300 bg-blue-50 rounded-2xl p-4 w-80 shadow-2xl">
             <input
               id="name"
               name="name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+              className="border border-blue-300 focus:outline-none px-2 py-1 rounded"
               type="text"
               placeholder="Benutzername"
             />
@@ -107,14 +107,14 @@ export default function Loggin() {
                   login();
                 }
               }}
-              className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+              className="border border-blue-300 focus:outline-none px-2 py-1 rounded"
               type="password"
               placeholder="Passwort"
             />
 
             <button
               onClick={login}
-              className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold"
+              className="bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold"
             >
               Login
             </button>
@@ -125,7 +125,7 @@ export default function Loggin() {
             <div>
               <p className="text-gray-400">Noch kein Account?</p>
               <Link href="/User_register">
-                <div className="flex gap-2 bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
+                <div className="flex gap-2 bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
                   <button>Registrieren</button>
                   <div>
                     <svg
@@ -149,7 +149,7 @@ export default function Loggin() {
 
             <div>
               <p className="text-gray-400">Passwort vergessen?</p>
-                <div className="flex gap-2 bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
+                <div className="flex gap-2 bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold w-full content-center justify-center">
                   <button onClick={resetPW}>Passwort zurücksetzen</button>
                   <div>
                     <svg
@@ -180,11 +180,11 @@ export default function Loggin() {
                         setLoginEmail(event.target.value)
                       }
                       id="Email"
-                      className="border border-amber-300 focus:outline-none px-2 py-1 rounded"
+                      className="border border-blue-300 focus:outline-none px-2 py-1 rounded"
                       type="email"
                       placeholder="E-Mail-Adresse eingeben"
                     />  
-                    <button onClick={handlePasswordReset} className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded text-white font-bold">
+                    <button onClick={handlePasswordReset} className="bg-blue-400 hover:bg-blue-500 px-4 py-2 rounded text-white font-bold">
                       Passwort zurücksetzen
                     </button>
 
@@ -198,13 +198,13 @@ export default function Loggin() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 border-4 border-yellow-300 bg-yellow-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-700">
+        <div className="flex flex-col gap-4 border-4 border-blue-300 bg-blue-50 rounded-2xl p-6 w-80 shadow-2xl text-gray-700">
           <p className="text-gray-500">
-            <b className="text-yellow-400">Angemeldet als:</b> {user?.name}
+            <b className="text-blue-400">Angemeldet als:</b> {user?.name}
           </p>
           <button
             onClick={loggout}
-            className="bg-yellow-400 hover:bg-yellow-500 text-white w-max px-4 py-2 rounded font-bold flex justify-center"
+            className="bg-blue-400 hover:bg-blue-500 text-white w-max px-4 py-2 rounded font-bold flex justify-center"
           >
             Ausloggen
           </button>

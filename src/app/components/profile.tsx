@@ -430,10 +430,6 @@ export default function Profile() {
   async function opencheckout() {
     const res = await fetch("/api/checkout/boost", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user?.uuid
-      }),
     });
 
     const data = await res.json();
@@ -501,7 +497,7 @@ export default function Profile() {
                   confirmBoost();
 
                 }}
-                className="ml-6 px-4 py-2 bg-yellow-400 text-white font-semibold rounded hover:bg-yellow-300"
+                className="ml-6 px-4 py-2 bg-blue-400 text-white font-semibold rounded hover:bg-blue-300"
               >
                 BOOST IT!
               </button>
@@ -512,11 +508,11 @@ export default function Profile() {
 
       {isEmpty ? (
         <div className="h-full w-full flex justify-center">
-          <div className="border-2 rounded-2xl py-4 px-8 border-yellow-300 bg-yellow-50 shadow-lg">
-            <p className="text-yellow-500 font-bold">
+          <div className="border-2 rounded-2xl py-4 px-8 border-blue-300 bg-blue-50 shadow-lg">
+            <p className="text-blue-500 font-bold">
               Keine übereinstimmende User, ändere oder mache deine
               <Link href="/settings">
-                <button className="flex p-2 justify-center items-center text-yellow-500 border-b-2 border-b-amber-200 border-t-2 border-t-white bg-yellow/50 shadow hover:bg-white hover:shadow-md  rounded-2xl">
+                <button className="flex p-2 justify-center items-center text-blue-500 border-b-2 border-b-blue-200 border-t-2 border-t-white bg-yellow/50 shadow hover:bg-white hover:shadow-md  rounded-2xl">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
@@ -549,7 +545,7 @@ export default function Profile() {
             <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-25">
               {/*--dislike burron- */}
               <button
-                className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-yellow-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
+                className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-blue-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
                 onClick={handleDislike}
               >
                 <svg
@@ -569,7 +565,7 @@ export default function Profile() {
 
               {/*- superlike button*/}
               <button
-                className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-blue-100 hover:scale-120 transition-transform duration-300 ${grayedOut ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}`}
+                className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-blue-400 bg-blue-100 hover:scale-120 transition-transform duration-300 ${grayedOut ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}`}
                 onClick={handlesuperlike}
               >
                 <div>
@@ -590,7 +586,7 @@ export default function Profile() {
 
               {/*- boost button*/}
               <button
-                className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-yellow-400 bg-gray-100 hover:scale-120 transition-transform duration-300 ${grayedOut2 ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}  `}
+                className={`flex w-16 h-16 md:w-20 md:h-20 rounded-xl border-2 border-blue-400 bg-gray-100 hover:scale-120 transition-transform duration-300 ${grayedOut2 ? "opacity-50 cursor-not-allowed bg-gray-200" : ""}  `}
                 onClick={() => {
 
                   if(boosttime!=="00:00:00") return;
@@ -622,7 +618,7 @@ export default function Profile() {
               {/*- like button*/}
               <button
                 onClick={handleLike}
-                className={`flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-green-200 border-2 rounded-2xl border-yellow-500 shadow-lg transition-transform duration-300 ${
+                className={`flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-green-200 border-2 rounded-2xl border-blue-500 shadow-lg transition-transform duration-300 ${
                   isMatched && buttonsDisabled
                     ? "animate-pulse opacity-70 rotate-12 scale-125"
                     : "hover:rotate-12 hover:scale-125"
@@ -645,7 +641,7 @@ export default function Profile() {
             </div>
           </div>
           <motion.div animate={controls} key={users[UserIndex]?.uuid}>
-            <div className="flex flex-col xl:flex-row justify-center items-center bg-yellow-50 border-4 border-yellow-200 rounded-2xl shadow-lg p-4 gap-2">
+            <div className="flex flex-col xl:flex-row justify-center items-center bg-blue-50 border-4 border-blue-200 rounded-2xl shadow-lg p-4 gap-2">
               {/* User Profile */}
               {users[UserIndex]?.roles == "fakeUser" && (
                 <div className="absolute md:top-50 md:left-220 transform: rotate-20 bg-green-300 text-white px-2 py-1 rounded-lg z-20 text-xl font-bold ">
@@ -664,7 +660,7 @@ export default function Profile() {
                         key={index}
                         className={`flex-1 h-2 rounded-md ${
                           index === currentIndex
-                            ? "bg-yellow-500"
+                            ? "bg-blue-500"
                             : "bg-gray-300"
                         }`}
                       ></div>
@@ -686,7 +682,7 @@ export default function Profile() {
                     />
                   ))}
 
-                <div className="absolute top-[80%]  left-1/2 -translate-x-1/2 text-2xl overflow-visible text-yellow-500 border-2 rounded-2xl px-4 py-1 bg-white">
+                <div className="absolute top-[80%]  left-1/2 -translate-x-1/2 text-2xl overflow-visible text-blue-500 border-2 rounded-2xl px-4 py-1 bg-white">
                   {users[UserIndex]?.name}, {users[UserIndex]?.alter}
                   <span className="text-sm block -mt-1 text-gray-500">
                     {users[UserIndex]?.location}
@@ -699,8 +695,8 @@ export default function Profile() {
               {/* kasten */}
               <div className="text-sm sm:text-base w-full max-w-[600px] xl:shrink-0">
                 {/* kasten 1 */}
-                <div className="px-6 py-4 mt-4 w-full bg-yellow-200/50 rounded-2xl text-yellow-400 font-semibold shadow-lg ">
-                  <User className=" flex w-6 h-6 text-yellow-400" />
+                <div className="px-6 py-4 mt-4 w-full bg-blue-200/50 rounded-2xl text-blue-400 font-semibold shadow-lg ">
+                  <User className=" flex w-6 h-6 text-blue-400" />
 
                   <div>
                     <div className="grid grid-cols-2 gap-y-4 items-center mx-6 ">
@@ -771,12 +767,12 @@ export default function Profile() {
                 <div
                   className={`@container w-full px-3 py-4 sm:px-6 mt-5 rounded-2xl font-semibold shadow-lg   ${
                     samegenres
-                      ? "genre-animate animate-pulse text-yellow-400"
-                      : "bg-yellow-200/50 text-yellow-400 "
+                      ? "genre-animate animate-pulse text-blue-400"
+                      : "bg-blue-200/50 text-blue-400 "
                   }`}
                 >
                   <Music
-                    className={`flex w-6 h-6 text-yellow-400 ${
+                    className={`flex w-6 h-6 text-blue-400 ${
                       samegenres ? "animate-spin" : ""
                     }`}
                   />
@@ -835,7 +831,7 @@ export default function Profile() {
                               >
                                 {currentTrack.name}
                               </p>
-                              <p className="text-xs sm:text-sm text-yellow-400 truncate">
+                              <p className="text-xs sm:text-sm text-blue-400 truncate">
                                 {currentTrack.artist}
                               </p>
                             </div>

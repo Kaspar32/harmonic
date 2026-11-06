@@ -24,7 +24,7 @@ export default function PopUp({
         <div className="flex justify-end p-2 pb-0 shrink-0">
           <button
             onClick={onClose}
-            className="text-black bg-yellow-200 hover:bg-yellow-100 px-3 py-1 rounded font-bold"
+            className="text-black bg-blue-200 hover:bg-blue-100 px-3 py-1 rounded font-bold"
           >
             X
           </button>

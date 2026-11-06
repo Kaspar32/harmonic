@@ -160,7 +160,7 @@ export default function Superlike({ onImageClick }: Props) {
                 }}
               />
 
-              <p className="text-yellow-500 font-bold text-xl ml-10 mt-10">
+              <p className="text-blue-500 font-bold text-xl ml-10 mt-10">
                 SUPERLIKE von {users?.[index]?.name}
               </p>
             </div>

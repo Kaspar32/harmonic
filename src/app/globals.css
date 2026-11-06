@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #e9edf3;
+  --foreground: #3d4654;
 }
 
 @theme inline {
@@ -12,21 +12,119 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), sans-serif;
+  min-height: 100vh;
 }
 
 button {
- @apply cursor-pointer
+  @apply cursor-pointer;
+}
+
+.neu-app {
+  background: #e9edf3;
+}
+
+.neu-app button:not(.unstyled) {
+  border: 0;
+  color: #64748b;
+  background: #e9edf3;
+  box-shadow: 6px 6px 12px rgba(163, 174, 192, 0.45),
+    -6px -6px 12px rgba(255, 255, 255, 0.82);
+  transition: box-shadow 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.neu-app button:not(.unstyled):hover {
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.neu-app button:not(.unstyled):active {
+  box-shadow: inset 4px 4px 8px rgba(163, 174, 192, 0.45),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+  transform: translateY(0);
+}
+
+.neu-app input,
+.neu-app textarea,
+.neu-app select {
+  border: 0;
+  background: #e9edf3;
+  color: #475569;
+  box-shadow: inset 4px 4px 8px rgba(163, 174, 192, 0.4),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.78);
+}
+
+.neu-app input:focus,
+.neu-app textarea:focus,
+.neu-app select:focus {
+  outline: 2px solid rgba(202, 138, 4, 0.45);
+  outline-offset: 2px;
+}
+
+.neu-profile {
+  background: #e9edf3;
+  color: #3d4654;
+  border-radius: 2rem;
+  box-shadow: 18px 18px 36px rgba(163, 174, 192, 0.55),
+    -18px -18px 36px rgba(255, 255, 255, 0.9);
+}
+
+.neu-surface {
+  background: #e9edf3;
+  border-radius: 1.25rem;
+  box-shadow: 8px 8px 16px rgba(163, 174, 192, 0.48),
+    -8px -8px 16px rgba(255, 255, 255, 0.82);
+}
+
+.neu-inset {
+  background: #e9edf3;
+  border-radius: 1rem;
+  box-shadow: inset 5px 5px 10px rgba(163, 174, 192, 0.45),
+    inset -5px -5px 10px rgba(255, 255, 255, 0.8);
+}
+
+.neu-interactive {
+  transition: box-shadow 180ms ease, transform 180ms ease, color 180ms ease;
+}
+
+.neu-interactive:hover {
+  color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.neu-interactive:active {
+  box-shadow: inset 4px 4px 8px rgba(163, 174, 192, 0.45),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.8);
+  transform: translateY(0);
+}
+
+.profile-edit-shell h1,
+.profile-edit-shell h2 {
+  color: #64748b;
+  transition: color 180ms ease;
+}
+
+.profile-edit-shell h1:hover,
+.profile-edit-shell h2:hover {
+  color: #2563eb;
+}
+
+.profile-edit-shell h3 {
+  border: 0;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  transition: box-shadow 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.profile-edit-shell h3:hover {
+  color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 7px 7px 14px rgba(163, 174, 192, 0.45),
+    -7px -7px 14px rgba(255, 255, 255, 0.8);
 }
 
 @keyframes blink {
@@ -68,7 +166,7 @@ button {
     background-color: #d1fce1; /* green-500 */
   }
   100% {
-    background-color: #fef9c2; /* yellow-400 */
+    background-color: #dbeafe; /* blue-400 */
   }
 }
 

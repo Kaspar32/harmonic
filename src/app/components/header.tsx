@@ -7,24 +7,24 @@ export default function Header() {
   const { user } = useUser();
 
   return (
-    <div className="flex justify-between bg-blue-200 p-3  border-b-2 border-blue-400">
+    <div className="neu-surface flex items-center justify-between rounded-none border-b-0 p-3">
       <div className="flex items-center gap-4">
         <Link href="/">
-          <div className="font-bold font-sans text-3xl md:text-7xl text-blue-500 text-shadow-sm cursor-pointer">
+            <div className="cursor-pointer font-bold font-sans text-3xl text-slate-600 md:text-5xl">
             harmonic
           </div>
         </Link>
 
-        <label className="text-md md:text-3xl md:pt-4 text-blue-400 text-shadow-sm">
+        <label className="hidden text-sm text-slate-500 sm:block md:text-base">
           {user && <p>Willkommen {user.name}</p>}
         </label>
       </div>
 
-      <div className="flex gap-4 items-center md:gap-20 md:mr-20">
+      <div className="flex items-center gap-3 md:gap-5 md:mr-4">
        
 
         <Link href="/User_register">
-          <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-full focus:ring-3 ring-blue-500 ">
+          <button aria-label="Profil öffnen" className="group cursor-pointer rounded-full p-1 focus:ring-3 ring-blue-500">
             <div className="relative md:h-12 md:w-12 h-8 w-8  overflow-hidden rounded-full focus:ring-2 focus:ring-blue-400">
               <Image
                 unoptimized
@@ -42,13 +42,13 @@ export default function Header() {
         </Link>
 
         <Link href={user ? "/settings" : "/User_register"}>
-          <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 ">
-            <div className="relative md:h-12 md:w-12 h-8 w-8">
+          <button aria-label="Einstellungen öffnen" className="group flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl p-0 focus:ring-3 ring-blue-500 md:h-14 md:w-14">
+            <div className="relative flex h-full w-full items-center justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
                 fill="currentColor"
-                className="md:size-12 text-white active:text-blue-200"
+                className="size-7 text-slate-500 active:text-blue-600 md:size-9"
               >
                 <path
                   fillRule="evenodd"

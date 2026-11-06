@@ -1,44 +1,6 @@
 "use client";
 import { createContext, useContext, useState, useEffect } from "react";
-
-type UserType = {
-  location: string | null;
-  uuid: string;
-  name: string;
-  geschlecht: string;
-  alter: string;
-  geburtstag: string;
-  groesse: string;
-  ausbildung: string;
-  intressen: string[];
-  ichsuche: string[];
-  genres: string[];
-  favorite_track: FavoriteTrack | null;
-  favorite_artist: FavoriteArtist | null;
-  roles: string;
-  fakeUsersEnabled: boolean;
-  profile_pics: string[];
-  email: string;
-  last_match_check: string | null;
-  
-};
-
-export interface FavoriteTrack {
-  name: string;
-  image: string | null;
-  artist: string | null;
-  preview: string | null;
-}
-
-export interface FavoriteArtist {
-  favorite_artist1?: Artist;
-  favorite_artist2?: Artist;
-}
-
-export interface Artist {
-  name: string;
-  image: string | null;
-}
+import type { UserType } from "@/app/types/User";
 
 interface UserContextProps {
   user: UserType | null;

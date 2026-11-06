@@ -1,7 +1,12 @@
 import { stripe } from "@/lib/stripe";
+import { getAuthenticatedUserId } from "@/lib/auth";
 
 export async function POST(req: Request) {
-  const { userId } = await req.json();
+  const userId = await getAuthenticatedUserId(req);
+
+  if (!userId) {
+    return Response.json({ error: "Nicht eingeloggt" }, { status: 401 });
+  }
 
   const session =
     await stripe.checkout.sessions.create({
