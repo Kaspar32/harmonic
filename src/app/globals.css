@@ -127,6 +127,30 @@ button {
     -7px -7px 14px rgba(255, 255, 255, 0.8);
 }
 
+.profile-edit-shell .profile-option {
+  border: 0;
+  color: #64748b;
+  background: #e9edf3;
+  box-shadow: 5px 5px 10px rgba(163, 174, 192, 0.42),
+    -5px -5px 10px rgba(255, 255, 255, 0.82);
+}
+
+.profile-edit-shell .profile-option.is-selected {
+  color: #ffffff !important;
+  background: #2563eb !important;
+  box-shadow: inset 4px 4px 8px rgba(29, 78, 216, 0.55),
+    inset -4px -4px 8px rgba(96, 165, 250, 0.7);
+}
+
+.profile-edit-shell .profile-option:hover {
+  color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.profile-edit-shell .profile-option.is-selected:hover {
+  color: #ffffff !important;
+}
+
 @keyframes blink {
   0%, 50%, 100% { opacity: 1; }
   25%, 75% { opacity: 0; }

@@ -678,10 +678,10 @@ async function save_PW() {
                   {intressen.map((interest, index) => (
                     <button
                       key={index}
-                      className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
+                      className={`profile-option rounded-2xl p-2 cursor-pointer select-none ${
                         userData.intressen?.includes(interest.name)
-                          ? "bg-blue-500 text-white"
-                          : "bg-white text-gray-400"
+                          ? "is-selected"
+                          : ""
                       }`}
                       onClick={() => {
                         if (
@@ -742,10 +742,10 @@ async function save_PW() {
                   {ichSucheState.map((suche, index) => (
                     <button
                       key={index}
-                      className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
+                      className={`profile-option rounded-2xl p-2 cursor-pointer select-none ${
                         userData.ichsuche?.includes(suche.name)
-                          ? "bg-blue-500 text-white"
-                          : "bg-white text-gray-400"
+                          ? "is-selected"
+                          : ""
                       }`}
                       onClick={() => {
                         const updated = userData.ichsuche?.includes(suche.name)
@@ -910,10 +910,10 @@ async function save_PW() {
                   {genres.map((genre, index) => (
                     <button
                       key={index}
-                      className={`ring-2 rounded-2xl p-2 cursor-pointer select-none ${
+                      className={`profile-option rounded-2xl p-2 cursor-pointer select-none ${
                         userData.genres?.includes(genre.name)
-                          ? "bg-blue-500 text-white"
-                          : "bg-white text-gray-400"
+                          ? "is-selected"
+                          : ""
                       }`}
                       onClick={() => {
                         if (
