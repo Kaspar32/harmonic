@@ -231,20 +231,12 @@ export default function Chatter() {
       return updated;
     });
 
-    const res = await fetch("/api/getuserdata");
-    if (!res.ok) {
-      console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
+    if (!user) {
+      console.error("User nicht eingeloggt");
       return;
     }
 
-    const data = await res.json();
-
-    if (!data || !data.name) {
-      console.error("Benutzerdaten sind ungültig:", data);
-      return;
-    }
-
-    setCurrentUser(data.name);
+    setCurrentUser(user.name);
     setChatPartner(users[index].name);
 
     //Pop-Up-Fenster öffnen
@@ -270,24 +262,21 @@ export default function Chatter() {
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
   async function handleunmatch() {
-    const res = await fetch("/api/getuserdata");
-    if (!res.ok) {
-      console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
+    if (!user) {
+      console.error("User nicht eingeloggt");
       return;
     }
 
-    const data = await res.json();
-
     //Like löschen
 
-    const payload = { from: data.uuid, to: users[selectedIndex].uuid };
+    const payload = { from: user.uuid, to: users[selectedIndex].uuid };
     await fetch("/api/deletelikebyid", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
+    const payload2 = { from: users[selectedIndex].uuid, to: user.uuid };
     await fetch("/api/deletelikebyid", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -298,17 +287,14 @@ export default function Chatter() {
   }
 
   async function handleblock() {
-    const res = await fetch("/api/getuserdata");
-    if (!res.ok) {
-      console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
+    if (!user) {
+      console.error("User nicht eingeloggt");
       return;
     }
 
-    const data = await res.json();
-
     //Blockieren ist gleich wie like löschen und disliken
 
-    const payload = { from: data.uuid, to: users[selectedIndex].uuid };
+    const payload = { from: user.uuid, to: users[selectedIndex].uuid };
 
     await fetch("/api/deletelikebyid", {
       method: "POST",
@@ -316,7 +302,7 @@ export default function Chatter() {
       body: JSON.stringify(payload),
     });
 
-    const payload2 = { from: users[selectedIndex].uuid, to: data.uuid };
+    const payload2 = { from: users[selectedIndex].uuid, to: user.uuid };
 
     await fetch("/api/deletelikebyid", {
       method: "POST",
@@ -342,19 +328,14 @@ export default function Chatter() {
   const [reason, setReason] = useState<string>("unangemessenes_verhalten");
 
   async function handleReport() {
-    // alert("Benutzer wurde gemeldet" + users[selectedIndex].name);
-
-    const res = await fetch("/api/getuserdata");
-    if (!res.ok) {
-      console.error("Fehler beim Abrufen der Benutzerdaten:", res.statusText);
+    if (!user) {
+      console.error("User nicht eingeloggt");
       return;
     }
 
-    const data = await res.json();
-
     //Zuerst Blockieren ist gleich wie like löschen und disliken
 
-    const payload = { from: data.uuid, to: users[selectedIndex].uuid };
+    const payload = { from: user.uuid, to: users[selectedIndex].uuid };
 
     await fetch("/api/deletelikebyid", {
       method: "POST",
@@ -469,7 +450,7 @@ export default function Chatter() {
         }}
       />
       {!loading && (
-        <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
+        <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-full max-w-xs sm:max-w-sm md:max-w-[500px] mx-auto">
           {images.map((item, index) => (
             <div key={index}>
               <div
@@ -508,7 +489,7 @@ export default function Chatter() {
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="size-6 text-red-700 mt-15 ml-10 animate-bounce"
+                    className="size-6 text-red-700 mt-2 ml-2 sm:mt-15 sm:ml-10 animate-bounce"
                   >
                     <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
                     <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
@@ -517,7 +498,7 @@ export default function Chatter() {
 
                 {sameTasteMessages[index] && (
                   <Music
-                    className={`flex w-11 h-11 mt-10 mr-10 text-blue-400`}
+                    className={`flex w-11 h-11 mt-4 mr-2 sm:mt-10 sm:mr-10 text-blue-400`}
                   />
                 )}
 
@@ -527,7 +508,7 @@ export default function Chatter() {
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke="currentColor"
-                  className="cursor-pointer size-6 text-red-300 border-2 hover:text-red-500 border-red-300 hover:border-red-400 bg-red-50 hover:bg-red-100 rounded-full absolute top-[-4] right-[-4]"
+                  className="cursor-pointer size-6 text-red-300 border-2 hover:text-red-500 border-red-300 hover:border-red-400 bg-red-50 hover:bg-red-100 rounded-full absolute top-[-2] right-[-2] sm:top-[-4] sm:right-[-4]"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCross(index);
@@ -606,17 +587,17 @@ export default function Chatter() {
           {/* Eingabefeld */}
           <div
             className="chat-composer items-center gap-2 border-t border-blue-200 bg-blue-50 p-4 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_20px_rgba(148,163,184,0.2)]"
-            style={{
-              position: "absolute",
-              right: 0,
-              bottom: 0,
-              left: 0,
-              zIndex: 999999,
-              display: "flex",
-              minHeight: 76,
-              visibility: "visible",
-              opacity: 1,
-            }}
+              style={{
+                position: "absolute",
+                right: 0,
+                bottom: 0,
+                left: 0,
+                zIndex: 999999,
+                display: "flex",
+                minHeight: 76,
+                visibility: "visible",
+                opacity: 1,
+              }}
           >
             <input
               value={input}

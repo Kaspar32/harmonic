@@ -118,10 +118,9 @@ export default function ProfileSingleView({
       />
 
       {User?.roles == "fakeUser" && (
-
-        <div className="neu-surface px-4 py-2 font-semibold text-emerald-700">FakeUser</div>
-
-
+        <div className="neu-surface px-4 py-2 font-semibold text-emerald-700">
+          FakeUser
+        </div>
       )}
 
       <div onClick={handleClick}>
@@ -245,206 +244,25 @@ export default function ProfileSingleView({
         </span>{" "}
         <div className=" py-1 px-3 text-center  break-normal">
           {User?.favorite_artist ? (
-            <div className="flex flex-wrap items-center gap-2 ">
-              {User?.favorite_artist?.favorite_artist1 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist1?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist1?.name}
+            <div className="flex flex-wrap items-center gap-2">
+              {Object.entries(User.favorite_artist).map(([key, artist]) =>
+                artist ? (
+                  <div key={key} className="flex items-center gap-1">
+                    <Image
+                      src={artist.image || "/images/Home.png"}
+                      alt="Lieblingsinterpret Bild"
+                      height={30}
+                      width={30}
+                      style={{ objectFit: "cover" }}
+                      quality={100}
+                    />
+                    <div className="md:w-full max-w-[120px]">
+                      <div className="font-semibold text-blue-500">
+                        {artist.name}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist2 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist2?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist2?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist3 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist3?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist3?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist4 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist4?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist4?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist5 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist5?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist5?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist6 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist6?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist6?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist7 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist7?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist7?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist8 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist8?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist8?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist9 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist9?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist9?.name}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {User?.favorite_artist?.favorite_artist10 && (
-                <div className="flex items-center gap-1">
-                  <Image
-                    src={
-                      User?.favorite_artist?.favorite_artist10?.image ||
-                      "/images/Home.png"
-                    }
-                    alt="Lieblingsinterpret Bild"
-                    height={30}
-                    width={30}
-                    style={{ objectFit: "cover" }}
-                    quality={100}
-                  />
-                  <div className="md:w-full max-w-[120px]">
-                    <div className="font-semibold text-blue-500">
-                      {User?.favorite_artist?.favorite_artist10?.name}
-                    </div>
-                  </div>
-                </div>
+                ) : null,
               )}
             </div>
           ) : (

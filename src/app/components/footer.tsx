@@ -1,9 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useSetAtom } from "jotai";
-import { messagesAtom } from "@/lib/overgivenotifications";
+import { useEffect, useRef, useState } from "react";
 import { useUser } from "@/app/context/UserContext";
 import { useNotification } from "../context/NotificationContext";
 import toast, { Toaster } from "react-hot-toast";
@@ -12,7 +10,8 @@ export default function Footer() {
   const [newMatch, setNewMatch] = useState(false);
   const { user } = useUser();
 
-  const { addNotification, notifications } = useNotification();
+  const { addNotification } = useNotification();
+  const knownMessageIds = useRef<Set<number> | null>(null);
 
   function changechat() {
     fetch("/api/getmatchbyid/updateLastMatchCheck", {
@@ -26,11 +25,10 @@ export default function Footer() {
     setNewMatch(false);
   }
 
-  const setMessages = useSetAtom(messagesAtom);
-
   useEffect(() => {
     if (!user) return;
 
+    knownMessageIds.current = null;
     const controller = new AbortController();
 
     async function checkNewMatchMessages() {
@@ -57,18 +55,38 @@ export default function Footer() {
       }
 
       // Dasselbe für neue Messsages:::::::::::::::::::::::::::::::::::::::::::
-      const res3 = await fetch(`/api/messages?chatPartner=`);
+      const res3 = await fetch(`/api/messages?chatPartner=`, {
+        signal: controller.signal,
+      });
       const data3 = await res3.json();
 
-      if (data3.length > 0 && data3[data3.length - 1]?.read === false) {
-        setNewMatch(true);
+      if (!res3.ok || !Array.isArray(data3)) return;
 
-        for (let i = 0; i <= data3.length - 1; i++) {
-          if (data3.length > 0 && data3[i]?.read === false) {
-            addNotification(data3[i]?.fromUser);
-          }
-        }
+
+      // Eigentlich redundanter filter
+ 
+      const unreadMessages = data3.filter(
+        (message) => message.read === false,
+      );
+      const unreadMessageIds = new Set<number>(
+        unreadMessages.map((message) => message.id),
+      );
+
+      if (knownMessageIds.current === null) {
+        knownMessageIds.current = unreadMessageIds;
+        return;
       }
+
+      const newMessages = unreadMessages.filter(
+        (message) => !knownMessageIds.current?.has(message.id),
+      );
+
+      if (newMessages.length > 0) {
+        setNewMatch(true);
+        newMessages.forEach((message) => addNotification(message.fromUser));
+      }
+
+      knownMessageIds.current = unreadMessageIds;
     }
 
     checkNewMatchMessages();
@@ -81,14 +99,14 @@ export default function Footer() {
   }, [user]);
 
   return (
-    <div className="site-footer neu-surface flex min-h-16 items-center justify-between rounded-none border-t-0 p-4 md:px-8">
-      <div className=" relative w-[60%] top-[-40px] left-[-30px] text-xs md:text-sm md:w-[600px]">
+    <div className="site-footer neu-surface flex min-h-16 items-center justify-between rounded-none border-t-0 p-4 md:px-8 gap-4">
+      <div className="relative top-[6px] text-xs md:text-sm w-full max-w-xs sm:max-w-sm md:max-w-[600px]">
         <label className="font-bold font-sans text-slate-500">
           harmonic Datingapp 2025, Alle Rechte vorbehalten.
         </label>
       </div>
 
-      <div className="flex md:gap-20 md:w-[550px] w-52 gap-4 items-center">
+      <div className="flex md:gap-20 gap-3 items-center w-full max-w-xs sm:max-w-sm md:max-w-[550px] justify-center">
         <Link href={user ? "/home" : "/User_register"}>
           <button className="group cursor-pointer shadow-lg shadow-blue-900/30 active:inset-shadow-sm active:inset-shadow-blue-400 border-t border-t-blue-100 border-b border-b-blue-500/30 rounded-2xl focus:ring-3 ring-blue-500 ">
             <svg

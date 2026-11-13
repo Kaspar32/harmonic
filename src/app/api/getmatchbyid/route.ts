@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { likes } from "@/db/schema";
-import { eq, and } from "drizzle-orm"; 
+import { eq, and, inArray } from "drizzle-orm";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,34 +17,47 @@ export async function GET(request: Request) {
       .select({
         from: likes.from,
         to: likes.to,
-        id: likes.id
+        id: likes.id,
       })
       .from(likes)
       .where(eq(likes.from, id));
 
-    const gegenseitigeLikes = await Promise.all(
-      vonMirGelikt.map(async (like) => {
-        if (!like.to) return null; // Sicherheitscheck
+    if (vonMirGelikt.length === 0) {
+      return NextResponse.json([]);
+    }
 
-        const rueckLike = await db
-          .select()
-          .from(likes)
-          .where(
-            and(
-              eq(likes.from, like.to),  // hat der andere Nutzer mich auch geliked?
-              eq(likes.to, id)          // zielt der Like auf mich?
-            )
-          );
-
-        return rueckLike.length > 0 ? like : null;
+    // Ein einziger Query: Finde alle Likes, die auf mich zeigen
+    // und deren `from` in meiner Like-Liste steht
+    const rueckLikes = await db
+      .select({
+        from: likes.from,
+        to: likes.to,
       })
-    );
+      .from(likes)
+      .where(
+        and(
+          eq(likes.to, id), // zielt auf mich
+          inArray(
+            likes.from,
+            vonMirGelikt
+              .map((l) => l.to)
+              .filter((to): to is string => to !== null),
+          ), // von jemandem den ich geliked habe
+        ),
+      );
 
-    const gefilterteMatches = gegenseitigeLikes.filter((match) => match !== null);
+    // Match-Liste bauen: Nur die Likes, die in rueckLikes vorkommen
+    const matchedIds = new Set(rueckLikes.map((l) => l.from));
+    const gefilterteMatches = vonMirGelikt.filter(
+      (like) => like.to && matchedIds.has(like.to),
+    );
 
     return NextResponse.json(gefilterteMatches);
   } catch (error) {
     console.error("Fehler beim Abrufen der Matches:", error);
-    return NextResponse.json({ message: "Serverfehler beim Abruf" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Serverfehler beim Abruf" },
+      { status: 500 },
+    );
   }
 }

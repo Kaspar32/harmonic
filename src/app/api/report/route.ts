@@ -1,30 +1,26 @@
-import { db } from "@/db";
+import { db} from "@/db";
+import { eq } from "drizzle-orm";
 import { reports } from "@/db/schema";
 import { NextRequest, NextResponse } from "next/server";
+import { users } from "@/db/schema"; 
+import { getAuthenticatedUserId } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
-  let userfromAuth;
-  try {
-    const res = await fetch("http://localhost:3000/api/auth/me", {
-      method: "GET",
-      headers: {
-        cookie: req.headers.get("cookie") ?? "",
-      },
-    });
+  
 
-    if (res.ok) {
-      const UserData = await res.json();
-      userfromAuth = UserData;
-    }
-  } catch (err) {
-    console.error("Error fetching user:", err);
-  }
-
-  if (!userfromAuth) {
+  const userId = await getAuthenticatedUserId(req);
+  if (!userId) {
     return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 });
   }
 
-  if (userfromAuth.roles !== "admin") {
+
+  // Rolle aus DB abrufen (da userfromAuth nur uuid hat, nicht roles)
+  const [dbUser] = await db
+    .select({ roles: users.roles })
+    .from(users)
+    .where(eq(users.uuid, userId));
+
+  if (dbUser?.roles !== "admin") {
     return NextResponse.json({ error: "Keine Berechtigung" }, { status: 403 });
   }
 
@@ -41,26 +37,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
-  let userfromAuth;
-  try {
-    const res = await fetch("http://localhost:3000/api/auth/me", {
-      method: "GET",
-      headers: {
-        cookie: req.headers.get("cookie") ?? "",
-      },
-    });
 
-    if (res.ok) {
-      const UserData = await res.json();
-      userfromAuth = UserData;
-    }
-  } catch (err) {
-    console.error("Error fetching user:", err);
-  }
-
-  if (!userfromAuth) {
+  const userId = await getAuthenticatedUserId(req);
+  if (!userId) {
     return NextResponse.json({ error: "Nicht eingeloggt" }, { status: 401 });
   }
+
 
   try {
     const { reportedId, reason } = await req.json();
@@ -74,7 +56,7 @@ export async function POST(req: Request) {
 
     const [report] = await db
       .insert(reports)
-      .values({ reportedId, reporterId: userfromAuth.uuid, reason })
+      .values({ reportedId, reporterId: userId, reason })
       .returning();
 
     return NextResponse.json({ success: true, report });

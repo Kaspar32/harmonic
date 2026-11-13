@@ -528,12 +528,12 @@ export default function Profile() {
                   Einstellungen
                 </button>
               </Link>
-              <Image
+                <Image
                 src="/images/broom.svg"
                 width={40}
                 height={40}
                 alt="like"
-                className="position relative left-90 "
+                className="mt-4 block mx-auto"
               />
             </p>
           </div>
@@ -542,7 +542,7 @@ export default function Profile() {
         <div>
           <div>
             {/* button container */}
-            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-25">
+            <div className="fixed top-1/2 left-0 right-0 z-60 flex justify-between items-center px-2 sm:px-8 pointer-events-auto translate-y-20 sm:translate-y-25 pb-4 sm:pb-0">
               {/*--dislike burron- */}
               <button
                 className="cursor-pointer flex justify-center items-center w-16 h-16 md:w-20 md:h-20 bg-red-200 border-2 rounded-2xl border-blue-500 shadow-lg hover:rotate-[-20deg] hover:scale-125 transition-transform duration-300"
@@ -649,7 +649,7 @@ export default function Profile() {
                 </div>
               )}
               <div
-                className="relative w-full max-w-[550px] h-[450px] overflow-hidden md:h-[550px] mx-auto rounded-2xl"
+                className="relative w-full max-w-[550px] h-[400px] sm:h-[450px] md:h-[550px] overflow-hidden mx-auto rounded-2xl"
                 onClick={handleClick}
               >
                 <div className="flex space-x-2 relative top-2 z-10">
@@ -678,7 +678,7 @@ export default function Profile() {
                       width={650}
                       className={` z-0 absolute top-0 left-0 rounded-3xl shadow-2xl pb-10 object-cover transition-opacity duration-500 ${
                         index === currentIndex ? "opacity-100" : "opacity-0"
-                      } w-[650px] h-[650px] `}
+                      } w-full h-full` }
                     />
                   ))}
 

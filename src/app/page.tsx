@@ -9,7 +9,7 @@ export default function SalesPage() {
       {!user ? (
         <div className="border-1 p-20 border-blue-500 rounded-2xl shadow-2xl bg-blue-100">
           <div className="flex flex-wrap justify-center gap-5">
-            <div className="p-4 border-blue-200 border-2 w-250 bg-blue-50 rounded-xl text-4xl font-extrabold text-blue-300 shadow-lg">
+            <div className="p-4 border-blue-200 border-2 w-full sm:w-250 bg-blue-50 rounded-xl text-4xl font-extrabold text-blue-300 shadow-lg">
               <p>
                 Finde Menschen, die deinen{" "}
                 <a className="text-blue-500">Sound</a> fühlen.
@@ -20,7 +20,7 @@ export default function SalesPage() {
               </p>
             </div>
 
-            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
+            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-full sm:w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
               <p className="text-2xl font-bold text-blue-500 mb-2">Features</p>
               <ul className="text-sm font-bold text-gray-500 space-y-1">
                 <li>• Dating das nach Musik klingt</li>
@@ -30,7 +30,7 @@ export default function SalesPage() {
               </ul>
             </div>
 
-            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
+            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-full sm:w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
               <p className="text-2xl font-bold text-blue-500 mb-2">Preise</p>
               <div className="space-y-2">
                 <div>
@@ -53,7 +53,7 @@ export default function SalesPage() {
               </div>
             </div>
 
-            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
+            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-full sm:w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
               <p className="text-2xl font-bold text-blue-500 mb-2">Warum Harmonic?</p>
               <ul className="text-sm font-bold text-gray-500 space-y-1">
                 <li>• 78% mehr tiefe Gespräche nach dem ersten Match</li>
@@ -62,7 +62,7 @@ export default function SalesPage() {
               </ul>
             </div>
 
-            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
+            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-full sm:w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
               <p className="text-2xl font-bold text-blue-500 mb-2">So einfach geht's</p>
               <ol className="text-sm font-bold text-gray-500 space-y-1">
                 <li>1. Kostenlos registrieren</li>
@@ -71,7 +71,7 @@ export default function SalesPage() {
               </ol>
             </div>
 
-            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
+            <div className="transition-all duration-300 border-1 rounded-2xl p-4 w-full sm:w-80 md:w-150 bg-blue-50 shadow-lg border-blue-400">
               <p className="text-2xl font-bold text-blue-500 mb-2">FAQ</p>
               <details className="text-sm">
                 <summary className="font-bold text-gray-500 cursor-pointer">Wie funktioniert das Matching?</summary>
@@ -85,7 +85,7 @@ export default function SalesPage() {
 
             <a
               href="/loggin"
-              className="flex justify-center items-center w-full md:w-100 font-extrabold text-2xl md:text-4xl p-4 text-blue-500 bg-white shadow border-b-blue-100 border-t-2 border-t-white border-b-2 hover:bg-blue-50 hover:shadow-md rounded-2xl"
+              className="flex justify-center items-center w-full sm:max-w-md md:w-100 font-extrabold text-2xl md:text-4xl p-4 text-blue-500 bg-white shadow border-b-blue-100 border-t-2 border-t-white border-b-2 hover:bg-blue-50 hover:shadow-md rounded-2xl"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +104,7 @@ export default function SalesPage() {
 
             <a
               href="/User_register"
-              className="flex justify-center items-center w-full md:w-100 font-extrabold text-2xl md:text-4xl p-4 text-blue-500 bg-white shadow border-b-blue-100 border-t-2 border-t-white border-b-2 hover:bg-blue-50 hover:shadow-md rounded-2xl"
+              className="flex justify-center items-center w-full sm:max-w-md md:w-100 font-extrabold text-2xl md:text-4xl p-4 text-blue-500 bg-white shadow border-b-blue-100 border-t-2 border-t-white border-b-2 hover:bg-blue-50 hover:shadow-md rounded-2xl"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

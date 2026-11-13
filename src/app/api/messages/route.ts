@@ -4,7 +4,6 @@ import { eq, and, or } from "drizzle-orm";
 import { getAuthenticatedUserId } from "@/lib/auth";
 
 export async function GET(req: { url: string | URL }) {
-
   try {
     // Extract chatPartner from query parameters
     const url = new URL(req.url);
@@ -13,6 +12,7 @@ export async function GET(req: { url: string | URL }) {
     if (!chatPartner) {
 
 
+      console.log("Test");
       // Wenn Partner nicht im Url dann ists für die Notification im Footer
       const userId = await getAuthenticatedUserId(req as Request);
 
@@ -28,15 +28,19 @@ export async function GET(req: { url: string | URL }) {
         .from(users)
         .where(eq(users.uuid, userId));
 
-
-      const name= userResult[0].name?.toString();
+      const name = userResult[0].name?.toString();
       if (!name) throw new Error("name is required");
 
-      // Für Notification sind nur Messages toUser 
+      // Für Notification sind nur Messages toUser
       const msgs = await db
         .select()
         .from(messages)
-        .where(eq(messages.toUser, name ))
+        .where(
+          and(
+            eq(messages.toUser, name),
+            eq(messages.read, false), // ← nur ungelesene
+          ),
+        )
         .orderBy(messages.createdAt);
 
       return new Response(JSON.stringify(msgs), {
