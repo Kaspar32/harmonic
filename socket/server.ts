@@ -1,8 +1,11 @@
 // server.ts
+import "dotenv/config";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import jwt from "jsonwebtoken";
 import { db } from "../src/db/index.ts";
-import { messages } from "../src/db/schema.ts";
+import { likes, messages, users } from "../src/db/schema.ts";
+import { and, eq } from "drizzle-orm";
 
 const httpServer = createServer();
 
@@ -18,58 +21,108 @@ const io = new Server(httpServer, {
   transports: ["websocket", "polling"], // WebSocket bevorzugen
 });
 
-interface ChatMessage {
-  id: number;
+interface ChatMessageInput {
   content: string;
-  fromUser: string;
   toUser: string;
-  createdAt: string;
 }
 
 const onlineUsers = new Map<string, Set<string>>();
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  const secret = process.env.JWT_SECRET;
+
+  if (!token || !secret) {
+    return next(new Error("Nicht authentifiziert"));
+  }
+
+  try {
+    const payload = jwt.verify(token, secret);
+
+    if (
+      typeof payload !== "object" ||
+      payload === null ||
+      payload.purpose !== "socket" ||
+      typeof payload.userId !== "string"
+    ) {
+      return next(new Error("Ungültiger Socket-Token"));
+    }
+
+    socket.data.userId = payload.userId;
+    next();
+  } catch {
+    next(new Error("Ungültiger Socket-Token"));
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("Neue Verbindung:", socket.id);
+  const userId = socket.data.userId as string;
+  const userRoom = `user:${userId}`;
 
-  socket.on("user-connect", (data: { userId: string }) => {
-    const userId = data.userId;
-    if (!onlineUsers.has(userId)) {
-      onlineUsers.set(userId, new Set());
-    }
-    onlineUsers.get(userId)!.add(socket.id);
-    console.log(`${userId} verbunden`);
-    
-    // Sende aktuelle Online-Users an alle
-    const allOnlineUsers = Array.from(onlineUsers.keys());
-    io.emit("online_users", allOnlineUsers);
-    io.emit("user-online", { userId, online: true });
-  });
+  socket.join(userRoom);
 
-  socket.on("join-room", (data: { room: string; user: string }) => {
-    socket.join(data.room);
-    console.log(`${data.user} ist dem Raum ${data.room} beigetreten.`);
+  if (!onlineUsers.has(userId)) {
+    onlineUsers.set(userId, new Set());
+  }
+  onlineUsers.get(userId)!.add(socket.id);
 
-    const userId = data.user;
+  io.emit("online_users", Array.from(onlineUsers.keys()));
+  io.emit("user-online", { userId, online: true });
 
-    if (!onlineUsers.has(userId)) {
-      onlineUsers.set(userId, new Set());
-    }
-
-    onlineUsers.get(userId)!.add(socket.id);
-
-    io.emit("user_online", userId);
-
-  });
-
-  socket.on("chat message", async (msg: ChatMessage) => {
+  socket.on("chat message", async (msg: ChatMessageInput) => {
     try {
+      if (
+        !msg ||
+        typeof msg.content !== "string" ||
+        typeof msg.toUser !== "string" ||
+        !msg.content.trim() ||
+        msg.content.length > 2000
+      ) {
+        socket.emit("chat error", "Ungültige Nachricht");
+        return;
+      }
+
+      const [sender] = await db
+        .select({ name: users.name })
+        .from(users)
+        .where(eq(users.uuid, userId))
+        .limit(1);
+
+      const [recipient] = await db
+        .select({ uuid: users.uuid, name: users.name })
+        .from(users)
+        .where(eq(users.name, msg.toUser))
+        .limit(1);
+
+      if (!sender?.name || !recipient?.name) {
+        socket.emit("chat error", "Chatpartner nicht gefunden");
+        return;
+      }
+
+      const [outgoingLike] = await db
+        .select({ id: likes.id })
+        .from(likes)
+        .where(and(eq(likes.from, userId), eq(likes.to, recipient.uuid)))
+        .limit(1);
+
+      const [incomingLike] = await db
+        .select({ id: likes.id })
+        .from(likes)
+        .where(and(eq(likes.from, recipient.uuid), eq(likes.to, userId)))
+        .limit(1);
+
+      if (!outgoingLike || !incomingLike) {
+        socket.emit("chat error", "Kein gültiger Match");
+        return;
+      }
+
       const [savedMsg] = await db
         .insert(messages)
         .values({
-          content: msg.content,
-          fromUser: msg.fromUser,
-          toUser: msg.toUser,
-          createdAt: new Date(msg.createdAt),
+          content: msg.content.trim(),
+          fromUser: sender.name,
+          toUser: recipient.name,
         })
         .returning();
 
@@ -82,23 +135,23 @@ io.on("connection", (socket) => {
       };
 
       console.log("Nachricht weiterleiten:", messageToSend);
-      io.emit("chat message", messageToSend);
+      io.to(`user:${userId}`).to(`user:${recipient.uuid}`).emit("chat message", messageToSend);
     } catch (error) {
       console.error("Fehler beim Speichern der Nachricht:", error);
+      socket.emit("chat error", "Nachricht konnte nicht gespeichert werden");
     }
   });
 
   socket.on("disconnect", () => {
     console.log("Disconnect:", socket.id);
 
-    for (const [userId, sockets] of onlineUsers.entries()) {
-      sockets.delete(socket.id);
+    const sockets = onlineUsers.get(userId);
+    sockets?.delete(socket.id);
 
-      if (sockets.size === 0) {
-        onlineUsers.delete(userId);
-        console.log(`${userId} ist offline`);
-        io.emit("user-online", { userId, online: false });
-      }
+    if (sockets?.size === 0) {
+      onlineUsers.delete(userId);
+      console.log(`${userId} ist offline`);
+      io.emit("user-online", { userId, online: false });
     }
   });
 });

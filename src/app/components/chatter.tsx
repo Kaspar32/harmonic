@@ -32,6 +32,7 @@ export default function Chatter() {
 
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [chatError, setChatError] = useState("");
   const socketRef = useRef<Socket | null>(null);
 
   const [currentUser, setCurrentUser] = useState("");
@@ -111,72 +112,85 @@ export default function Chatter() {
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
-      transports: ["websocket", "polling"],
-    });
+    let cancelled = false;
+    let socket: Socket | null = null;
 
-    socket.on("connect", () => {
-      console.log("Verbunden mit Socket-Server:", socket.id);
-    });
+    async function connectSocket() {
+      const response = await fetch("/api/auth/socket-token", {
+        method: "POST",
+      });
 
-    socketRef.current = socket;
-
-    socket.on("chat message", (msg: Message) => {
-      if (!msg.content || !msg.fromUser || !msg.toUser) {
-        console.warn("Ungültige Nachricht empfangen:", msg);
+      if (!response.ok || cancelled) {
+        return;
       }
-      console.log("Nachricht empfangen im Client:", msg);
-      setMessages((prev) => {
-        const exists = prev.some((m) => m.id === msg.id);
-        if (exists) return prev;
-        return [...prev, msg];
+
+      const { token } = await response.json();
+      if (!token || cancelled) {
+        return;
+      }
+
+      socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+        auth: { token },
+        transports: ["websocket", "polling"],
       });
-    });
 
-    socket.on("online_users", (users: string[]) => {
-      setOnlineUsers(new Set(users));
-    });
+      socketRef.current = socket;
 
-    socket.on("user-online", (data: { userId: string; online: boolean }) => {
-      setOnlineUsers((prev) => {
-        const updated = new Set(prev);
-        if (data.online) {
-          updated.add(data.userId);
-        } else {
-          updated.delete(data.userId);
+      socket.on("connect", () => {
+        console.log("Verbunden mit Socket-Server:", socket?.id);
+      });
+
+      socket.on("connect_error", (error) => {
+        setChatError("Chat konnte nicht verbunden werden: " + error.message);
+        console.error("Socket-Authentifizierung fehlgeschlagen:", error.message);
+      });
+
+      socket.on("chat message", (msg: Message) => {
+        if (!msg.content || !msg.fromUser || !msg.toUser) {
+          return;
         }
-        return updated;
+
+        setMessages((prev) => {
+          const exists = prev.some((message) => message.id === msg.id);
+          if (exists) return prev;
+          return [...prev, msg];
+        });
       });
+
+      socket.on("chat error", (error: string) => {
+        setChatError(error);
+        console.error("Chatfehler:", error);
+      });
+
+      socket.on("online_users", (userIds: string[]) => {
+        setOnlineUsers(new Set(userIds));
+      });
+
+      socket.on("user-online", (data: { userId: string; online: boolean }) => {
+        setOnlineUsers((prev) => {
+          const updated = new Set(prev);
+          if (data.online) {
+            updated.add(data.userId);
+          } else {
+            updated.delete(data.userId);
+          }
+          return updated;
+        });
+      });
+    }
+
+    connectSocket().catch((error) => {
+      if (!cancelled) {
+        console.error("Socket konnte nicht verbunden werden:", error);
+      }
     });
 
-    // Beim Unmouten der Funktion wird der socket disconected
     return () => {
-      socket.disconnect();
+      cancelled = true;
+      socket?.disconnect();
+      socketRef.current = null;
     };
   }, [user]);
-
-  useEffect(() => {
-    if (!socketRef.current) return;
-
-    if (user?.uuid) {
-      console.log("Sende user-connect mit:", user.uuid);
-      socketRef.current.emit("user-connect", { userId: user.uuid });
-    } else {
-      console.log("User noch nicht geladen, warte...");
-    }
-  }, [user]);
-
-  // Beim Mounten der Komponente den User dem Raum hinzufügen
-
-  // Beim Mounten der Komponente den User dem Raum hinzufügen:::::::::::::::::::::::::::::::::::::::::::::
-  useEffect(() => {
-    if (!socketRef.current || !currentUser) return;
-
-    socketRef.current.emit("join-room", {
-      room: "test-room",
-      user: currentUser,
-    });
-  }, [currentUser]);
 
   const fetchMessages = async () => {
     if (!socketRef.current || !currentUser || !chatPartner) return;
@@ -205,15 +219,11 @@ export default function Chatter() {
     if (!socketRef.current || !input.trim() || !currentUser || !chatPartner)
       return;
 
-    const message: Message = {
-      id: Date.now(),
-      content: input,
-      fromUser: currentUser,
+    setChatError("");
+    socketRef.current.emit("chat message", {
+      content: input.trim(),
       toUser: chatPartner,
-      createdAt: new Date().toISOString(),
-    };
-
-    socketRef.current.emit("chat message", message);
+    });
 
     //setMessages((prev) => [...prev, message]);
     setInput("");
@@ -246,6 +256,7 @@ export default function Chatter() {
 
     setCurrentUser(data.name);
     setChatPartner(users[index].name);
+    setChatError("");
 
     //Pop-Up-Fenster öffnen
     setTimeout(() => {
@@ -557,6 +568,9 @@ export default function Chatter() {
             id="chatmessagewindow"
             className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
           >
+            {chatError && (
+              <p className="px-4 text-center text-sm text-red-600">{chatError}</p>
+            )}
             
             <div className="w-screen h-full p-4 md:p-10">
               {messages
