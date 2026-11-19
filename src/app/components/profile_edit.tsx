@@ -1535,7 +1535,7 @@ async function save_PW() {
 
             {/*---------- Anzeige ob der User ein Abo hat --------*/}
 
-            <div className="flex flex-row text-gray-300 text-3xl font-bold m-2 text-shadow-sm rounded-2xl mt-10">
+            <div className="flex flex-col text-gray-300 text-3xl font-bold m-2 text-shadow-sm rounded-2xl mt-10">
               Abonnement
               {hasAbo ? (
                 <p className="mt-2 ml-5 text-gray-300 text-xl">
@@ -1570,7 +1570,7 @@ async function save_PW() {
               className=" active:inset-shadow-amber-100 bg-yellow-50 border-b-2 border-b-amber-100 border-t-2 border-t-white mt-5 font-extrabold text-lg md:text-3x p-2 text-gray-300 shadow hover:bg-yellow-50 hover:shadow-md rounded-2xl"
               
             >
-              Abo verlängern!
+              Abo erstellen!
             </button>
                 </p>
 
