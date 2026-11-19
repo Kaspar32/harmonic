@@ -441,18 +441,26 @@ async function save_PW() {
   
 
   return (
-    <div className="flex md:flex-row flex-col h-full p-4 border-2 border-yellow-400 rounded-2xl shadow-2xl m-2 bg-yellow-50">
-      <h2 className=" text-gray-300 text-3xl font-bold ml-2 text-shadow-sm">
-        Bilder
-      </h2>
+    <div className="profile-edit-shell mx-auto flex min-h-full w-full max-w-7xl flex-col gap-5 rounded-2xl border-2 border-yellow-400 bg-yellow-50 p-3 shadow-xl sm:p-5">
+      <section className="rounded-2xl border-2 border-yellow-200 bg-white/70 p-3 shadow-sm sm:p-4">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-yellow-600">Profil</p>
+            <h2 className="text-2xl font-bold text-yellow-500 sm:text-3xl">Deine Bilder</h2>
+          </div>
+          <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">
+            Bis zu 5 Bilder
+          </span>
+        </div>
       {/*---------- Images und die Container --------*/}
       <Refactoring_Images />
+      </section>
 
-      <div className="flex flex-wrap md:flex-nowrap gap-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {/*---------- über mich --------*/}
-        <div className="flex-1">
-          <h2 className="  text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
-            Über Mich
+        <section className="rounded-2xl border-2 border-yellow-200 bg-white/70 p-3 shadow-sm sm:p-4">
+          <h2 className="mb-3 border-b-2 border-yellow-200 pb-2 text-2xl font-bold text-yellow-500 sm:text-3xl">
+            Über mich
           </h2>
 
           <div className="mb-4">
@@ -888,11 +896,11 @@ async function save_PW() {
               </PopUp>
             )}
           </div>
-        </div>
+        </section>
 
         {/*--------------- Genre -------------*/}
-        <div className="flex-1">
-          <h2 className=" text-gray-300 text-3xl font-bold m-2 text-shadow-sm ">
+        <section className="rounded-2xl border-2 border-yellow-200 bg-white/70 p-3 shadow-sm sm:p-4">
+          <h2 className="mb-3 border-b-2 border-yellow-200 pb-2 text-2xl font-bold text-yellow-500 sm:text-3xl">
             Musik
           </h2>
 
@@ -1626,7 +1634,7 @@ async function save_PW() {
 
              
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );

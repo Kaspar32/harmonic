@@ -680,7 +680,7 @@ export default function Profile() {
                       alt={`Bild ${img}`}
                       height={650}
                       width={650}
-                      className={` z-0 absolute top-0 left-0 rounded-3xl shadow-2xl pb-10 object-cover transition-opacity duration-500 ${
+                        className={` z-0 absolute top-0 left-0 rounded-3xl shadow-2xl pb-10 object-cover transition-opacity duration-500 ${
                         index === currentIndex ? "opacity-100" : "opacity-0"
                       } w-[650px] h-[650px] `}
                     />

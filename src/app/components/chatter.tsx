@@ -4,7 +4,7 @@ import { SetStateAction, useEffect, useRef, useState } from "react";
 import { UserType } from "../types/User";
 import { io, Socket } from "socket.io-client";
 import Popup from "./popup";
-import { Loader2, Music } from "lucide-react";
+import { Loader2, Music, Send, X } from "lucide-react";
 import ProfileSingleView from "./profile_single_view";
 import Superlike from "./superlike";
 import { useNotification } from "../context/NotificationContext";
@@ -103,9 +103,23 @@ export default function Chatter() {
 
   //Beim Rendern der Page ausführen
   useEffect(() => {
-    setLoading(true);
-    calculateMatch();
-    setLoading(false);
+    let cancelled = false;
+
+    async function loadMatches() {
+      setLoading(true);
+      try {
+        await calculateMatch();
+      } catch (error) {
+        if (!cancelled) console.error("Matches konnten nicht geladen werden:", error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    loadMatches();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   //Beim Rendern der Page ausführen damit ein neuer Socket erstellt wird :::::::::::::::::::::::::::::::::::::
@@ -459,33 +473,58 @@ export default function Chatter() {
   const [animateindex, setAnimateindex] = useState(0);
 
   useEffect(() => {
-  // Nur animieren während initialen Laden
-  if (!loading && images.length > 0) return;
-  
-  const interval = setInterval(() => {
-    setAnimateindex((prev) => (prev + 1) % images.length);
-  }, 200);
+    if (!loading || images.length === 0) return;
 
-  return () => clearInterval(interval);
-}, [loading, images.length]);
+    const interval = setInterval(() => {
+      setAnimateindex((prev) => (prev + 1) % images.length);
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [loading, images.length]);
 
   return (
-    <div className="flex flex-wrap gap-4 ml-4 mt-4 h-full overflow-y-auto ">
-      {loading && <Loader2 className=" animate-spin text-yellow-400" />}
+    <div className="min-h-full overflow-y-auto px-3 py-4 sm:px-5">
+      <div className="mx-auto flex max-w-7xl flex-col gap-5">
+        {loading && (
+          <div className="flex min-h-32 items-center justify-center rounded-2xl border-2 border-yellow-200 bg-yellow-50 text-yellow-500 shadow-sm">
+            <Loader2 className="mr-2 size-6 animate-spin" aria-hidden="true" />
+            <span>Matches werden geladen ...</span>
+          </div>
+        )}
 
-      <Superlike
-        onImageClick={(user) => {
-          setSelectedSuperlikeUser(user);
-          setOpenSuperlikeProfile(true);
-        }}
-      />
+        {!loading && (
+          <Superlike
+            onImageClick={(selectedUser) => {
+              setSelectedSuperlikeUser(selectedUser);
+              setOpenSuperlikeProfile(true);
+            }}
+          />
+        )}
+
+        {!loading && images.length === 0 && (
+          <div className="rounded-2xl border-2 border-dashed border-yellow-300 bg-yellow-50 px-5 py-10 text-center shadow-sm">
+            <p className="text-lg font-bold text-yellow-500">Noch keine Matches</p>
+            <p className="mt-1 text-sm text-gray-500">
+              Sobald jemand deinen Musikgeschmack teilt, erscheint der Chat hier.
+            </p>
+          </div>
+        )}
       {!loading && (
-        <div className="sm:flex sm:flex-wrap sm:gap-2 m-1 w-screen">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {images.map((item, index) => (
-            <div key={index}>
+            <div key={users[index]?.uuid ?? index}>
               <div
-                className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"}  transition-colors relative cursor-pointer w-full mb-4 sm:mb-0 sm:w-60 lg:w-90 h-30 border-2  hover:bg-yellow-100 border-yellow-300 rounded-2xl p-4 flex shadow-sm active:inset-shadow-sm/50 inset-shadow-black`}
-                onClick={() => handleClick(index)}>
+                role="button"
+                tabIndex={0}
+                aria-label={`Chat mit ${users[index]?.name || "Match"} öffnen`}
+                className={`${index === animateindex ? "bg-yellow-100" : "bg-yellow-50"} group relative flex min-h-32 w-full cursor-pointer items-center gap-3 rounded-2xl border-2 border-yellow-300 p-4 shadow-sm transition hover:-translate-y-0.5 hover:bg-yellow-100 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-500 active:shadow-inner`}
+                onClick={() => handleClick(index)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    handleClick(index);
+                  }
+                }}>
                 <Image
                   unoptimized
                   src={
@@ -495,31 +534,29 @@ export default function Chatter() {
                   }
                   height={70}
                   width={80}
-                  className="rounded-4xl border-2 border-yellow-300 "
+                  className="size-16 shrink-0 rounded-full border-2 border-yellow-300 object-cover sm:size-[72px]"
                   alt="Profilbild"
                   onClick={(e) => {e.stopPropagation();handlePPClick(index)}}
                 />
 
-                <p  
-                  className="flex text-xl font-bold text-yellow-300 items-center ml-4"
-                >
-                  Schreibe {users[index]?.name || ""}
-                </p>
-
-                <label>
-                  {onlineUsers.has(users[index]?.uuid) ? (
-                    <span className="text-green-500 text-s  ml-2">ON</span>
-                  ) : (
-                    <span className="text-gray-500 text-s ml-2">OFF</span>
-                  )}
-                </label>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-lg font-bold text-yellow-500">
+                    {users[index]?.name || "Unbekanntes Match"}
+                  </p>
+                  <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold">
+                    <span className={`size-2 rounded-full ${onlineUsers.has(users[index]?.uuid) ? "bg-green-500" : "bg-gray-400"}`} aria-hidden="true" />
+                    <span className={onlineUsers.has(users[index]?.uuid) ? "text-green-600" : "text-gray-500"}>
+                      {onlineUsers.has(users[index]?.uuid) ? "Online" : "Offline"}
+                    </span>
+                  </div>
+                </div>
 
                 {newMessages[index] && (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"
                     fill="currentColor"
-                    className="size-6 text-red-700 mt-15 ml-10 animate-bounce"
+                    className="size-6 shrink-0 text-red-700 animate-bounce"
                   >
                     <path d="M19.5 22.5a3 3 0 0 0 3-3v-8.174l-6.879 4.022 3.485 1.876a.75.75 0 1 1-.712 1.321l-5.683-3.06a1.5 1.5 0 0 0-1.422 0l-5.683 3.06a.75.75 0 0 1-.712-1.32l3.485-1.877L1.5 11.326V19.5a3 3 0 0 0 3 3h15Z" />
                     <path d="M1.5 9.589v-.745a3 3 0 0 1 1.578-2.642l7.5-4.038a3 3 0 0 1 2.844 0l7.5 4.038A3 3 0 0 1 22.5 8.844v.745l-8.426 4.926-.652-.351a3 3 0 0 0-2.844 0l-.652.351L1.5 9.589Z" />
@@ -528,7 +565,7 @@ export default function Chatter() {
 
                 {sameTasteMessages[index] && (
                   <Music
-                    className={`flex w-11 h-11 mt-10 mr-10 text-yellow-400`}
+                    className="size-5 shrink-0 text-yellow-500"
                   />
                 )}
 
@@ -538,7 +575,7 @@ export default function Chatter() {
                   viewBox="0 0 24 24"
                   strokeWidth="1.5"
                   stroke="currentColor"
-                  className="cursor-pointer size-6 text-red-300 border-2 hover:text-red-500 border-red-300 hover:border-red-400 bg-red-50 hover:bg-red-100 rounded-full absolute top-[-4] right-[-4]"
+                  className="absolute right-2 top-2 size-6 cursor-pointer rounded-full border-2 border-red-200 bg-red-50 p-0.5 text-red-300 hover:border-red-400 hover:bg-red-100 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-400"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCross(index);
@@ -555,24 +592,37 @@ export default function Chatter() {
           ))}
         </div>
       )}
+    </div>
 
       {openChat && (
 
         
-        <div className="fixed inset-0 flex items-center justify-center w-screen h-dvh   bg-white/95">
-          
-        <div className="flex justify-start text-xl font-bold text-yellow-500 bg-white absolute top-10 left-10 shadow rounded">{chatPartner}</div>
-          
-          
+        <div className="fixed inset-0 z-50 flex h-dvh w-screen items-center justify-center bg-white/95 p-3 sm:p-6">
+          <div className="flex h-full w-full max-w-3xl flex-col overflow-hidden rounded-2xl border-2 border-yellow-200 bg-white shadow-xl">
+          <div className="flex shrink-0 items-center justify-between border-b border-yellow-200 bg-yellow-50 px-4 py-3 sm:px-6">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-yellow-600">Chat</p>
+              <h2 className="text-lg font-bold text-yellow-500">{chatPartner}</h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Chat schließen"
+              className="rounded-full p-2 text-gray-500 transition hover:bg-yellow-100 hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-yellow-500"
+              onClick={() => setopenChat(false)}
+            >
+              <X className="size-5" aria-hidden="true" />
+            </button>
+          </div>
+
           <div
             id="chatmessagewindow"
-            className="max-h-[600px] space-y-4 overflow-x-hidden mb-4"
+            className="min-h-0 flex-1 space-y-4 overflow-y-auto overflow-x-hidden bg-white px-3 py-4 sm:px-6"
           >
             {chatError && (
               <p className="px-4 text-center text-sm text-red-600">{chatError}</p>
             )}
             
-            <div className="w-screen h-full p-4 md:p-10">
+            <div className="space-y-2">
               {messages
                 .filter(
                   (msg) =>
@@ -593,14 +643,14 @@ export default function Chatter() {
                       }`}
                     >
                       <div
-                        className={` min-w-[200px] max-w-[400px] p-2 rounded-lg  ${
+                        className={`max-w-[85%] p-3 rounded-2xl ${
                           isCurrentUser
-                            ? "bg-blue-500 text-white rounded-br-none w-max"
-                            : "bg-gray-200 text-black rounded-bl-none w-max"
+                            ? "bg-blue-500 text-white rounded-br-none"
+                            : "bg-gray-200 text-black rounded-bl-none"
                         }`}
                       >
-                        <p className="text-sm text-clip">{msg.content}</p>
-                        <span className="block text-xs text-gray-400 mt-1">
+                        <p className="break-words text-sm">{msg.content}</p>
+                        <span className="mt-1 block text-[11px] text-gray-400">
                           {new Date(msg.createdAt).toLocaleString("de-DE", {
                             weekday: "long",
                             day: "2-digit",
@@ -617,9 +667,10 @@ export default function Chatter() {
             </div>
           </div>
 
-          {/* Eingabefeld */}
-          <div className="fixed bottom-20 left-0 right-0 flex items-center gap-2 p-4 pb-[env(safe-area-inset-bottom)]">
+          <div className="flex shrink-0 items-center gap-2 border-t border-yellow-200 bg-yellow-50 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:p-4">
             <input
+              aria-label="Nachricht schreiben"
+              placeholder="Nachricht schreiben ..."
               value={input}
               onChange={handleChange}
               onKeyDown={(e) => {
@@ -628,32 +679,20 @@ export default function Chatter() {
                   sendMessage();
                 }
               }}
-              className="flex-1 text-2xl pt-1 mr-15 border-3 border-yellow-500 rounded-2xl focus:outline-none z-50"
+              className="min-w-0 flex-1 rounded-xl border-2 border-yellow-400 bg-white px-3 py-2 text-base outline-none transition placeholder:text-gray-400 focus:border-yellow-600 focus:ring-2 focus:ring-yellow-200 sm:text-lg"
             />
 
             <button
-              className="fixed right-5 bg-yellow-500 text-white px-4 py-2 rounded-2xl transition-colors duration-300"
+              type="button"
+              aria-label="Nachricht senden"
+              disabled={!input.trim()}
+              className="rounded-xl bg-yellow-500 p-3 text-white transition-colors hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-50"
               onClick={sendMessage}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="size-6 text-black"
-              >
-                <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" />
-              </svg>
+              <Send className="size-5" aria-hidden="true" />
             </button>
           </div>
-
-          <button
-            className="fixed top-15 right-4 sm:top-23 sm:right-4 mt-6 px-4 py-2 bg-yellow-400 text-black font-semibold rounded hover:bg-yellow-200 transition-colors duration-300"
-            onClick={() => {
-              setopenChat(false);
-            }}
-          >
-            X
-          </button>
+          </div>
         </div>
       )}
 

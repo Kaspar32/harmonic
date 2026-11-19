@@ -29,6 +29,21 @@ button {
  @apply cursor-pointer
 }
 
+.profile-edit-shell h3 {
+  cursor: pointer;
+  border-top: 2px solid rgb(253 224 71 / 0.45);
+  background-color: rgb(255 255 255 / 0.55);
+  color: rgb(156 163 175);
+  padding: 0.65rem 0.75rem;
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+.profile-edit-shell h3:hover {
+  background-color: rgb(255 255 255 / 0.95);
+  color: rgb(234 179 8);
+  box-shadow: 0 4px 12px rgb(161 98 7 / 0.12);
+}
+
 @keyframes blink {
   0%, 50%, 100% { opacity: 1; }
   25%, 75% { opacity: 0; }
