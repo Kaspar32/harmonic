@@ -1,10 +1,12 @@
 import { db } from "@/db";
-import { users, profilePictures, settings } from "@/db/schema";
+import { users, settings } from "@/db/schema";
 import { faker } from "@faker-js/faker";
 import bcrypt from "bcryptjs";
 import Genres from "@/app/data/Genres";
 import IchSucheData from "@/app/data/IchSucheData";
 import Interests from "@/app/data/Intrests";
+import path from "path";
+import fs from "fs/promises";
 
 async function urlToBase64(url: string) {
   const res = await fetch(url);
@@ -14,7 +16,6 @@ async function urlToBase64(url: string) {
 
 export async function createRandomProfiles(count: number) {
   const userEntries = [];
-  const picturesEntry = [];
   const settingsEntry = [];
 
   for (let i = 0; i < count; i++) {
@@ -90,6 +91,8 @@ export async function createRandomProfiles(count: number) {
       .slice(0, randomIchSucheNumber)
       .map((s) => s.name);
 
+    const profile_pics= [`${faker.string.uuid()}.png`];
+
     userEntries.push({
       uuid,
       password,
@@ -102,6 +105,7 @@ export async function createRandomProfiles(count: number) {
       intressen,
       ausbildung,
       ichsuche,
+      profile_pics,
     });
 
     const avatarUrl =
@@ -110,13 +114,14 @@ export async function createRandomProfiles(count: number) {
         : faker.image.personPortrait({ sex });
     const base64 = await urlToBase64(avatarUrl);
 
-    picturesEntry.push({
-      id: faker.string.uuid(),
-      userUuid: uuid,
-      imageBase64: "data:image/jpeg;base64," + base64,
-      imageBase64_blurred: base64,
-      position: 0,
-    });
+    const buffer = Buffer.from(base64, "base64");
+    const filePath = path.join(
+            process.cwd(),
+            "uploads/images",
+            profile_pics[0],
+          );
+
+    await fs.writeFile(filePath, buffer);
 
     const interessenArray = ["mann", "frau", "divers", "alle"];
     const intresse =
@@ -130,7 +135,6 @@ export async function createRandomProfiles(count: number) {
   }
 
   await db.insert(users).values(userEntries);
-  await db.insert(profilePictures).values(picturesEntry);
   await db.insert(settings).values(settingsEntry);
 
   console.log(`${count} fake profile erstellt lol`);

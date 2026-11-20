@@ -2,6 +2,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Header from "./components/header";
 import Footer from "./components/footer";
 import "./globals.css";
+import {UserProvider} from "@/app/context/UserContext";
+import { NotificationProvider } from "./context/NotificationContext";
 
 
 const geistSans = Geist({
@@ -24,16 +26,22 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <UserProvider>
+        <NotificationProvider>
+
         <div className="flex flex-col h-screen ">
           <div className="sticky top-0 z-50">
             <Header />
           </div>
 
-          <div className="flex-1 bg-white z-30"> {children}</div>
+          <div className="flex-1 bg-white z-80"> {children}</div>
           <div className="sticky bottom-0 z-50">
             <Footer />
           </div>
         </div>
+
+        </NotificationProvider>
+        </UserProvider>
       </body>
     </html>
   );

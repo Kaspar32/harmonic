@@ -1,10 +1,10 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useUser } from "@/app/context/UserContext";
 
 export default function AdminPanel() {
-  const [user, setUser] = useState<{ name: string; roles: string } | null>(
-    null
-  );
+  const {user}= useUser();
+
   const [input, setInput] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -22,13 +22,6 @@ type Reports = {
   const [fakeUsersEnabled, setFakeUsersEnabled] = useState<boolean>();
 
   useEffect(() => {
-    fetch("/api/auth")
-      .then((res) => {
-        if (!res.ok) throw new Error("Nicht eingeloggt oder Fehler");
-        return res.json();
-      })
-      .then((data) => setUser(data))
-      .catch(() => setUser(null));
 
     fetch("/api/report")
       .then((res) => res.json())
@@ -185,9 +178,6 @@ type Reports = {
                 )}
               </div>
             </div>
-
-
-
           </div>
         </div>
       )}

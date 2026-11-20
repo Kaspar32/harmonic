@@ -1,22 +1,42 @@
-import { pgTable, serial, text, integer, jsonb, uuid, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { varchar, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  serial,
+  text,
+  integer,
+  jsonb,
+  uuid,
+  timestamp,
+  boolean,
+  doublePrecision,
+} from "drizzle-orm/pg-core";
 
-export const users = pgTable('users', {
-  
-  id: serial('id').primaryKey(),
-  uuid: uuid('uuid').defaultRandom().notNull().unique(),
-  password: text('passwort'),
-  name: text('name'),
-  alter: integer('alter'),
-  geschlecht: text('geschlecht'),
-  groesse: integer('groesse'),
-  ausbildung: text('ausbildung'),
-  intressen: jsonb('intressen').$type<string[]>(),
-  ichsuche:jsonb('ichsuche').$type<string[]>(),
-  genres: jsonb('genres').$type<string[]>(),
+export const 
+users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  uuid: uuid("uuid").defaultRandom().notNull().unique(),
+  password: text("passwort"),
+  name: text("name"),
+  alter: integer("alter"),
+  geburtstag: timestamp("geburtstag"),
+  geschlecht: text("geschlecht"),
+  groesse: integer("groesse"),
+  ausbildung: text("ausbildung"),
+  intressen: jsonb("intressen").$type<string[]>(),
+  ichsuche: jsonb("ichsuche").$type<string[]>(),
+  genres: jsonb("genres").$type<string[]>(),
   favorite_track: jsonb("favorite_track"),
   favorite_artist: jsonb("favorite_artist"),
-  roles: text('roles'),
+  roles: text("roles"),
   fakeUsersEnabled: boolean().default(true),
+  profile_pics: jsonb("profile_pics"),
+  location: text("location"),
+  locationid: integer("locationid"),
+  deleted: boolean().default(false),
+  verificationEmail: varchar('verification_email', { length: 100 }),
+  verificationToken: varchar('verification_token', { length: 100 }),
+  email: varchar("email", { length: 100 }),
+  last_match_check: timestamp("last_match_check"),
 });
 
 export const profilePictures = pgTable("profile_pictures", {
@@ -24,24 +44,29 @@ export const profilePictures = pgTable("profile_pictures", {
   userUuid: uuid("user_id").references(() => users.uuid),
   imageBase64: text("image_base64"),
   imageBase64_blurred: text("image_base64_blurred"), // Base64 als Text
-  position: integer("position")    
+  position: integer("position"),
 });
 
-export const likes = pgTable("likes",{
+export const likes = pgTable("likes", {
   id: serial("id").primaryKey(),
   from: uuid("from").references(() => users.uuid),
   to: uuid("to").references(() => users.uuid),
   likedAt: timestamp("liked_at").defaultNow(),
+});
 
-} );
+export const superlikes = pgTable("superlikes", {
+  id: serial("id").primaryKey(),
+  from: uuid("from").references(() => users.uuid),
+  to: uuid("to").references(() => users.uuid),
+  likedAt: timestamp("liked_at").defaultNow(),
+});
 
-export const dislikes = pgTable("dislikes",{
+export const dislikes = pgTable("dislikes", {
   id: serial("id").primaryKey(),
   from: uuid("from").references(() => users.uuid),
   to: uuid("to").references(() => users.uuid),
   dislikedAt: timestamp("disliked_at").defaultNow(),
-
-} );
+});
 
 export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
@@ -49,13 +74,17 @@ export const messages = pgTable("messages", {
   fromUser: text("from_user").notNull(),
   toUser: text("to_user").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  read: boolean().default(false),
 });
 
 export const settings = pgTable("settings", {
   id: serial("id").primaryKey(),
   intresse: text("intresse"),
   alter: jsonb("alter").$type<number[]>(),
-  uuid: uuid("uuid").references(() => users.uuid).notNull(),
+  uuid: uuid("uuid")
+    .references(() => users.uuid)
+    .notNull(),
+  radius: integer("radius"),
 });
 
 export const reports = pgTable("reports", {
@@ -68,9 +97,49 @@ export const reports = pgTable("reports", {
 
 export const questionaires = pgTable("questionaires", {
   id: serial("id").primaryKey(),
-  uuid: uuid("user_uuid").references(() => users.uuid).notNull(),
+  uuid: uuid("user_uuid")
+    .references(() => users.uuid)
+    .notNull(),
   answers: jsonb("answers").$type<Record<string, string>>().notNull(),
-}); 
+});
+
+export const Abos = pgTable("abos", {
+  id: serial("id").primaryKey(),
+  user_uuid: uuid("user_uuid")
+    .references(() => users.uuid)
+    .notNull(),
+  abo: boolean().default(false),
+  start_date: timestamp("start_date").defaultNow().notNull(),
+  end_date: timestamp("end_date").notNull(),
+});
+
+export const swissLoc = pgTable(
+  "swissLoc",
+  {
+    id: integer("id").primaryKey().notNull(),
+    zipCode: varchar("zip_code", { length: 6 }).default(""),
+    cityName: varchar("city_name", { length: 50 }).default(""),
+    cantonNameShort: varchar("canton_name_short", { length: 2 }).default(""),
+    cantonNameLong: varchar("canton_name_long", { length: 25 }).notNull(),
+    iLatitude: doublePrecision("iLatitude"),
+    iLongitude: doublePrecision("iLongitude"),
+  },
+  (table) => ({
+    pk: uniqueIndex("swissLoc_pkey").on(table.id),
+  }),
+);
 
 
+export const boosts = pgTable("boosts", {
+  id: serial("id").primaryKey(),
 
+  uuid: uuid("user_uuid")
+    .notNull().references(() => users.uuid),
+
+  startsAt: timestamp("starts_at").notNull(),
+
+  endsAt: timestamp("ends_at").notNull(),
+
+  multiplier: integer("multiplier")
+    .default(150),
+});

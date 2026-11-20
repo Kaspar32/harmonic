@@ -19,7 +19,6 @@ const Interests = [
   { name: "Camping", selected: false },
   { name: "Meditation", selected: false },
   { name: "Backen", selected: false },
-  // Neue hinzugefügt
   { name: "Schach", selected: false },
   { name: "Kalligrafie", selected: false },
   { name: "Astronomie", selected: false },

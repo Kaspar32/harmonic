@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { eq, and, or } from "drizzle-orm";
 
 export async function GET(req: { url: string | URL }) {
+
   try {
     // Extract chatPartner from query parameters
     const url = new URL(req.url);
@@ -54,7 +55,7 @@ export async function GET(req: { url: string | URL }) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    // Fethcing name for uuid
+    // Fetching name for uuid
     const userResult = await db
       .select({ name: users.name })
       .from(users)

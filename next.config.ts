@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+
+    domains: ["api.deezer.com"],
+
+    localPatterns: [
+      {
+        pathname: '/images/**', // alle Bilder im /images Ordner
+        // query erlaubt optional ?blur=1
+      },
+    ],
   },
 };
 

@@ -12,7 +12,24 @@ export async function GET() {
  
   if (!userId) return new Response('Not logged in');
  
-  const userData = await db.select().from(users).where(eq(users.uuid, userId)).limit(1);
+  const userData = await db.select({uuid: users.uuid,
+    name: users.name,
+    geschlecht: users.geschlecht,
+    alter: users.alter,
+    geburtstag: users.geburtstag,
+    groesse: users.groesse,
+    ausbildung: users.ausbildung,
+    intressen: users.intressen,
+    ichsuche: users.ichsuche,
+    genres: users.genres,
+    favorite_track: users.favorite_track,
+    favorite_artist: users.favorite_artist,
+    roles: users.roles,
+    fakeUsersEnabled: users.fakeUsersEnabled,
+    profile_pics: users.profile_pics,
+    location: users.location,
+    email: users.email,
+    last_match_check: users.last_match_check,}).from(users).where(eq(users.uuid, userId)).limit(1);
  
  
   if (userData.length === 0) return new Response('User not found', { status: 404 });
